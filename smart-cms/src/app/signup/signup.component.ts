@@ -15,6 +15,7 @@ export class SignupComponent {
   lastName: string = '';
   email: string = '';
   phone: string = '';
+  password: string = '';
   employeeId: string = '';
   department: string = '';
   designation: string = '';
@@ -59,6 +60,14 @@ export class SignupComponent {
         }
         break;
 
+      case 'password':
+        if (!this.password.trim()) {
+          this.errors['password'] = 'Password is required';
+        } else if (this.password.length < 8) {
+          this.errors['password'] = 'Password must be at least 8 characters';
+        }
+        break;
+
       case 'employeeId':
         if (!this.employeeId.trim()) {
           this.errors['employeeId'] = 'Employee ID is required';
@@ -90,6 +99,7 @@ export class SignupComponent {
     this.validateField('firstName');
     this.validateField('lastName');
     this.validateField('email');
+    this.validateField('password');
     this.validateField('employeeId');
     this.validateField('department');
     this.validateField('designation');
@@ -109,11 +119,12 @@ export class SignupComponent {
       firstName: this.firstName.trim(),
       lastName: this.lastName.trim(),
       email: this.email.trim().toLowerCase(),
+      phone: this.phone.trim() || undefined,
+      password: this.password,
       employeeId: this.employeeId.trim().toUpperCase(),
       department: this.department.trim(),
       designation: this.designation.trim(),
       employmentType: this.employmentType,
-      phone: this.phone.trim() || undefined,
       joiningDate: this.joiningDate || undefined,
     };
   }

@@ -26,36 +26,51 @@
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-2">
-                  <label class="text-sm font-medium text-gray-300">First Name <span
-                      class="text-[#EE964B]">*</span></label>
+                <div class="flex flex-col gap-2">
+                  <label class="text-sm font-medium text-gray-300">First Name <span class="text-[#EE964B]">*</span></label>
                   <input type="text" [(ngModel)]="firstName" name="firstName" placeholder="Rohit"
                     class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
                   <p *ngIf="errors['firstName']" class="text-[#EE964B] text-xs">{{ errors['firstName'] }}</p>
                 </div>
-                <div class="space-y-2">
-                  <label class="text-sm font-medium text-gray-300">Last Name <span
-                      class="text-[#EE964B]">*</span></label>
+                <div class="flex flex-col gap-2">
+                  <label class="text-sm font-medium text-gray-300">Last Name <span class="text-[#EE964B]">*</span></label>
                   <input type="text" [(ngModel)]="lastName" name="lastName" placeholder="Sharma"
                     class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
                   <p *ngIf="errors['lastName']" class="text-[#EE964B] text-xs">{{ errors['lastName'] }}</p>
                 </div>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Email Address <span
-                    class="text-[#EE964B]">*</span></label>
-                <input type="email" [(ngModel)]="email" name="email" placeholder="rohit@company.com"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="errors['email']" class="text-[#EE964B] text-xs">{{ errors['email'] }}</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col gap-2">
+                  <label class="text-sm font-medium text-gray-300">Email Address <span class="text-[#EE964B]">*</span></label>
+                  <input type="email" [(ngModel)]="email" name="email" placeholder="rohit@company.com"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                  <p *ngIf="errors['email']" class="text-[#EE964B] text-xs">{{ errors['email'] }}</p>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label class="text-sm font-medium text-gray-300">Phone Number</label>
+                  <input type="tel" [ngModel]="phone" (ngModelChange)="phone = $event" (input)="onPhoneInput($event)" name="phone" placeholder="1234567890" maxlength="10"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                  <p *ngIf="errors['phone']" class="text-[#EE964B] text-xs">{{ errors['phone'] }}</p>
+                </div>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Phone Number</label>
-                <input type="tel" [(ngModel)]="phone" name="phone" placeholder="1234567890" maxlength="10"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="errors['phone']" class="text-[#EE964B] text-xs">{{ errors['phone'] }}</p>
-              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-300">Password <span class="text-[#EE964B]">*</span></label>
+                <div class="relative">
+                  <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="password" name="password" placeholder="Enter a strong password"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC] pr-10">
+                  <button type="button" (click)="togglePassword()" tabindex="-1"
+                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none">
+                    <span *ngIf="!showPassword">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    </span>
+                    <span *ngIf="showPassword">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592m3.104-2.727A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.965 9.965 0 01-4.293 5.411M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L6 6" /></svg>
+                    </span>
+                  </button>
+                </div>
+                <p *ngIf="errors['password']" class="text-[#EE964B] text-xs">{{ errors['password'] }}</p>
             </div>
           </div>
 
@@ -68,23 +83,21 @@
 
             <div class="space-y-4">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-2">
-                  <label class="text-sm font-medium text-gray-300">Employee ID <span
-                      class="text-[#EE964B]">*</span></label>
+                <div class="flex flex-col gap-2">
+                  <label class="text-sm font-medium text-gray-300">Employee ID <span class="text-[#EE964B]">*</span></label>
                   <input type="text" [(ngModel)]="employeeId" name="employeeId" placeholder="EMP-12345"
                     class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
                   <p *ngIf="errors['employeeId']" class="text-[#EE964B] text-xs">{{ errors['employeeId'] }}</p>
                 </div>
-                <div class="space-y-2">
+                <div class="flex flex-col gap-2">
                   <label class="text-sm font-medium text-gray-300">Date of Joining</label>
                   <input type="date" [(ngModel)]="joiningDate" name="joiningDate"
                     class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
                 </div>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Department <span
-                    class="text-[#EE964B]">*</span></label>
+              <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-300">Department <span class="text-[#EE964B]">*</span></label>
                 <select [(ngModel)]="department" name="department"
                   class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
                   <option value="" disabled selected>Select Department</option>
@@ -97,17 +110,15 @@
                 <p *ngIf="errors['department']" class="text-[#EE964B] text-xs">{{ errors['department'] }}</p>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Designation <span
-                    class="text-[#EE964B]">*</span></label>
+              <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-300">Designation <span class="text-[#EE964B]">*</span></label>
                 <input type="text" [(ngModel)]="designation" name="designation" placeholder="e.g. Senior Developer"
                   class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
                 <p *ngIf="errors['designation']" class="text-[#EE964B] text-xs">{{ errors['designation'] }}</p>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Employment Type <span
-                    class="text-[#EE964B]">*</span></label>
+              <div class="flex flex-col gap-2">
+                <label class="text-sm font-medium text-gray-300">Employment Type <span class="text-[#EE964B]">*</span></label>
                 <div class="flex items-center gap-4 bg-[#1B264F] p-3 rounded-lg border border-gray-600">
                   <label class="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="employmentType" [(ngModel)]="employmentType" value="full-time"
