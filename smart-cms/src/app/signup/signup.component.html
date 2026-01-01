@@ -1,0 +1,158 @@
+
+<div class="h-screen bg-[#101935] flex flex-col font-sans text-white overflow-hidden">
+  <div class="flex-1 overflow-y-auto">
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+      <form (ngSubmit)="onSubmit()">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
+
+          <!-- Left Column: Personal Details -->
+          <div class="flex flex-col justify-start space-y-6">
+            <div class="space-y-3">
+              <div class="flex items-center gap-3">
+                <img src="/assets/MEAN_Logo_Dark.png" alt="SmartCMS Logo" class="h-[100px] w-auto object-contain">
+              </div>
+              <span class="text-md text-white">Smart Corporate Management System</span>
+            </div>
+
+            <div class="space-y-2">
+              <h1 class="text-3xl font-bold text-white">Employee Onboarding</h1>
+              <p class="text-gray-400">Complete your profile setup to gain access to internal systems.</p>
+            </div>
+
+            <div class="space-y-5">
+              <div class="space-y-2">
+                <h3 class="text-[#3083DC] font-semibold text-base uppercase">Personal Information</h3>
+                <div class="h-px bg-gray-700 w-full"></div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-gray-300">First Name <span
+                      class="text-[#EE964B]">*</span></label>
+                  <input type="text" [(ngModel)]="firstName" name="firstName" placeholder="Rohit"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                  <p *ngIf="errors['firstName']" class="text-[#EE964B] text-xs">{{ errors['firstName'] }}</p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-gray-300">Last Name <span
+                      class="text-[#EE964B]">*</span></label>
+                  <input type="text" [(ngModel)]="lastName" name="lastName" placeholder="Sharma"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                  <p *ngIf="errors['lastName']" class="text-[#EE964B] text-xs">{{ errors['lastName'] }}</p>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-300">Email Address <span
+                    class="text-[#EE964B]">*</span></label>
+                <input type="email" [(ngModel)]="email" name="email" placeholder="rohit@company.com"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <p *ngIf="errors['email']" class="text-[#EE964B] text-xs">{{ errors['email'] }}</p>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-300">Phone Number</label>
+                <input type="tel" [(ngModel)]="phone" name="phone" placeholder="1234567890" maxlength="10"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <p *ngIf="errors['phone']" class="text-[#EE964B] text-xs">{{ errors['phone'] }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Employment Details -->
+          <div class="flex flex-col justify-start space-y-5">
+            <div class="space-y-2">
+              <h3 class="text-[#3083DC] font-semibold text-base uppercase">Employment Details</h3>
+              <div class="h-px bg-gray-700 w-full"></div>
+            </div>
+
+            <div class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-gray-300">Employee ID <span
+                      class="text-[#EE964B]">*</span></label>
+                  <input type="text" [(ngModel)]="employeeId" name="employeeId" placeholder="EMP-12345"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                  <p *ngIf="errors['employeeId']" class="text-[#EE964B] text-xs">{{ errors['employeeId'] }}</p>
+                </div>
+                <div class="space-y-2">
+                  <label class="text-sm font-medium text-gray-300">Date of Joining</label>
+                  <input type="date" [(ngModel)]="joiningDate" name="joiningDate"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-300">Department <span
+                    class="text-[#EE964B]">*</span></label>
+                <select [(ngModel)]="department" name="department"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                  <option value="" disabled selected>Select Department</option>
+                  <option value="engineering">Engineering</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="sales">Sales</option>
+                  <option value="hr">Human Resources</option>
+                  <option value="finance">Finance</option>
+                </select>
+                <p *ngIf="errors['department']" class="text-[#EE964B] text-xs">{{ errors['department'] }}</p>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-300">Designation <span
+                    class="text-[#EE964B]">*</span></label>
+                <input type="text" [(ngModel)]="designation" name="designation" placeholder="e.g. Senior Developer"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <p *ngIf="errors['designation']" class="text-[#EE964B] text-xs">{{ errors['designation'] }}</p>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-300">Employment Type <span
+                    class="text-[#EE964B]">*</span></label>
+                <div class="flex items-center gap-4 bg-[#1B264F] p-3 rounded-lg border border-gray-600">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="employmentType" [(ngModel)]="employmentType" value="full-time"
+                      class="form-radio text-[#3083DC]">
+                    <span class="text-sm text-gray-300">Full-time</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="employmentType" [(ngModel)]="employmentType" value="contract"
+                      class="form-radio text-[#3083DC]">
+                    <span class="text-sm text-gray-300">Contract</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="employmentType" [(ngModel)]="employmentType" value="intern"
+                      class="form-radio text-[#3083DC]">
+                    <span class="text-sm text-gray-300">Intern</span>
+                  </label>
+                </div>
+                <p *ngIf="errors['employmentType']" class="text-[#EE964B] text-xs">{{ errors['employmentType'] }}</p>
+              </div>
+            </div>
+
+            <div class="pt-4">
+              <button type="submit" [disabled]="isLoading"
+                class="w-full bg-[#3083DC] hover:bg-[#206bc4] text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <span *ngIf="!isLoading">Create Profile</span>
+                <span *ngIf="isLoading">Creating Profile...</span>
+              </button>
+
+              <div class="mt-4 text-right">
+                <p class="text-gray-400 text-sm">
+                  Already have an account?
+                  <a href="/login" class="text-[#3083DC] hover:underline font-semibold">Login</a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="flex-shrink-0 bg-[#101935] border-t border-gray-800 py-3">
+    <div class="container mx-auto px-4 max-w-6xl text-center">
+      <p class="text-gray-400 text-xs">&copy; 2025 SmartCMS. All rights reserved.</p>
+    </div>
+  </div>
+</div>

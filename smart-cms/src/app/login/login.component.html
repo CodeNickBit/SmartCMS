@@ -1,0 +1,124 @@
+
+<div class="h-screen bg-[#101935] flex flex-col font-sans text-white overflow-hidden">
+  <div class="flex-1 overflow-y-auto flex items-center justify-center py-6">
+    <div class="container mx-auto px-4 w-full max-w-md">
+
+      <!-- Logo and Header -->
+      <div class="text-center mb-8">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <div class="flex items-center justify-center">
+            <img src="/assets/MEAN_Logo_Dark.png" alt="SmartCMS Logo" class="h-[80px] w-auto object-contain">
+          </div>
+        </div>
+        <!-- <span class="text-md tracking-tight text-white">Smart Corporate Management System</span> -->
+        <h1 class="text-3xl font-bold text-white leading-tight mb-2">Welcome Back</h1>
+        <p class="text-gray-400 text-base">Sign in to your account to continue</p>
+      </div>
+
+      <!-- Login Form Card -->
+      <div class="bg-[#1B264F] border border-gray-600 rounded-lg shadow-xl p-6 space-y-5">
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="space-y-5">
+          <!-- Email Field -->
+          <div class="space-y-2">
+            <label for="email" class="text-sm font-medium text-gray-300 block">
+              Email Address <span class="text-[#EE964B]">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+              </div>
+              <input type="email" id="email" name="email" [(ngModel)]="email" required (blur)="validateField('email')"
+                #emailInput="ngModel"
+                class="w-full bg-[#101935] border border-gray-600 rounded-lg pl-9 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:border-transparent transition-all hover:border-[#3083DC]/50"
+                placeholder="jane.doe@company.com">
+            </div>
+            <p *ngIf="errors['email']" class="text-[#EE964B] text-xs mt-1">{{ errors['email'] }}</p>
+            <p *ngIf="emailInput.invalid && emailInput.touched && !errors['email']" class="text-[#EE964B] text-xs mt-1">
+              Email is required</p>
+          </div>
+
+          <!-- Password Field -->
+          <div class="space-y-2">
+            <label for="password" class="text-sm font-medium text-gray-300 block">
+              Password <span class="text-[#EE964B]">*</span>
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd"
+                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                    clip-rule="evenodd" />
+                </svg>
+              </div>
+              <input type="password" id="password" name="password" [(ngModel)]="password" required
+                (blur)="validateField('password')" #passwordInput="ngModel"
+                class="w-full bg-[#101935] border border-gray-600 rounded-lg pl-9 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:border-transparent transition-all hover:border-[#3083DC]/50"
+                placeholder="Enter your password">
+            </div>
+            <p *ngIf="errors['password']" class="text-[#EE964B] text-xs mt-1">{{ errors['password'] }}</p>
+            <p *ngIf="passwordInput.invalid && passwordInput.touched && !errors['password']"
+              class="text-[#EE964B] text-xs mt-1">Password is required</p>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input id="remember-me" name="remember-me" type="checkbox" [(ngModel)]="rememberMe"
+                class="h-4 w-4 text-[#3083DC] focus:ring-[#3083DC] bg-[#101935] border-gray-600 rounded cursor-pointer">
+              <span class="text-sm text-gray-300 group-hover:text-white transition-colors">Keep me signed in</span>
+            </label>
+
+            <a href="#" class="text-sm text-[#3083DC] hover:text-[#4a9df0] font-medium transition-colors">
+              Forgot password?
+            </a>
+          </div>
+
+          <!-- Login Button -->
+          <div class="pt-2">
+            <button type="submit" [disabled]="isLoading"
+              class="w-full bg-[#3083DC] hover:bg-[#206bc4] text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-[1.01] shadow-lg shadow-[#3083DC]/30 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+              <span *ngIf="!isLoading">Sign In</span>
+              <span *ngIf="isLoading" class="flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
+                Signing in...
+              </span>
+              <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20"
+                fill="currentColor">
+                <path fill-rule="evenodd"
+                  d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                  clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Links -->
+      <div class="mt-6 text-center space-y-3">
+        <p class="text-sm text-gray-400">
+          New employee?
+          <a href="/signup" class="text-[#3083DC] hover:text-[#4a9df0] font-semibold transition-colors">
+            Register here
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="flex-shrink-0 bg-[#101935] border-t border-[#3083DC]/20 py-3">
+    <div class="container mx-auto px-4 max-w-6xl">
+      <div class="text-center">
+        <p class="text-gray-400 text-xs mb-1">&copy; 2025 SmartCMS. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</div>
