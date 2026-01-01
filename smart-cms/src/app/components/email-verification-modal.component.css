@@ -1,0 +1,7 @@
+/* Backdrop with blur effect */
+.backdrop-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+

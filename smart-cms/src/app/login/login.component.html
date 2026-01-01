@@ -1,0 +1,218 @@
+<!--
+  ENTERPRISE LOGIN PAGE
+  =====================
+  UX Decisions:
+  - Subtle background pattern instead of distracting particles
+  - Clean typography hierarchy with Inter font
+  - Controlled animations (fade + slide) for professional feel
+  - Clear focus states for accessibility (WCAG compliant)
+  - Reusable input/button patterns for consistency
+  - Soft error animations (no jarring shake)
+-->
+
+<div class="h-screen bg-[#101935] flex flex-col text-white overflow-hidden relative">
+  <!-- Subtle Background Pattern (Enterprise-appropriate) -->
+  <div class="background-pattern"></div>
+
+  <!-- Main Content Area -->
+  <div class="flex-1 overflow-y-auto flex items-center justify-center py-8 relative z-10">
+    <div class="container mx-auto px-4 w-full max-w-md">
+      
+      <!-- Logo and Header Section -->
+      <div class="text-center mb-8 animate-fade-in-up">
+        <!-- Logo: Professional with subtle animation -->
+        <div class="flex items-center justify-center mb-6">
+          <img 
+            src="/assets/MEAN_Logo_Dark.png" 
+            alt="SmartCMS Logo" 
+            class="h-16 w-auto object-contain logo-animate drop-shadow-lg transition-transform duration-300 hover:scale-105"
+            aria-label="SmartCMS Corporate Management System">
+        </div>
+        
+        <!-- Typography: Clear hierarchy with proper contrast -->
+        <h1 class="text-2xl font-semibold text-white mb-2 animate-fade-in-up animate-delay-100 transition-all duration-300 hover:text-[#3083DC]">
+          Welcome Back
+        </h1>
+        <p class="text-sm text-gray-400 animate-fade-in-up animate-delay-200 transition-colors duration-300">
+          Sign in to your account to continue
+        </p>
+      </div>
+
+      <!-- Login Form Card: Glassmorphism for modern, professional look -->
+      <div class="glass-card-strong rounded-xl shadow-lg p-8 space-y-6 animate-scale-in animate-delay-200 card-glow-hover">
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm" class="space-y-5" novalidate>
+          
+          <!-- Email Input Field: Reusable pattern -->
+          <div class="space-y-2 animate-fade-in-up animate-delay-300">
+            <label for="email" class="text-sm font-medium text-gray-300 block">
+              Email Address <span class="text-[#EE964B]" aria-label="required">*</span>
+            </label>
+            <div class="relative group">
+              <!-- Icon: Changes color on focus for visual feedback -->
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500 group-focus-within:text-[#3083DC] transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 input-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+              </div>
+              
+              <!-- Input: Professional styling with controlled focus animation -->
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                [(ngModel)]="email" 
+                required 
+                (blur)="validateField('email')"
+                #emailInput="ngModel"
+                autocomplete="email"
+                class="input-field input-with-icon"
+                placeholder="jane.doe@company.com"
+                aria-describedby="email-error"
+                [attr.aria-invalid]="(errors['email'] || (emailInput.invalid && emailInput.touched)) ? 'true' : null">
+            </div>
+            
+            <!-- Error Message: Soft slide-down animation (not jarring) -->
+            <p 
+              *ngIf="errors['email']" 
+              id="email-error"
+              class="error-message" 
+              role="alert"
+              aria-live="polite">
+              {{ errors['email'] }}
+            </p>
+            <p 
+              *ngIf="emailInput.invalid && emailInput.touched && !errors['email']" 
+              id="email-error"
+              class="error-message" 
+              role="alert"
+              aria-live="polite">
+              Email is required
+            </p>
+          </div>
+
+          <!-- Password Input Field -->
+          <div class="space-y-2 animate-fade-in-up animate-delay-400">
+            <label for="password" class="text-sm font-medium text-gray-300 block">
+              Password <span class="text-[#EE964B]" aria-label="required">*</span>
+            </label>
+            <div class="relative group">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500 group-focus-within:text-[#3083DC] transition-all duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 input-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd"
+                    d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                    clip-rule="evenodd" />
+                </svg>
+              </div>
+              
+              <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                [(ngModel)]="password" 
+                required
+                (blur)="validateField('password')" 
+                #passwordInput="ngModel"
+                autocomplete="current-password"
+                class="input-field input-with-icon"
+                placeholder="Enter your password"
+                aria-describedby="password-error"
+                [attr.aria-invalid]="(errors['password'] || (passwordInput.invalid && passwordInput.touched)) ? 'true' : null">
+            </div>
+            
+            <p 
+              *ngIf="errors['password']" 
+              id="password-error"
+              class="error-message" 
+              role="alert"
+              aria-live="polite">
+              {{ errors['password'] }}
+            </p>
+            <p 
+              *ngIf="passwordInput.invalid && passwordInput.touched && !errors['password']"
+              id="password-error"
+              class="error-message" 
+              role="alert"
+              aria-live="polite">
+              Password is required
+            </p>
+          </div>
+
+          <!-- Remember Me & Forgot Password: Clean layout -->
+          <div class="flex items-center justify-between animate-fade-in-up animate-delay-500">
+            <label class="flex items-center gap-2 cursor-pointer group">
+              <input 
+                id="remember-me" 
+                name="remember-me" 
+                type="checkbox" 
+                [(ngModel)]="rememberMe"
+                class="h-4 w-4 text-[#3083DC] focus:ring-[#3083DC] bg-[#101935] border-gray-600 rounded cursor-pointer transition-all duration-200">
+              <span class="text-sm text-gray-300 group-hover:text-white transition-colors duration-200">
+                Keep me signed in
+              </span>
+            </label>
+
+            <a 
+              href="#" 
+              class="text-sm text-[#3083DC] hover:text-[#4a9df0] font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:ring-offset-2 focus:ring-offset-[#101935] rounded px-1"
+              aria-label="Forgot password?">
+              Forgot password?
+            </a>
+          </div>
+
+          <!-- Submit Button: Enterprise-grade with controlled hover elevation -->
+          <div class="pt-2 animate-fade-in-up animate-delay-600">
+            <button 
+              type="submit" 
+              [disabled]="isLoading"
+              class="btn-primary flex items-center justify-center gap-2"
+              [class.btn-loading]="isLoading"
+              aria-busy="isLoading">
+              <span *ngIf="!isLoading" class="flex items-center gap-2">
+                Sign In
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd"
+                    d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
+                    clip-rule="evenodd" />
+                  </svg>
+              </span>
+              <span *ngIf="isLoading" class="flex items-center gap-2">
+                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                  </path>
+                </svg>
+                Signing in...
+              </span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Links: Clean, accessible -->
+      <div class="mt-6 text-center animate-fade-in-up animate-delay-700">
+        <p class="text-sm text-gray-400">
+          New employee?
+          <a 
+            href="/signup" 
+            class="text-[#3083DC] hover:text-[#4a9df0] font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:ring-offset-2 focus:ring-offset-[#101935] rounded px-1"
+            aria-label="Register for a new account">
+            Register here
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer: Minimal, professional -->
+  <div class="flex-shrink-0 bg-[#101935] border-t border-gray-800 py-3 relative z-10">
+    <div class="container mx-auto px-4 max-w-6xl">
+      <div class="text-center">
+        <p class="text-gray-400 text-xs">
+          &copy; 2025 SmartCMS. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
