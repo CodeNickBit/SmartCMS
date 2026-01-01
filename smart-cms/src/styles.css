@@ -1,0 +1,454 @@
+/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+/* ============================================
+   ENTERPRISE TYPOGRAPHY & BASE STYLES
+   ============================================ */
+
+/* Professional Typography: Inter for enterprise-grade readability */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   PROFESSIONAL ANIMATIONS (Subtle & Controlled)
+   ============================================ */
+
+/* Page Load: More noticeable fade + slide for professional entrance */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Simple fade for non-intrusive transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide animations for content sections - More noticeable */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* More noticeable scale for cards */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Error message: Soft motion (no jarring shake) */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success state: Subtle checkmark animation */
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Input focus glow: Controlled and professional */
+@keyframes inputFocusGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(48, 131, 220, 0);
+  }
+  50% {
+    box-shadow: 0 0 0 3px rgba(48, 131, 220, 0.1);
+  }
+}
+
+/* ============================================
+   SUBTLE BACKGROUND PATTERN (Enterprise-grade)
+   ============================================ */
+
+/* More visible background accent - professional but noticeable */
+.background-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.08;
+}
+
+.background-pattern::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background-image: 
+    linear-gradient(rgba(48, 131, 220, 0.15) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(48, 131, 220, 0.15) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: patternMove 20s linear infinite;
+}
+
+/* Add subtle gradient overlay for depth */
+.background-pattern::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 50%, rgba(48, 131, 220, 0.05) 0%, transparent 50%),
+              radial-gradient(circle at 80% 80%, rgba(48, 131, 220, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+@keyframes patternMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* ============================================
+   GLASSMORPHISM (Professional, not flashy)
+   ============================================ */
+
+/* More visible glass effect for cards - enterprise appropriate */
+.glass-card {
+  background: rgba(27, 38, 79, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(48, 131, 220, 0.3);
+  box-shadow: 0 12px 40px rgba(48, 131, 220, 0.2);
+  transform: translateY(-2px);
+}
+
+.glass-card-strong {
+  background: rgba(27, 38, 79, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.glass-card-strong:hover {
+  border-color: rgba(48, 131, 220, 0.4);
+  box-shadow: 0 12px 48px rgba(48, 131, 220, 0.25);
+  transform: translateY(-3px);
+}
+
+/* ============================================
+   REUSABLE COMPONENT PATTERNS
+   ============================================ */
+
+/* Enterprise Input Field Pattern - More noticeable interactions */
+.input-field {
+  @apply w-full bg-[#101935] border border-gray-700 rounded-lg px-4 py-3 text-sm text-white placeholder-gray-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:border-[#3083DC];
+  @apply transition-all duration-300 ease-out;
+  @apply hover:border-[#3083DC]/50 hover:bg-[#0f1628];
+}
+
+.input-field:focus {
+  box-shadow: 0 0 0 4px rgba(48, 131, 220, 0.15), 0 4px 12px rgba(48, 131, 220, 0.1);
+  transform: translateY(-2px);
+  border-color: #3083DC;
+  background: #0f1628;
+}
+
+/* Input with Icon */
+.input-with-icon {
+  @apply pl-11;
+}
+
+/* Enterprise Button Pattern - More noticeable hover effects */
+.btn-primary {
+  @apply w-full bg-[#3083DC] hover:bg-[#206bc4] text-white font-semibold;
+  @apply py-3 px-6 rounded-lg transition-all duration-300;
+  @apply focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:ring-offset-2 focus:ring-offset-[#101935];
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(48, 131, 220, 0.2);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(48, 131, 220, 0.4);
+  background: #206bc4;
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(48, 131, 220, 0.3);
+}
+
+/* Button Loading State */
+.btn-loading {
+  @apply opacity-75 cursor-wait;
+}
+
+/* ============================================
+   ANIMATION UTILITY CLASSES
+   ============================================ */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Staggered delays for sequential animations - More noticeable */
+.animate-delay-100 { animation-delay: 0.15s; }
+.animate-delay-200 { animation-delay: 0.3s; }
+.animate-delay-300 { animation-delay: 0.45s; }
+.animate-delay-400 { animation-delay: 0.6s; }
+.animate-delay-500 { animation-delay: 0.75s; }
+.animate-delay-600 { animation-delay: 0.9s; }
+.animate-delay-700 { animation-delay: 1.05s; }
+.animate-delay-800 { animation-delay: 1.2s; }
+
+/* ============================================
+   ERROR MESSAGE STYLING (Soft, not jarring)
+   ============================================ */
+
+.error-message {
+  @apply text-[#EE964B] text-xs mt-1;
+  animation: slideDown 0.3s ease-out;
+}
+
+/* ============================================
+   ACCESSIBILITY & UX POLISH
+   ============================================ */
+
+/* WCAG-compliant focus states */
+*:focus-visible {
+  outline: 2px solid #3083DC;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Smooth scroll for better UX */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Professional scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #101935;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3083DC;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #206bc4;
+}
+
+/* ============================================
+   PAGE TRANSITIONS
+   ============================================ */
+
+router-outlet + * {
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================
+   TYPOGRAPHY HIERARCHY
+   ============================================ */
+
+/* Headings with proper contrast against #101935 */
+h1 {
+  @apply font-semibold text-white;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  @apply font-semibold text-white;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  @apply font-medium text-gray-200;
+}
+
+/* Body text with proper contrast */
+p, span, label {
+  @apply text-gray-300;
+}
+
+/* Links with clear hover states */
+a {
+  @apply text-[#3083DC] transition-colors duration-200;
+}
+
+a:hover {
+  @apply text-[#4a9df0];
+}
+
+/* ============================================
+   ADDITIONAL ENTERPRISE POLISH - More Noticeable
+   ============================================ */
+
+/* Logo Animation - More noticeable */
+.logo-animate {
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Checkbox and Radio: More noticeable scale on interaction */
+input[type="checkbox"]:checked,
+input[type="radio"]:checked {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+  box-shadow: 0 0 0 3px rgba(48, 131, 220, 0.2);
+}
+
+/* Input Icon Color Change - More noticeable */
+.input-icon {
+  transition: all 0.3s ease;
+}
+
+.group:focus-within .input-icon {
+  color: #3083DC;
+  transform: scale(1.1);
+}
+
+/* Loading Spinner */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Card Glow Effect on Hover - More noticeable */
+@keyframes cardGlow {
+  0%, 100% {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(48, 131, 220, 0);
+  }
+  50% {
+    box-shadow: 0 12px 48px rgba(48, 131, 220, 0.3), 0 0 0 4px rgba(48, 131, 220, 0.1);
+  }
+}
+
+.card-glow-hover {
+  transition: all 0.3s ease;
+}
+
+.card-glow-hover:hover {
+  animation: cardGlow 3s ease-in-out infinite;
+  border-color: rgba(48, 131, 220, 0.3) !important;
+}
+
+/* Section divider animation */
+@keyframes dividerGrow {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+.section-divider {
+  animation: dividerGrow 0.8s ease-out;
+}
