@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../services/auth.service';
+import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink, EmailVerificationModalComponent],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
 })
@@ -15,6 +17,7 @@ export class SignupComponent {
   lastName: string = '';
   email: string = '';
   phone: string = '';
+  password: string = '';
   employeeId: string = '';
   department: string = '';
   designation: string = '';
@@ -22,8 +25,14 @@ export class SignupComponent {
   employmentType: string = '';
   errors: { [key: string]: string } = {};
   isLoading: boolean = false;
+  showPassword: boolean = false;
+  showVerificationModal: boolean = false;
+  pendingFormData: any = null; // Store form data until OTP is verified
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
   validateField(fieldName: string): void {
     delete this.errors[fieldName];
@@ -59,6 +68,14 @@ export class SignupComponent {
         }
         break;
 
+      case 'password':
+        if (!this.password.trim()) {
+          this.errors['password'] = 'Password is required';
+        } else if (this.password.length < 8) {
+          this.errors['password'] = 'Password must be at least 8 characters';
+        }
+        break;
+
       case 'employeeId':
         if (!this.employeeId.trim()) {
           this.errors['employeeId'] = 'Employee ID is required';
@@ -90,6 +107,7 @@ export class SignupComponent {
     this.validateField('firstName');
     this.validateField('lastName');
     this.validateField('email');
+    this.validateField('password');
     this.validateField('employeeId');
     this.validateField('department');
     this.validateField('designation');
@@ -103,18 +121,70 @@ export class SignupComponent {
       return;
     }
 
-    this.isLoading = true;
-
-    const formData = {
+    // Store form data temporarily (don't register yet)
+    this.pendingFormData = {
       firstName: this.firstName.trim(),
       lastName: this.lastName.trim(),
       email: this.email.trim().toLowerCase(),
+      phone: this.phone.trim() || undefined,
+      password: this.password,
       employeeId: this.employeeId.trim().toUpperCase(),
       department: this.department.trim(),
       designation: this.designation.trim(),
       employmentType: this.employmentType,
-      phone: this.phone.trim() || undefined,
       joiningDate: this.joiningDate || undefined,
     };
+
+    // Show email verification modal first (registration happens after OTP verification)
+    this.showVerificationModal = true;
+  }
+
+  onEmailVerified(otp: string) {
+    if (!this.pendingFormData) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.showVerificationModal = false;
+
+    // Now register the user after OTP is verified
+    this.authService.register(this.pendingFormData).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        console.log('Registration successful:', response);
+        // Redirect to login page after successful registration
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        console.error('Registration error:', error);
+        // Handle error response
+        if (error.error && error.error.message) {
+          this.errors['general'] = error.error.message;
+        } else {
+          this.errors['general'] = 'Registration failed. Please try again.';
+        }
+        // Show modal again if registration fails
+        this.showVerificationModal = true;
+      }
+    });
+  }
+
+  onModalClosed() {
+    this.showVerificationModal = false;
+    this.pendingFormData = null; // Clear pending data if modal is closed
+  }
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/\D/g, ''); // Remove non-digits
+    this.phone = value;
+    if (value) {
+      this.validateField('phone');
+    }
   }
 }
