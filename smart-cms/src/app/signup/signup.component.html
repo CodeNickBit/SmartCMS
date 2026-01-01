@@ -375,4 +375,12 @@
       </p>
     </div>
   </div>
+
+  <!-- Email Verification Modal -->
+  <app-email-verification-modal
+    *ngIf="showVerificationModal"
+    [email]="email"
+    (verified)="onEmailVerified($event)"
+    (closed)="onModalClosed()">
+  </app-email-verification-modal>
 </div>
