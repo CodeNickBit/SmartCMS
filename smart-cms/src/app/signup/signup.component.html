@@ -1,92 +1,234 @@
+<!--
+  ENTERPRISE SIGNUP PAGE
+  ======================
+  UX Decisions:
+  - Two-column layout for efficient form completion
+  - Clear section separation with subtle dividers
+  - Consistent input patterns for familiarity
+  - Professional animations (subtle, not distracting)
+  - WCAG-compliant form structure
+  - Clear visual hierarchy
+-->
 
-<div class="h-screen bg-[#101935] flex flex-col font-sans text-white overflow-hidden">
-  <div class="flex-1 overflow-y-auto">
-    <div class="container mx-auto px-4 py-6 max-w-6xl">
-      <form (ngSubmit)="onSubmit()">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
+<div class="h-screen bg-[#101935] flex flex-col text-white overflow-hidden relative">
+  <!-- Subtle Background Pattern -->
+  <div class="background-pattern"></div>
 
-          <!-- Left Column: Personal Details -->
-          <div class="flex flex-col justify-start space-y-6">
-            <div class="space-y-3">
+  <!-- Main Content Area -->
+  <div class="flex-1 overflow-y-auto relative z-10">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+      <form (ngSubmit)="onSubmit()" novalidate>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          
+          <!-- Left Column: Personal Information -->
+          <div class="flex flex-col justify-start space-y-6 animate-slide-in-left">
+            <!-- Header Section -->
+            <div class="space-y-4 animate-fade-in-up">
               <div class="flex items-center gap-3">
-                <img src="/assets/MEAN_Logo_Dark.png" alt="SmartCMS Logo" class="h-[100px] w-auto object-contain">
+                <img 
+                  src="/assets/MEAN_Logo_Dark.png" 
+                  alt="SmartCMS Logo" 
+                  class="h-20 w-auto object-contain logo-animate drop-shadow-lg transition-transform duration-300 hover:scale-105"
+                  aria-label="SmartCMS Corporate Management System">
               </div>
-              <span class="text-md text-white">Smart Corporate Management System</span>
+              <p class="text-sm text-gray-400 animate-fade-in-up animate-delay-100">
+                Smart Corporate Management System
+              </p>
             </div>
 
-            <div class="space-y-2">
-              <h1 class="text-3xl font-bold text-white">Employee Onboarding</h1>
-              <p class="text-gray-400">Complete your profile setup to gain access to internal systems.</p>
+            <div class="space-y-2 animate-fade-in-up animate-delay-200">
+              <h1 class="text-2xl font-semibold text-white transition-all duration-300 hover:text-[#3083DC]">
+                Employee Onboarding
+              </h1>
+              <p class="text-sm text-gray-400 transition-colors duration-300">
+                Complete your profile setup to gain access to internal systems.
+              </p>
             </div>
 
+            <!-- Personal Information Section -->
             <div class="space-y-5">
-              <div class="space-y-2">
-                <h3 class="text-[#3083DC] font-semibold text-base uppercase">Personal Information</h3>
-                <div class="h-px bg-gray-700 w-full"></div>
+              <!-- Section Header: Clear visual separation -->
+              <div class="space-y-2 animate-fade-in-up animate-delay-300">
+                <h3 class="text-[#3083DC] font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+                  <span class="w-1 h-6 bg-[#3083DC] rounded-full"></span>
+                  Personal Information
+                </h3>
+                <div class="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent w-full"></div>
               </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Name Fields: Side by side for efficiency -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in-up animate-delay-400">
                 <div class="space-y-2">
-                  <label class="text-sm font-medium text-gray-300">First Name <span
-                      class="text-[#EE964B]">*</span></label>
-                  <input type="text" [(ngModel)]="firstName" name="firstName" placeholder="Rohit"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <p *ngIf="errors['firstName']" class="text-[#EE964B] text-xs">{{ errors['firstName'] }}</p>
+                  <label for="firstName" class="text-sm font-medium text-gray-300 block">
+                    First Name <span class="text-[#EE964B]" aria-label="required">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="firstName"
+                    [(ngModel)]="firstName" 
+                    name="firstName" 
+                    placeholder="John"
+                    (blur)="validateField('firstName')"
+                    class="input-field"
+                    autocomplete="given-name"
+                    aria-describedby="firstName-error"
+                    [attr.aria-invalid]="errors['firstName'] ? 'true' : null">
+                  <p 
+                    *ngIf="errors['firstName']" 
+                    id="firstName-error"
+                    class="error-message" 
+                    role="alert"
+                    aria-live="polite">
+                    {{ errors['firstName'] }}
+                  </p>
                 </div>
+                
                 <div class="space-y-2">
-                  <label class="text-sm font-medium text-gray-300">Last Name <span
-                      class="text-[#EE964B]">*</span></label>
-                  <input type="text" [(ngModel)]="lastName" name="lastName" placeholder="Sharma"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <p *ngIf="errors['lastName']" class="text-[#EE964B] text-xs">{{ errors['lastName'] }}</p>
+                  <label for="lastName" class="text-sm font-medium text-gray-300 block">
+                    Last Name <span class="text-[#EE964B]" aria-label="required">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="lastName"
+                    [(ngModel)]="lastName" 
+                    name="lastName" 
+                    placeholder="Doe"
+                    (blur)="validateField('lastName')"
+                    class="input-field"
+                    autocomplete="family-name"
+                    aria-describedby="lastName-error"
+                    [attr.aria-invalid]="errors['lastName'] ? 'true' : null">
+                  <p 
+                    *ngIf="errors['lastName']" 
+                    id="lastName-error"
+                    class="error-message" 
+                    role="alert"
+                    aria-live="polite">
+                    {{ errors['lastName'] }}
+                  </p>
                 </div>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Email Address <span
-                    class="text-[#EE964B]">*</span></label>
-                <input type="email" [(ngModel)]="email" name="email" placeholder="rohit@company.com"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="errors['email']" class="text-[#EE964B] text-xs">{{ errors['email'] }}</p>
+              <!-- Email Field -->
+              <div class="space-y-2 animate-fade-in-up animate-delay-500">
+                <label for="email" class="text-sm font-medium text-gray-300 block">
+                  Email Address <span class="text-[#EE964B]" aria-label="required">*</span>
+                </label>
+                <input 
+                  type="email" 
+                  id="email"
+                  [(ngModel)]="email" 
+                  name="email" 
+                  placeholder="john.doe@company.com"
+                  (blur)="validateField('email')"
+                  class="input-field"
+                  autocomplete="email"
+                  aria-describedby="email-error"
+                  [attr.aria-invalid]="errors['email'] ? 'true' : null">
+                <p 
+                  *ngIf="errors['email']" 
+                  id="email-error"
+                  class="error-message" 
+                  role="alert"
+                  aria-live="polite">
+                  {{ errors['email'] }}
+                </p>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Phone Number</label>
-                <input type="tel" [(ngModel)]="phone" name="phone" placeholder="1234567890" maxlength="10"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="errors['phone']" class="text-[#EE964B] text-xs">{{ errors['phone'] }}</p>
+              <!-- Phone Field -->
+              <div class="space-y-2 animate-fade-in-up animate-delay-600">
+                <label for="phone" class="text-sm font-medium text-gray-300 block">
+                  Phone Number
+                </label>
+                <input 
+                  type="tel" 
+                  id="phone"
+                  [(ngModel)]="phone" 
+                  name="phone" 
+                  placeholder="1234567890" 
+                  maxlength="10"
+                  (blur)="validateField('phone')"
+                  class="input-field"
+                  autocomplete="tel"
+                  aria-describedby="phone-error"
+                  [attr.aria-invalid]="errors['phone'] ? 'true' : null">
+                <p 
+                  *ngIf="errors['phone']" 
+                  id="phone-error"
+                  class="error-message" 
+                  role="alert"
+                  aria-live="polite">
+                  {{ errors['phone'] }}
+                </p>
               </div>
             </div>
           </div>
 
           <!-- Right Column: Employment Details -->
-          <div class="flex flex-col justify-start space-y-5">
-            <div class="space-y-2">
-              <h3 class="text-[#3083DC] font-semibold text-base uppercase">Employment Details</h3>
-              <div class="h-px bg-gray-700 w-full"></div>
+          <div class="flex flex-col justify-start space-y-5 animate-slide-in-right">
+            <!-- Section Header -->
+            <div class="space-y-2 animate-fade-in-up animate-delay-300">
+              <h3 class="text-[#3083DC] font-semibold text-sm uppercase tracking-wide flex items-center gap-2">
+                <span class="w-1 h-6 bg-[#3083DC] rounded-full"></span>
+                Employment Details
+              </h3>
+              <div class="h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent w-full"></div>
             </div>
 
             <div class="space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Employee ID & Date of Joining -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in-up animate-delay-400">
                 <div class="space-y-2">
-                  <label class="text-sm font-medium text-gray-300">Employee ID <span
-                      class="text-[#EE964B]">*</span></label>
-                  <input type="text" [(ngModel)]="employeeId" name="employeeId" placeholder="EMP-12345"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <p *ngIf="errors['employeeId']" class="text-[#EE964B] text-xs">{{ errors['employeeId'] }}</p>
+                  <label for="employeeId" class="text-sm font-medium text-gray-300 block">
+                    Employee ID <span class="text-[#EE964B]" aria-label="required">*</span>
+                  </label>
+                  <input 
+                    type="text" 
+                    id="employeeId"
+                    [(ngModel)]="employeeId" 
+                    name="employeeId" 
+                    placeholder="EMP-12345"
+                    (blur)="validateField('employeeId')"
+                    class="input-field"
+                    aria-describedby="employeeId-error"
+                    [attr.aria-invalid]="errors['employeeId'] ? 'true' : null">
+                  <p 
+                    *ngIf="errors['employeeId']" 
+                    id="employeeId-error"
+                    class="error-message" 
+                    role="alert"
+                    aria-live="polite">
+                    {{ errors['employeeId'] }}
+                  </p>
                 </div>
+                
                 <div class="space-y-2">
-                  <label class="text-sm font-medium text-gray-300">Date of Joining</label>
-                  <input type="date" [(ngModel)]="joiningDate" name="joiningDate"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                  <label for="joiningDate" class="text-sm font-medium text-gray-300 block">
+                    Date of Joining
+                  </label>
+                  <input 
+                    type="date" 
+                    id="joiningDate"
+                    [(ngModel)]="joiningDate" 
+                    name="joiningDate"
+                    class="input-field"
+                    autocomplete="off">
                 </div>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Department <span
-                    class="text-[#EE964B]">*</span></label>
-                <select [(ngModel)]="department" name="department"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <!-- Department Dropdown -->
+              <div class="space-y-2 animate-fade-in-up animate-delay-500">
+                <label for="department" class="text-sm font-medium text-gray-300 block">
+                  Department <span class="text-[#EE964B]" aria-label="required">*</span>
+                </label>
+                <select 
+                  id="department"
+                  [(ngModel)]="department" 
+                  name="department"
+                  (blur)="validateField('department')"
+                  class="input-field cursor-pointer"
+                  aria-describedby="department-error"
+                  [attr.aria-invalid]="errors['department'] ? 'true' : null">
                   <option value="" disabled selected>Select Department</option>
                   <option value="engineering">Engineering</option>
                   <option value="marketing">Marketing</option>
@@ -94,65 +236,143 @@
                   <option value="hr">Human Resources</option>
                   <option value="finance">Finance</option>
                 </select>
-                <p *ngIf="errors['department']" class="text-[#EE964B] text-xs">{{ errors['department'] }}</p>
+                <p 
+                  *ngIf="errors['department']" 
+                  id="department-error"
+                  class="error-message" 
+                  role="alert"
+                  aria-live="polite">
+                  {{ errors['department'] }}
+                </p>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Designation <span
-                    class="text-[#EE964B]">*</span></label>
-                <input type="text" [(ngModel)]="designation" name="designation" placeholder="e.g. Senior Developer"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="errors['designation']" class="text-[#EE964B] text-xs">{{ errors['designation'] }}</p>
+              <!-- Designation -->
+              <div class="space-y-2 animate-fade-in-up animate-delay-600">
+                <label for="designation" class="text-sm font-medium text-gray-300 block">
+                  Designation <span class="text-[#EE964B]" aria-label="required">*</span>
+                </label>
+                <input 
+                  type="text" 
+                  id="designation"
+                  [(ngModel)]="designation" 
+                  name="designation" 
+                  placeholder="e.g. Senior Developer"
+                  (blur)="validateField('designation')"
+                  class="input-field"
+                  aria-describedby="designation-error"
+                  [attr.aria-invalid]="errors['designation'] ? 'true' : null">
+                <p 
+                  *ngIf="errors['designation']" 
+                  id="designation-error"
+                  class="error-message" 
+                  role="alert"
+                  aria-live="polite">
+                  {{ errors['designation'] }}
+                </p>
               </div>
 
-              <div class="space-y-2">
-                <label class="text-sm font-medium text-gray-300">Employment Type <span
-                    class="text-[#EE964B]">*</span></label>
-                <div class="flex items-center gap-4 bg-[#1B264F] p-3 rounded-lg border border-gray-600">
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="employmentType" [(ngModel)]="employmentType" value="full-time"
-                      class="form-radio text-[#3083DC]">
-                    <span class="text-sm text-gray-300">Full-time</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="employmentType" [(ngModel)]="employmentType" value="contract"
-                      class="form-radio text-[#3083DC]">
-                    <span class="text-sm text-gray-300">Contract</span>
-                  </label>
-                  <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="radio" name="employmentType" [(ngModel)]="employmentType" value="intern"
-                      class="form-radio text-[#3083DC]">
-                    <span class="text-sm text-gray-300">Intern</span>
-                  </label>
-                </div>
-                <p *ngIf="errors['employmentType']" class="text-[#EE964B] text-xs">{{ errors['employmentType'] }}</p>
+              <!-- Employment Type: Radio buttons in clean container -->
+              <div class="space-y-2 animate-fade-in-up animate-delay-700">
+                <fieldset>
+                  <legend class="text-sm font-medium text-gray-300 mb-2">
+                    Employment Type <span class="text-[#EE964B]" aria-label="required">*</span>
+                  </legend>
+                  <div class="glass-card p-4 rounded-lg space-y-3 transition-all duration-300 hover:border-[#3083DC]/30">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                      <input 
+                        type="radio" 
+                        name="employmentType" 
+                        [(ngModel)]="employmentType" 
+                        value="full-time"
+                        (blur)="validateField('employmentType')"
+                        class="h-4 w-4 text-[#3083DC] focus:ring-[#3083DC] bg-[#101935] border-gray-600 cursor-pointer transition-all duration-200">
+                      <span class="text-sm text-gray-300 group-hover:text-white transition-colors duration-200">
+                        Full-time
+                      </span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                      <input 
+                        type="radio" 
+                        name="employmentType" 
+                        [(ngModel)]="employmentType" 
+                        value="contract"
+                        (blur)="validateField('employmentType')"
+                        class="h-4 w-4 text-[#3083DC] focus:ring-[#3083DC] bg-[#101935] border-gray-600 cursor-pointer transition-all duration-200">
+                      <span class="text-sm text-gray-300 group-hover:text-white transition-colors duration-200">
+                        Contract
+                      </span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                      <input 
+                        type="radio" 
+                        name="employmentType" 
+                        [(ngModel)]="employmentType" 
+                        value="intern"
+                        (blur)="validateField('employmentType')"
+                        class="h-4 w-4 text-[#3083DC] focus:ring-[#3083DC] bg-[#101935] border-gray-600 cursor-pointer transition-all duration-200">
+                      <span class="text-sm text-gray-300 group-hover:text-white transition-colors duration-200">
+                        Intern
+                      </span>
+                    </label>
+                  </div>
+                  <p 
+                    *ngIf="errors['employmentType']" 
+                    class="error-message mt-2" 
+                    role="alert"
+                    aria-live="polite">
+                    {{ errors['employmentType'] }}
+                  </p>
+                </fieldset>
               </div>
             </div>
 
-            <div class="pt-4">
-              <button type="submit" [disabled]="isLoading"
-                class="w-full bg-[#3083DC] hover:bg-[#206bc4] text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                <span *ngIf="!isLoading">Create Profile</span>
-                <span *ngIf="isLoading">Creating Profile...</span>
+            <!-- Submit Button & Footer Link -->
+            <div class="pt-4 animate-fade-in-up animate-delay-800">
+              <button 
+                type="submit" 
+                [disabled]="isLoading"
+                class="btn-primary flex items-center justify-center gap-2"
+                [class.btn-loading]="isLoading"
+                aria-busy="isLoading">
+                <span *ngIf="!isLoading" class="flex items-center gap-2">
+                  Create Profile
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+                <span *ngIf="isLoading" class="flex items-center gap-2">
+                  <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Creating Profile...
+                </span>
               </button>
 
               <div class="mt-4 text-right">
                 <p class="text-gray-400 text-sm">
                   Already have an account?
-                  <a href="/login" class="text-[#3083DC] hover:underline font-semibold">Login</a>
+                  <a 
+                    href="/login" 
+                    class="text-[#3083DC] hover:text-[#4a9df0] font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:ring-offset-2 focus:ring-offset-[#101935] rounded px-1"
+                    aria-label="Sign in to existing account">
+                    Login
+                  </a>
                 </p>
               </div>
             </div>
           </div>
-
         </div>
       </form>
     </div>
   </div>
 
-  <div class="flex-shrink-0 bg-[#101935] border-t border-gray-800 py-3">
+  <!-- Footer -->
+  <div class="flex-shrink-0 bg-[#101935] border-t border-gray-800 py-3 relative z-10">
     <div class="container mx-auto px-4 max-w-6xl text-center">
-      <p class="text-gray-400 text-xs">&copy; 2025 SmartCMS. All rights reserved.</p>
+      <p class="text-gray-400 text-xs">
+        &copy; 2025 SmartCMS. All rights reserved.
+      </p>
     </div>
   </div>
 </div>
