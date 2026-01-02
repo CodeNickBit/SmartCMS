@@ -10,9 +10,14 @@ const otpStore = new Map();
 
 function createTransporter() {
   const emailUser = (process.env.EMAIL_USER || 'ankbizzcorp@gmail.com').trim();
+
   // Remove all spaces from app password (Google app passwords should be 16 characters without spaces)
   const emailPassword = process.env.EMAIL_PASSWORD
     ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '')
+
+  const emailPassword = process.env.EMAIL_PASSWORD 
+    ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '') 
+
     : '';
 
   if (!emailPassword) {
@@ -92,6 +97,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
+
 // Register Admin route
 router.post('/register-admin', async (req, res) => {
   try {
@@ -133,9 +139,12 @@ router.post('/register-admin', async (req, res) => {
 });
 
 // Login route
+
+
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+
 
     // First check if it's an admin
     const admin = await Admin.findOne({ email: email.toLowerCase() });
@@ -188,6 +197,15 @@ router.post('/login', async (req, res) => {
 
     // If not admin, check for regular user
     const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'Email and password are required'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
     if (!user) {
       return res.status(401).json({
         message: 'Invalid email or password'
@@ -303,6 +321,7 @@ router.post('/send-otp', async (req, res) => {
       console.log(`OTP sent successfully to ${normalizedEmail}. MessageId: ${emailResult.messageId}`);
     } catch (emailError) {
       console.error('Email sending error:', emailError);
+
       console.error('Error code:', emailError.code);
       console.error('Error command:', emailError.command);
       console.error('Error response:', emailError.response);
@@ -311,6 +330,10 @@ router.post('/send-otp', async (req, res) => {
       otpStore.delete(normalizedEmail);
 
       // Provide more specific error messages based on error code
+
+      otpStore.delete(normalizedEmail);
+      
+
       let errorMessage = 'Failed to send OTP. Please try again.';
       let statusCode = 500;
 
@@ -336,7 +359,10 @@ router.post('/send-otp', async (req, res) => {
 
   } catch (error) {
     console.error('Unexpected error in send-otp endpoint:', error);
+
     console.error('Error stack:', error.stack);
+
+
 
     res.status(500).json({
       message: 'Internal server error during OTP process. Please try again.'
@@ -375,6 +401,7 @@ router.post('/verify-otp', async (req, res) => {
       });
     }
 
+
     // If this is for password reset, generate a temporary token instead of just deleting
     if (isPasswordReset) {
       const resetToken = crypto.randomBytes(32).toString('hex');
@@ -390,6 +417,8 @@ router.post('/verify-otp', async (req, res) => {
     }
 
     // OTP verified successfully - remove from store
+
+
     otpStore.delete(email.toLowerCase());
 
     res.json({
@@ -404,6 +433,7 @@ router.post('/verify-otp', async (req, res) => {
     });
   }
 });
+
 
 // Reset Password
 router.post('/reset-password', async (req, res) => {
@@ -437,5 +467,6 @@ router.post('/reset-password', async (req, res) => {
     res.status(500).json({ message: 'Failed to reset password', error: error.message });
   }
 });
+
 
 module.exports = router;
