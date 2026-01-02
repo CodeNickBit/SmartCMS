@@ -72,26 +72,4 @@ export class AuthService {
   resetPassword(email: string, newPassword: string, resetToken: string): Observable<any> {
     return this.http.post(`${API_URL}/reset-password`, { email, newPassword, resetToken });
   }
-
-  getUser(): any {
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
-  }
-
-  logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-  }
-
-  getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(`${API_URL}/users`);
-  }
-
-  updateUserStatus(id: string, active_inactive: boolean): Observable<any> {
-    return this.http.patch(`${API_URL}/users/${id}/status`, { active_inactive });
-  }
-
-  updateUser(id: string, data: any): Observable<any> {
-    return this.http.put(`${API_URL}/users/${id}`, data);
-  }
 }

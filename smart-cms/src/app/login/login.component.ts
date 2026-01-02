@@ -132,8 +132,6 @@ export class LoginComponent {
   resetLoading: boolean = false;
   resetError: string = '';
 
-  showPassword: boolean = false;
-
   constructor(private authService: AuthService, private router: Router) { }
   // Validate Email
   validateEmail(email: string): boolean {
