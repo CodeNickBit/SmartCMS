@@ -77,7 +77,8 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           this.isLoading = false;
-          alert(response.message);
+          this.authService.setUser(response.user);
+          this.router.navigate(['/home']);
         },
         error: (error) => {
           this.isLoading = false;
