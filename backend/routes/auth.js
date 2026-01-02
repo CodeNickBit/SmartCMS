@@ -249,7 +249,7 @@ router.post('/send-otp', async (req, res) => {
 
 router.post('/verify-otp', async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { email, otp, isPasswordReset } = req.body;
 
     if (!email || !otp) {
       return res.status(400).json({
@@ -278,6 +278,21 @@ router.post('/verify-otp', async (req, res) => {
       });
     }
 
+    // If this is for password reset, generate a temporary token instead of just deleting
+    if (isPasswordReset) {
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      otpStore.set(email.toLowerCase(), {
+        resetToken,
+        expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes to reset password
+      });
+      return res.json({
+        message: 'OTP verified',
+        verified: true,
+        resetToken
+      });
+    }
+
+    // OTP verified successfully - remove from store
     otpStore.delete(email.toLowerCase());
 
     res.json({
@@ -290,6 +305,39 @@ router.post('/verify-otp', async (req, res) => {
       message: 'Failed to verify OTP. Please try again.',
       error: error.message
     });
+  }
+});
+
+// Reset Password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { email, newPassword, resetToken } = req.body;
+
+    if (!email || !newPassword || !resetToken) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const storedData = otpStore.get(email.toLowerCase());
+
+    if (!storedData || !storedData.resetToken || storedData.resetToken !== resetToken) {
+      return res.status(400).json({ message: 'Invalid or expired reset session. Please try again.' });
+    }
+
+    if (Date.now() > storedData.expiresAt) {
+      otpStore.delete(email.toLowerCase());
+      return res.status(400).json({ message: 'Session expired. Please try again.' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.password = newPassword;
+    await user.save();
+
+    otpStore.delete(email.toLowerCase());
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to reset password', error: error.message });
   }
 });
 
