@@ -4,13 +4,10 @@ const User = require('../models/User');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
-// In-memory storage for OTPs (in production, use Redis or database)
 const otpStore = new Map();
 
-// Function to create email transporter
 function createTransporter() {
   const emailUser = (process.env.EMAIL_USER || 'ankbizzcorp@gmail.com').trim();
-  // Remove all spaces from app password (Google app passwords should be 16 characters without spaces)
   const emailPassword = process.env.EMAIL_PASSWORD 
     ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '') 
     : '';
@@ -32,7 +29,6 @@ function createTransporter() {
   });
 }
 
-// Register/Registration route
 router.post('/register', async (req, res) => {
   try {
     const {
@@ -48,7 +44,6 @@ router.post('/register', async (req, res) => {
       joiningDate
     } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email }, { employeeId }]
     });
@@ -59,7 +54,6 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Create new user
     const user = new User({
       firstName,
       lastName,
@@ -75,7 +69,6 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
 
@@ -96,20 +89,23 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login route
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user by email
-    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'Email and password are required'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
       return res.status(401).json({
         message: 'Invalid email or password'
       });
     }
 
-    // Check password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -117,7 +113,6 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
 
@@ -126,6 +121,7 @@ router.post('/login', async (req, res) => {
       user: userResponse
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({
       message: 'Login failed',
       error: error.message
@@ -133,10 +129,8 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Send OTP to email
 router.post('/send-otp', async (req, res) => {
   try {
-    // Validate input
     const { email } = req.body;
 
     if (!email) {
@@ -145,7 +139,6 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       return res.status(400).json({
@@ -155,7 +148,6 @@ router.post('/send-otp', async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Create transporter (created here to ensure env vars are loaded)
     let transporter;
     try {
       transporter = createTransporter();
@@ -166,7 +158,6 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Verify transporter connection (optional but helpful for debugging)
     try {
       await transporter.verify();
       console.log('Email transporter verified successfully');
@@ -177,7 +168,6 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Generate 6-digit OTP
     let otp;
     try {
       otp = crypto.randomInt(100000, 999999).toString();
@@ -188,11 +178,10 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Store OTP with expiration (5 minutes)
     try {
       otpStore.set(normalizedEmail, {
         otp,
-        expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
+        expiresAt: Date.now() + 5 * 60 * 1000
       });
     } catch (storeError) {
       console.error('OTP storage error:', storeError);
@@ -201,7 +190,6 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Prepare email content
     const emailUser = (process.env.EMAIL_USER || 'ankbizzcorp@gmail.com').trim();
     const mailOptions = {
       from: emailUser,
@@ -220,21 +208,14 @@ router.post('/send-otp', async (req, res) => {
       `
     };
 
-    // Send email
     let emailResult;
     try {
       emailResult = await transporter.sendMail(mailOptions);
       console.log(`OTP sent successfully to ${normalizedEmail}. MessageId: ${emailResult.messageId}`);
     } catch (emailError) {
       console.error('Email sending error:', emailError);
-      console.error('Error code:', emailError.code);
-      console.error('Error command:', emailError.command);
-      console.error('Error response:', emailError.response);
-      
-      // Remove stored OTP if email sending failed
       otpStore.delete(normalizedEmail);
       
-      // Provide more specific error messages based on error code
       let errorMessage = 'Failed to send OTP. Please try again.';
       let statusCode = 500;
       
@@ -254,23 +235,18 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Success response
     res.status(200).json({
       message: 'OTP sent successfully to your email'
     });
 
   } catch (error) {
-    // Catch any unexpected errors
     console.error('Unexpected error in send-otp endpoint:', error);
-    console.error('Error stack:', error.stack);
-    
     res.status(500).json({
       message: 'Internal server error during OTP process. Please try again.'
     });
   }
 });
 
-// Verify OTP
 router.post('/verify-otp', async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -289,7 +265,6 @@ router.post('/verify-otp', async (req, res) => {
       });
     }
 
-    // Check if OTP has expired
     if (Date.now() > storedOtpData.expiresAt) {
       otpStore.delete(email.toLowerCase());
       return res.status(400).json({
@@ -297,14 +272,12 @@ router.post('/verify-otp', async (req, res) => {
       });
     }
 
-    // Verify OTP
     if (storedOtpData.otp !== otp) {
       return res.status(400).json({
         message: 'Invalid OTP. Please try again.'
       });
     }
 
-    // OTP verified successfully - remove from store
     otpStore.delete(email.toLowerCase());
 
     res.json({
@@ -321,4 +294,3 @@ router.post('/verify-otp', async (req, res) => {
 });
 
 module.exports = router;
-
