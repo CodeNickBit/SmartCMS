@@ -194,6 +194,7 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           this.isLoading = false;
+
           alert(response.message);
 
           // Store session
@@ -207,6 +208,10 @@ export class LoginComponent {
             // Navigate to user dashboard or home page
             // this.router.navigate(['/dashboard']);
           }
+
+          this.authService.setUser(response.user);
+          this.router.navigate(['/home']);
+
         },
         error: (error) => {
           this.isLoading = false;
