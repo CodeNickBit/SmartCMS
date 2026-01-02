@@ -39,6 +39,7 @@ export interface OTPResponse {
 export interface VerifyOTPResponse {
   message: string;
   verified: boolean;
+  resetToken?: string;
 }
 
 @Injectable({
@@ -59,8 +60,11 @@ export class AuthService {
     return this.http.post<OTPResponse>(`${API_URL}/send-otp`, { email });
   }
 
-  verifyOTP(email: string, otp: string): Observable<VerifyOTPResponse> {
-    return this.http.post<VerifyOTPResponse>(`${API_URL}/verify-otp`, { email, otp });
+  verifyOTP(email: string, otp: string, isPasswordReset: boolean = false): Observable<VerifyOTPResponse> {
+    return this.http.post<VerifyOTPResponse>(`${API_URL}/verify-otp`, { email, otp, isPasswordReset });
+  }
+
+  resetPassword(email: string, newPassword: string, resetToken: string): Observable<any> {
+    return this.http.post(`${API_URL}/reset-password`, { email, newPassword, resetToken });
   }
 }
-
