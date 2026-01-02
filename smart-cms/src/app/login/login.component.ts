@@ -1,7 +1,9 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import {  } from '@angular/common'
 @Component({
   selector: 'app-login',
   imports: [FormsModule, CommonModule],
@@ -14,7 +16,7 @@ export class LoginComponent {
   rememberMe: boolean = false;
   isLoading: boolean = false;
   errors: { [key: string]: string } = {};
-
+  constructor(private authService: AuthService, private router: Router) { }
   // Validate Email
   validateEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -69,19 +71,24 @@ export class LoginComponent {
       return;
     }
     
+
     this.isLoading = true;
-    console.log('Login attempt:', { 
-      email: this.email, 
-      password: this.password,
-      rememberMe: this.rememberMe,
-      timestamp: new Date().toISOString()
-    });
-    
-    // Simulate API call
-    setTimeout(() => {
-      this.isLoading = false;
-      // Add your authentication logic here
-      console.log('Authentication completed');
-    }, 2000);
+    this.authService.login({ email: this.email, password: this.password })
+      .subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          alert(response.message);
+        },
+        error: (error) => {
+          this.isLoading = false;
+          if (error.error && error.error.message) {
+            alert(error.error.message);
+            this.errors['general'] = error.error.message;
+          } else {
+            alert('Login failed: ' + error.message);
+            this.errors['general'] = 'Login failed: ' + error.message;
+          }
+        }
+      });
   }
 }
