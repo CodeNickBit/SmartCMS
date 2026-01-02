@@ -417,8 +417,6 @@ router.post('/verify-otp', async (req, res) => {
     }
 
     // OTP verified successfully - remove from store
-
-
     otpStore.delete(email.toLowerCase());
 
     res.json({
@@ -467,6 +465,5 @@ router.post('/reset-password', async (req, res) => {
     res.status(500).json({ message: 'Failed to reset password', error: error.message });
   }
 });
-
 
 module.exports = router;

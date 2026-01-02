@@ -6,6 +6,8 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
   imports: [FormsModule, CommonModule],
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
   template: `
     <div class="min-h-screen bg-[#101935] flex items-center justify-center p-4 font-sans text-white">
       <div class="w-full max-w-md bg-[#1B264F] rounded-xl shadow-2xl overflow-hidden border border-gray-700">
