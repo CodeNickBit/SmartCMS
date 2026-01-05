@@ -18,6 +18,9 @@ function createTransporter() {
   const emailPassword = process.env.EMAIL_PASSWORD 
     ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '') 
 
+  // Remove all spaces from app password (Google app passwords should be 16 characters without spaces)
+  const emailPassword = process.env.EMAIL_PASSWORD
+    ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '')
     : '';
 
   if (!emailPassword) {
@@ -340,6 +343,9 @@ router.post('/send-otp', async (req, res) => {
       otpStore.delete(normalizedEmail);
       
 
+      otpStore.delete(normalizedEmail);
+
+      // Provide more specific error messages based on error code
       let errorMessage = 'Failed to send OTP. Please try again.';
       let statusCode = 500;
 
@@ -369,6 +375,8 @@ router.post('/send-otp', async (req, res) => {
     console.error('Error stack:', error.stack);
 
 
+
+    console.error('Error stack:', error.stack);
 
     res.status(500).json({
       message: 'Internal server error during OTP process. Please try again.'
