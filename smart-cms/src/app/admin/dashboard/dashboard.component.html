@@ -1,9 +1,711 @@
-<div class="h-screen bg-[#101935] flex flex-col font-sans text-white">
-  <div class="flex-1 overflow-y-auto flex items-center justify-center">
-    <div class="container mx-auto px-4 text-center">
-      <h1 class="text-4xl font-bold text-white mb-4">Admin Dashboard</h1>
+<mat-sidenav-container class="h-screen bg-[#050816] text-white">
+  <!-- Sidebar -->
+  <mat-sidenav
+    mode="side"
+    opened
+    class="w-64 !bg-[#0F172A] border-r border-[#1E293B] flex flex-col"
+  >
+    <div class="flex items-center gap-3 px-4 pt-4 pb-3">
+      <img
+        src="/assets/MEAN_Logo_Dark.png"
+        alt="SmartCMS Logo"
+        class="h-10 w-auto object-contain"
+      />
+      <span class="text-sm font-semibold text-[#E1F2FE] tracking-tight">
+        SmartCMS
+      </span>
     </div>
-  </div>
-</div>
 
+    <nav class="mt-4 flex-1 space-y-1 px-2 text-sm font-semibold">
+      <button
+        mat-button
+        class="w-full justify-start gap-3 rounded-xl px-3 py-2 bg-[#0B1220] text-white border border-[#3083DC]/70 shadow-md shadow-[#3083DC]/40"
+      >
+        <span class="inline-flex h-5 w-5 items-center justify-center">
+          <svg
+            class="h-5 w-5 text-[#E1F2FE]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            />
+          </svg>
+        </span>
+        <span>Dashboard</span>
+      </button>
 
+      <button
+        mat-button
+        class="w-full justify-start gap-3 rounded-xl px-3 py-2 text-[#D6DEF6] hover:bg-[#020617]/60 hover:text-white"
+      >
+        <span class="inline-flex h-5 w-5 items-center justify-center">
+          <svg
+            class="h-5 w-5 text-[#E1F2FE]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+            />
+          </svg>
+        </span>
+        <span>Employees</span>
+      </button>
+
+      <button
+        mat-button
+        class="w-full justify-start gap-3 rounded-xl px-3 py-2 text-[#D6DEF6] hover:bg-[#020617]/60 hover:text-white"
+      >
+        <span class="inline-flex h-5 w-5 items-center justify-center">
+          <svg
+            class="h-5 w-5 text-[#E1F2FE]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+            />
+          </svg>
+        </span>
+        <span>Departments</span>
+      </button>
+
+      <button
+        mat-button
+        class="w-full justify-start gap-3 rounded-xl px-3 py-2 text-[#D6DEF6] hover:bg-[#020617]/60 hover:text-white"
+      >
+        <span class="inline-flex h-5 w-5 items-center justify-center">
+          <svg
+            class="h-5 w-5 text-[#E1F2FE]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </span>
+        <span>Attendance</span>
+      </button>
+
+      <button
+        mat-button
+        class="w-full justify-start gap-3 rounded-xl px-3 py-2 text-[#D6DEF6] hover:bg-[#020617]/60 hover:text-white"
+      >
+        <span class="inline-flex h-5 w-5 items-center justify-center">
+          <svg
+            class="h-5 w-5 text-[#E1F2FE]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            />
+          </svg>
+        </span>
+        <span>Leave Requests</span>
+      </button>
+
+      <button
+        mat-button
+        class="w-full justify-start gap-3 rounded-xl px-3 py-2 text-[#D6DEF6] hover:bg-[#020617]/60 hover:text-white"
+      >
+        <span class="inline-flex h-5 w-5 items-center justify-center">
+          <svg
+            class="h-5 w-5 text-[#E1F2FE]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+            />
+          </svg>
+        </span>
+        <span>Tasks</span>
+      </button>
+
+      <button
+        mat-button
+        class="w-full justify-start gap-3 rounded-xl px-3 py-2 text-[#D6DEF6] hover:bg-[#020617]/60 hover:text-white"
+      >
+        <span class="inline-flex h-5 w-5 items-center justify-center">
+          <svg
+            class="h-5 w-5 text-[#E1F2FE]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+        </span>
+        <span>Payroll</span>
+      </button>
+
+      <button
+        mat-button
+        class="w-full justify-start gap-3 rounded-xl px-3 py-2 text-[#D6DEF6] hover:bg-[#020617]/60 hover:text-white"
+      >
+        <span class="inline-flex h-5 w-5 items-center justify-center">
+          <svg
+            class="h-5 w-5 text-[#E1F2FE]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+            />
+          </svg>
+        </span>
+        <span>Reports</span>
+      </button>
+
+      <button
+        mat-button
+        class="w-full justify-start gap-3 rounded-xl px-3 py-2 text-[#D6DEF6] hover:bg-[#020617]/60 hover:text-white"
+      >
+        <span class="inline-flex h-5 w-5 items-center justify-center">
+          <svg
+            class="h-5 w-5 text-[#E1F2FE]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            ></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            ></path>
+          </svg>
+        </span>
+        <span>Settings</span>
+      </button>
+    </nav>
+  </mat-sidenav>
+
+  <!-- Main Content Area -->
+  <mat-sidenav-content>
+    <div class="flex h-screen flex-col">
+      <!-- Top Header Bar -->
+      <mat-toolbar class="!bg-[#020617] border-b border-[#1E293B] px-4 md:px-8">
+        <span class="text-base md:text-lg font-semibold tracking-wide">
+          Admin Dashboard
+        </span>
+        <span class="flex-1"></span>
+
+        <div class="hidden items-center gap-4 md:flex">
+          <mat-form-field
+            appearance="outline"
+            class="w-64 bg-[#020617] rounded-full text-sm"
+          >
+            <mat-label>Search</mat-label>
+            <input matInput placeholder="Search employees, tasks..." class="text-xs md:text-sm" />
+          </mat-form-field>
+
+          <button
+            mat-icon-button
+            class="relative text-[#E1F2FE] hover:text-white"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.21 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+              />
+            </svg>
+            <span
+              class="absolute -right-1 -top-1 rounded-full bg-[#EE964B] px-1.5 text-[10px] font-bold text-[#101935]"
+            >
+              3
+            </span>
+          </button>
+
+          <button
+            mat-button
+            class="flex items-center gap-2 rounded-full border border-white/10 bg-[#1B264F] px-3 py-1.5 text-sm font-semibold"
+          >
+            <div
+              class="flex h-8 w-8 items-center justify-center rounded-full bg-[#3083DC] text-sm font-bold"
+            >
+              H
+            </div>
+            <span class="hidden md:inline">Admin</span>
+          </button>
+        </div>
+      </mat-toolbar>
+
+      <!-- Dashboard Content -->
+      <main
+        class="flex-1 space-y-6 overflow-y-auto bg-gradient-to-b from-[#020617] via-[#020617] to-[#020617] px-4 py-4 md:px-8 md:py-6"
+      >
+        <!-- Summary Cards Row -->
+        <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <mat-card
+            class="flex items-center justify-between rounded-2xl border border-[#E1F2FE] bg-[#f8ffe5] px-4 py-4 text-[#101935] shadow-xl"
+          >
+            <div>
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-[#6B7280]"
+              >
+                Total Employees
+              </p>
+              <p class="mt-1 text-2xl font-extrabold">247</p>
+            </div>
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E1F2FE]"
+            >
+              <svg
+                class="h-6 w-6 text-[#3083DC]"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+            </div>
+          </mat-card>
+
+          <mat-card
+            class="flex items-center justify-between rounded-2xl border border-[#E1F2FE] bg-[#f8ffe5] px-4 py-4 text-[#101935] shadow-xl"
+          >
+            <div>
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-[#6B7280]"
+              >
+                Departments
+              </p>
+              <p class="mt-1 text-2xl font-extrabold">12</p>
+            </div>
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E1F2FE]"
+            >
+              <svg
+                class="h-6 w-6 text-[#3083DC]"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+            </div>
+          </mat-card>
+
+          <mat-card
+            class="flex items-center justify-between rounded-2xl border border-[#E1F2FE] bg-[#f8ffe5] px-4 py-4 text-[#101935] shadow-xl"
+          >
+            <div>
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-[#6B7280]"
+              >
+                Pending Leave Requests
+              </p>
+              <p class="mt-1 text-2xl font-extrabold">18</p>
+            </div>
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E1F2FE]"
+            >
+              <svg
+                class="h-6 w-6 text-[#3083DC]"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+          </mat-card>
+
+          <mat-card
+            class="flex items-center justify-between rounded-2xl border border-[#E1F2FE] bg-[#f8ffe5] px-4 py-4 text-[#101935] shadow-xl"
+          >
+            <div>
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-[#6B7280]"
+              >
+                Active Projects
+              </p>
+              <p class="mt-1 text-2xl font-extrabold">34</p>
+            </div>
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E1F2FE]"
+            >
+              <svg
+                class="h-6 w-6 text-[#3083DC]"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                />
+              </svg>
+            </div>
+          </mat-card>
+        </section>
+
+        <!-- Charts Section -->
+        <section class="grid gap-4 lg:grid-cols-3">
+          <!-- Attendance Overview -->
+          <mat-card
+            class="lg:col-span-2 rounded-2xl border border-[#E1F2FE] bg-[#f8ffe5] p-4 text-[#101935] shadow-xl md:p-5"
+          >
+            <h3 class="mb-3 text-sm font-semibold text-[#101935]">
+              Attendance Overview
+            </h3>
+            <div class="rounded-xl bg-[#E1F2FE] p-4">
+              <div
+                class="grid h-40 grid-cols-7 items-end gap-3 md:h-44 lg:h-48"
+              >
+                <div
+                  class="rounded-md bg-gradient-to-t from-[#1B264F] to-[#3083DC] shadow-md"
+                  style="height: 75%"
+                ></div>
+                <div
+                  class="rounded-md bg-gradient-to-t from-[#1B264F] to-[#3083DC] shadow-md"
+                  style="height: 85%"
+                ></div>
+                <div
+                  class="rounded-md bg-gradient-to-t from-[#1B264F] to-[#3083DC] shadow-md"
+                  style="height: 65%"
+                ></div>
+                <div
+                  class="rounded-md bg-gradient-to-t from-[#1B264F] to-[#3083DC] shadow-md"
+                  style="height: 90%"
+                ></div>
+                <div
+                  class="rounded-md bg-gradient-to-t from-[#1B264F] to-[#3083DC] shadow-md"
+                  style="height: 80%"
+                ></div>
+                <div
+                  class="rounded-md bg-gradient-to-t from-[#1B264F] to-[#3083DC] shadow-md"
+                  style="height: 70%"
+                ></div>
+                <div
+                  class="rounded-md bg-gradient-to-t from-[#1B264F] to-[#3083DC] shadow-md"
+                  style="height: 95%"
+                ></div>
+              </div>
+              <div
+                class="mt-3 grid grid-cols-7 text-center text-[11px] font-semibold text-[#1B264F]"
+              >
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+                <span>Sun</span>
+              </div>
+            </div>
+          </mat-card>
+
+          <!-- Employee Distribution -->
+          <mat-card
+            class="flex flex-col gap-4 rounded-2xl border border-[#E1F2FE] bg-[#f8ffe5] p-4 text-[#101935] shadow-xl md:p-5"
+          >
+            <h3 class="text-sm font-semibold text-[#101935]">
+              Employee Distribution
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <div class="flex items-center justify-between text-xs">
+                  <span>Engineering</span>
+                  <span class="font-semibold">30%</span>
+                </div>
+                <div class="mt-1 h-2 rounded-full bg-[#E1F2FE]">
+                  <div
+                    class="h-2 rounded-full bg-[#3083DC]"
+                    style="width: 30%"
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-xs">
+                  <span>Marketing</span>
+                  <span class="font-semibold">25%</span>
+                </div>
+                <div class="mt-1 h-2 rounded-full bg-[#E1F2FE]">
+                  <div
+                    class="h-2 rounded-full bg-[#EE964B]"
+                    style="width: 25%"
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-xs">
+                  <span>Sales</span>
+                  <span class="font-semibold">20%</span>
+                </div>
+                <div class="mt-1 h-2 rounded-full bg-[#E1F2FE]">
+                  <div
+                    class="h-2 rounded-full bg-[#3083DC] opacity-70"
+                    style="width: 20%"
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-xs">
+                  <span>HR</span>
+                  <span class="font-semibold">15%</span>
+                </div>
+                <div class="mt-1 h-2 rounded-full bg-[#E1F2FE]">
+                  <div
+                    class="h-2 rounded-full bg-[#1B264F]"
+                    style="width: 15%"
+                  ></div>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between text-xs">
+                  <span>Finance</span>
+                  <span class="font-semibold">10%</span>
+                </div>
+                <div class="mt-1 h-2 rounded-full bg-[#E1F2FE]">
+                  <div
+                    class="h-2 rounded-full bg-[#3083DC] opacity-40"
+                    style="width: 10%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+        </section>
+
+        <!-- Bottom Section -->
+        <section class="grid gap-4 lg:grid-cols-3">
+          <!-- Recent Activities Table -->
+          <mat-card
+            class="lg:col-span-2 rounded-2xl border border-[#E1F2FE] bg-[#f8ffe5] p-4 text-[#101935] shadow-xl md:p-5"
+          >
+            <h3 class="mb-3 text-sm font-semibold text-[#101935]">
+              Recent Activities
+            </h3>
+            <div class="max-h-80 overflow-auto rounded-xl border border-[#E1F2FE] bg-[#E1F2FE]">
+              <table class="min-w-full text-left text-xs md:text-sm">
+                <thead class="bg-[#E1F2FE] text-[#101935]">
+                  <tr>
+                    <th class="px-4 py-2 font-semibold">Activity</th>
+                    <th class="px-4 py-2 font-semibold">Employee</th>
+                    <th class="px-4 py-2 font-semibold">Department</th>
+                    <th class="px-4 py-2 font-semibold">Date</th>
+                    <th class="px-4 py-2 font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-[#f8ffe5]/80">
+                  <tr class="border-t border-[#E1F2FE]">
+                    <td class="px-4 py-2">New Employee Joined</td>
+                    <td class="px-4 py-2">John Doe</td>
+                    <td class="px-4 py-2">Engineering</td>
+                    <td class="px-4 py-2">Jan 5, 2025</td>
+                    <td class="px-4 py-2">
+                      <span
+                        class="inline-flex rounded-full bg-[#3083DC]/15 px-3 py-0.5 text-[11px] font-semibold text-[#0F55A4]"
+                      >
+                        Active
+                      </span>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-[#E1F2FE]">
+                    <td class="px-4 py-2">Leave Request</td>
+                    <td class="px-4 py-2">Jane Smith</td>
+                    <td class="px-4 py-2">Marketing</td>
+                    <td class="px-4 py-2">Jan 4, 2025</td>
+                    <td class="px-4 py-2">
+                      <span
+                        class="inline-flex rounded-full bg-[#EE964B]/15 px-3 py-0.5 text-[11px] font-semibold text-[#B25F20]"
+                      >
+                        Pending
+                      </span>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-[#E1F2FE]">
+                    <td class="px-4 py-2">Task Completed</td>
+                    <td class="px-4 py-2">Mike Johnson</td>
+                    <td class="px-4 py-2">Sales</td>
+                    <td class="px-4 py-2">Jan 4, 2025</td>
+                    <td class="px-4 py-2">
+                      <span
+                        class="inline-flex rounded-full bg-[#3083DC]/15 px-3 py-0.5 text-[11px] font-semibold text-[#0F55A4]"
+                      >
+                        Completed
+                      </span>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-[#E1F2FE]">
+                    <td class="px-4 py-2">Leave Approved</td>
+                    <td class="px-4 py-2">Sarah Williams</td>
+                    <td class="px-4 py-2">HR</td>
+                    <td class="px-4 py-2">Jan 3, 2025</td>
+                    <td class="px-4 py-2">
+                      <span
+                        class="inline-flex rounded-full bg-[#3083DC]/15 px-3 py-0.5 text-[11px] font-semibold text-[#0F55A4]"
+                      >
+                        Approved
+                      </span>
+                    </td>
+                  </tr>
+                  <tr class="border-t border-[#E1F2FE]">
+                    <td class="px-4 py-2">New Employee Joined</td>
+                    <td class="px-4 py-2">Robert Brown</td>
+                    <td class="px-4 py-2">Finance</td>
+                    <td class="px-4 py-2">Jan 3, 2025</td>
+                    <td class="px-4 py-2">
+                      <span
+                        class="inline-flex rounded-full bg-[#3083DC]/15 px-3 py-0.5 text-[11px] font-semibold text-[#0F55A4]"
+                      >
+                        Active
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </mat-card>
+
+          <!-- Upcoming Approvals -->
+          <mat-card
+            class="flex flex-col gap-3 rounded-2xl border border-[#E1F2FE] bg-[#f8ffe5] p-4 text-[#101935] shadow-xl md:p-5"
+          >
+            <h3 class="text-sm font-semibold text-[#101935]">
+              Upcoming Approvals
+            </h3>
+            <div class="space-y-3">
+              <div
+                class="flex items-center justify-between rounded-xl border border-[#E1F2FE] bg-[#E1F2FE]/70 p-3"
+              >
+                <div>
+                  <p class="text-sm font-semibold">Leave Request</p>
+                  <p class="text-xs text-[#4B5563]">
+                    Jane Smith · Marketing
+                  </p>
+                  <p class="mt-1 text-xs font-semibold text-[#3083DC]">
+                    Jan 6, 2025
+                  </p>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    class="!bg-[#3083DC] !text-white !text-xs"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    mat-stroked-button
+                    class="!border-[#EE964B] !text-[#B25F20] !text-xs"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="flex items-center justify-between rounded-xl border border-[#E1F2FE] bg-[#E1F2FE]/70 p-3"
+              >
+                <div>
+                  <p class="text-sm font-semibold">Expense Claim</p>
+                  <p class="text-xs text-[#4B5563]">Mike Johnson · Sales</p>
+                  <p class="mt-1 text-xs font-semibold text-[#3083DC]">
+                    Jan 7, 2025
+                  </p>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    class="!bg-[#3083DC] !text-white !text-xs"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    mat-stroked-button
+                    class="!border-[#EE964B] !text-[#B25F20] !text-xs"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+
+              <div
+                class="flex items-center justify-between rounded-xl border border-[#E1F2FE] bg-[#E1F2FE]/70 p-3"
+              >
+                <div>
+                  <p class="text-sm font-semibold">Leave Request</p>
+                  <p class="text-xs text-[#4B5563]">
+                    David Lee · Engineering
+                  </p>
+                  <p class="mt-1 text-xs font-semibold text-[#3083DC]">
+                    Jan 8, 2025
+                  </p>
+                </div>
+                <div class="flex flex-col gap-1">
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    class="!bg-[#3083DC] !text-white !text-xs"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    mat-stroked-button
+                    class="!border-[#EE964B] !text-[#B25F20] !text-xs"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          </mat-card>
+        </section>
+      </main>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
