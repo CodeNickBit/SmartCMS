@@ -30,6 +30,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   message: string;
   user: any;
+  role?: string;
 }
 
 export interface OTPResponse {

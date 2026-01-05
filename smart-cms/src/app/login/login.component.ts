@@ -81,7 +81,6 @@ export class LoginComponent {
       }
       return;
     }
-    
 
     this.isLoading = true;
     this.authService.login({ email: this.email, password: this.password })
@@ -89,6 +88,14 @@ export class LoginComponent {
         next: (response) => {
           this.isLoading = false;
           alert(response.message);
+          
+          // Navigate based on role
+          if (response.role === 'admin') {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            // Navigate to user dashboard or home page
+            // this.router.navigate(['/dashboard']);
+          }
         },
         error: (error) => {
           this.isLoading = false;
