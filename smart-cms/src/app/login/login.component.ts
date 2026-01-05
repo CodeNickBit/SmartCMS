@@ -27,6 +27,8 @@ export class LoginComponent {
   resetLoading: boolean = false;
   resetError: string = '';
 
+  showPassword: boolean = false;
+
   constructor(private authService: AuthService, private router: Router) { }
   // Validate Email
   validateEmail(email: string): boolean {
@@ -69,7 +71,7 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.isLoading) return;
-    
+
     if (!this.validateForm()) {
       // Scroll to first error
       const firstError = Object.keys(this.errors)[0];
@@ -88,7 +90,11 @@ export class LoginComponent {
         next: (response) => {
           this.isLoading = false;
           alert(response.message);
-          
+
+          // Store session
+          localStorage.setItem('token', response.user.token || ''); // Assuming token might be in user object or separate
+          localStorage.setItem('user', JSON.stringify(response.user));
+
           // Navigate based on role
           if (response.role === 'admin') {
             this.router.navigate(['/admin/dashboard']);

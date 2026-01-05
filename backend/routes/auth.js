@@ -13,8 +13,8 @@ const otpStore = new Map();
 function createTransporter() {
   const emailUser = (process.env.EMAIL_USER || 'ankbizzcorp@gmail.com').trim();
   // Remove all spaces from app password (Google app passwords should be 16 characters without spaces)
-  const emailPassword = process.env.EMAIL_PASSWORD 
-    ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '') 
+  const emailPassword = process.env.EMAIL_PASSWORD
+    ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '')
     : '';
 
   if (!emailPassword) {
@@ -98,6 +98,46 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Register Admin route
+router.post('/register-admin', async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({ email });
+    if (existingAdmin) {
+      return res.status(400).json({
+        message: 'Admin already exists with this email'
+      });
+    }
+
+    // Create new admin
+    const admin = new Admin({
+      name,
+      email,
+      password,
+      role: role || 'admin'
+    });
+
+    await admin.save();
+
+    res.status(201).json({
+      message: 'Admin registered successfully',
+      admin: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+        role: admin.role
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Admin registration failed',
+      error: error.message
+    });
+  }
+});
+
 // Login route
 router.post('/login', async (req, res) => {
   try {
@@ -116,7 +156,7 @@ router.post('/login', async (req, res) => {
       // Check password - handle both hashed and plain text (for manually inserted records)
       let isPasswordValid = false;
       const isHashed = admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$') || admin.password.startsWith('$2y$');
-      
+
       if (isHashed) {
         // Password is already hashed, use comparePassword
         isPasswordValid = await admin.comparePassword(password);
@@ -282,14 +322,14 @@ router.post('/send-otp', async (req, res) => {
       console.error('Error code:', emailError.code);
       console.error('Error command:', emailError.command);
       console.error('Error response:', emailError.response);
-      
+
       // Remove stored OTP if email sending failed
       otpStore.delete(normalizedEmail);
-      
+
       // Provide more specific error messages based on error code
       let errorMessage = 'Failed to send OTP. Please try again.';
       let statusCode = 500;
-      
+
       if (emailError.code === 'EAUTH') {
         errorMessage = 'Email authentication failed. Please check email configuration.';
         statusCode = 500;
@@ -300,7 +340,7 @@ router.post('/send-otp', async (req, res) => {
         errorMessage = 'Invalid email address. Please check and try again.';
         statusCode = 400;
       }
-      
+
       return res.status(statusCode).json({
         message: errorMessage
       });
@@ -315,7 +355,7 @@ router.post('/send-otp', async (req, res) => {
     // Catch any unexpected errors
     console.error('Unexpected error in send-otp endpoint:', error);
     console.error('Error stack:', error.stack);
-    
+
     res.status(500).json({
       message: 'Internal server error during OTP process. Please try again.'
     });
