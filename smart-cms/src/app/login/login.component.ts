@@ -186,15 +186,21 @@ export class LoginComponent {
       }
       return;
     }
-    
 
     this.isLoading = true;
     this.authService.login({ email: this.email, password: this.password })
       .subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.authService.setUser(response.user);
-          this.router.navigate(['/home']);
+          alert(response.message);
+          
+          // Navigate based on role
+          if (response.role === 'admin') {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            // Navigate to user dashboard or home page
+            // this.router.navigate(['/dashboard']);
+          }
         },
         error: (error) => {
           this.isLoading = false;
