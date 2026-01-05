@@ -150,7 +150,7 @@ router.post('/login', async (req, res) => {
       // Check password - handle both hashed and plain text (for manually inserted records)
       let isPasswordValid = false;
       const isHashed = admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$') || admin.password.startsWith('$2y$');
-
+      
       if (isHashed) {
         // Password is already hashed, use comparePassword
         isPasswordValid = await admin.comparePassword(password);

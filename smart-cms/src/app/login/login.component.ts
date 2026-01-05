@@ -193,19 +193,14 @@ export class LoginComponent {
         next: (response) => {
           this.isLoading = false;
           alert(response.message);
-
-          // Store session
-          localStorage.setItem('token', response.user.token || ''); // Assuming token might be in user object or separate
-          localStorage.setItem('user', JSON.stringify(response.user));
-
-            // Navigate based on role
-            if (response.role === 'admin') {
-              this.router.navigate(['/admin/dashboard']);
-            } else {
-              // Navigate to user dashboard or home page
-              this.router.navigate(['/home']);
-            }
-
+          
+          // Navigate based on role
+          if (response.role === 'admin') {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            // Navigate to user dashboard or home page
+            // this.router.navigate(['/dashboard']);
+          }
         },
         error: (error) => {
           this.isLoading = false;
