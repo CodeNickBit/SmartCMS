@@ -203,6 +203,8 @@ export class LoginComponent {
           localStorage.setItem('token', response.user.token || ''); // Assuming token might be in user object or separate
           localStorage.setItem('user', JSON.stringify(response.user));
 
+          alert(response.message);
+          
           // Navigate based on role
           if (response.role === 'admin') {
             this.router.navigate(['/admin/dashboard']);
