@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Admin = require('../models/Admin');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 
 const otpStore = new Map();
 
@@ -93,13 +95,57 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({
-        message: 'Email and password are required'
+    // First check if it's an admin
+    const admin = await Admin.findOne({ email: email.toLowerCase() });
+    if (admin) {
+      // Check if admin is active
+      if (!admin.isActive) {
+        return res.status(401).json({
+          message: 'Account is deactivated. Please contact administrator.'
+        });
+      }
+
+      // Check password - handle both hashed and plain text (for manually inserted records)
+      let isPasswordValid = false;
+      const isHashed = admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$') || admin.password.startsWith('$2y$');
+      
+      if (isHashed) {
+        // Password is already hashed, use comparePassword
+        isPasswordValid = await admin.comparePassword(password);
+      } else {
+        // Password is plain text (manually inserted), compare directly
+        if (admin.password === password) {
+          isPasswordValid = true;
+          // Hash the password and save it for future logins
+          const salt = await bcrypt.genSalt(10);
+          admin.password = await bcrypt.hash(password, salt);
+          await admin.save();
+        }
+      }
+
+      if (!isPasswordValid) {
+        return res.status(401).json({
+          message: 'Invalid email or password'
+        });
+      }
+
+      // Update last login
+      admin.lastLogin = new Date();
+      await admin.save();
+
+      // Remove password from response
+      const adminResponse = admin.toObject();
+      delete adminResponse.password;
+
+      return res.json({
+        message: 'Admin login successful',
+        user: adminResponse,
+        role: 'admin'
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    // If not admin, check for regular user
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(401).json({
         message: 'Invalid email or password'
@@ -118,7 +164,8 @@ router.post('/login', async (req, res) => {
 
     res.json({
       message: 'Login successful',
-      user: userResponse
+      user: userResponse,
+      role: 'user'
     });
   } catch (error) {
     console.error('Login error:', error);
