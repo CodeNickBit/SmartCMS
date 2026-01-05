@@ -5,6 +5,7 @@ import { SignupComponent } from './signup/signup.component';
 import { DashboardComponent } from './admin/dashboard/dashboard.component';
 
 import { HomeComponent } from './home/home.component';
+import { DashboardComponent } from './admin/dashboard/dashboard.component';
 
 
 export const routes: Routes = [
@@ -16,5 +17,6 @@ export const routes: Routes = [
 
 	{ path: 'home', component: HomeComponent },
 
+	{ path: 'admin/dashboard', component: DashboardComponent },
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
 ];

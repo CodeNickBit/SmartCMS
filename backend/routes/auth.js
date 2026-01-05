@@ -160,6 +160,7 @@ router.post('/login', async (req, res) => {
       let isPasswordValid = false;
       const isHashed = admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$') || admin.password.startsWith('$2y$');
 
+      
       if (isHashed) {
         // Password is already hashed, use comparePassword
         isPasswordValid = await admin.comparePassword(password);
@@ -206,6 +207,11 @@ router.post('/login', async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase().trim() });
 
+      });
+    }
+
+    // If not admin, check for regular user
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(401).json({
         message: 'Invalid email or password'
