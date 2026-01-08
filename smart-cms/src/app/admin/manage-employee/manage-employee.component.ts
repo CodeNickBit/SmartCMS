@@ -37,6 +37,10 @@ export class ManageEmployeeComponent implements OnInit {
   searchQuery: string = '';
   filterStatus: string = 'All';
 
+  // Edit Mode State
+  isEditing: boolean = false;
+  editingEmployee: any = null;
+
   constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService) { }
 
   ngOnInit() {
@@ -91,6 +95,56 @@ export class ManageEmployeeComponent implements OnInit {
 
   getDisplayName(emp: any): string {
     return emp.name || `${emp.firstName} ${emp.lastName}`;
+  }
+
+  // Actions
+  editEmployee(emp: any) {
+    this.editingEmployee = { ...emp };
+    this.isEditing = true;
+  }
+
+  cancelEdit() {
+    this.isEditing = false;
+    this.editingEmployee = null;
+  }
+
+  saveEmployee() {
+    if (!this.editingEmployee) return;
+
+    this.authService.updateUser(this.editingEmployee._id, this.editingEmployee).subscribe({
+      next: () => {
+        this.loadEmployees();
+        this.isEditing = false;
+        this.editingEmployee = null;
+        alert('Employee updated successfully');
+      },
+      error: (err) => {
+        console.error('Update failed', err);
+        alert('Failed to update employee');
+      }
+    });
+  }
+
+  toggleStatus(emp: any) {
+    const newStatus = emp.active_inactive === false; // Toggle
+    const action = newStatus ? 'activate' : 'deactivate';
+    
+    if (confirm(`Are you sure you want to ${action} this employee?`)) {
+      this.authService.updateUserStatus(emp._id, newStatus).subscribe({
+        next: () => {
+          this.loadEmployees();
+          alert(`Employee ${newStatus ? 'activated' : 'deactivated'} successfully`);
+        },
+        error: (err) => {
+          console.error('Status update failed', err);
+          alert('Failed to update status');
+        }
+      });
+    }
+  }
+
+  empUpload() {
+    alert('EMP Upload functionality coming soon!');
   }
 
   logout() {
