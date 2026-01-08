@@ -82,4 +82,8 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
+
+  getUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${API_URL}/users`);
+  }
 }
