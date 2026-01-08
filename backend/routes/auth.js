@@ -448,4 +448,41 @@ router.get('/users', async (req, res) => {
   }
 });
 
+// Update user
+router.put('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = { ...req.body };
+    
+    // Don't allow password update through this route
+    delete updateData.password;
+    
+    const user = await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({ message: 'User updated successfully', user });
+  } catch (error) {
+    res.status(400).json({ message: 'Failed to update user', error: error.message });
+  }
+});
+
+// Toggle user status (active/inactive)
+router.patch('/users/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { active_inactive } = req.body;
+    
+    const user = await User.findByIdAndUpdate(id, { active_inactive }, { new: true }).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({ message: `User ${active_inactive ? 'activated' : 'deactivated'} successfully`, user });
+  } catch (error) {
+    res.status(400).json({ message: 'Failed to update user status', error: error.message });
+  }
+});
+
 module.exports = router;
