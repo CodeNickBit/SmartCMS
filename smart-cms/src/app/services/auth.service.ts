@@ -47,10 +47,14 @@ export interface VerifyOTPResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   register(data: RegisterRequest): Observable<RegisterResponse> {
     return this.http.post<RegisterResponse>(`${API_URL}/register`, data);
+  }
+
+  registerAdmin(data: any): Observable<any> {
+    return this.http.post(`${API_URL}/register-admin`, data);
   }
 
   login(data: LoginRequest): Observable<LoginResponse> {
