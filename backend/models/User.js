@@ -58,6 +58,14 @@ const userSchema = new mongoose.Schema({
     joiningDate: {
       type: Date
     },
+    address: {
+      type: String,
+      trim: true
+    },
+    emergencyContact: {
+      type: String,
+      trim: true
+    },
     active_inactive: {
       type: Boolean,
       default: true
