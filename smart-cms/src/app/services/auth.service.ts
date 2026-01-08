@@ -86,4 +86,12 @@ export class AuthService {
   getUsers(): Observable<any[]> {
     return this.http.get<any[]>(`${API_URL}/users`);
   }
+
+  updateUserStatus(id: string, active_inactive: boolean): Observable<any> {
+    return this.http.patch(`${API_URL}/users/${id}/status`, { active_inactive });
+  }
+
+  updateUser(id: string, data: any): Observable<any> {
+    return this.http.put(`${API_URL}/users/${id}`, data);
+  }
 }
