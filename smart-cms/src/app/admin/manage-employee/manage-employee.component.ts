@@ -78,7 +78,7 @@ export class ManageEmployeeComponent implements OnInit {
         emp.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
         (emp.employeeId && emp.employeeId.toLowerCase().includes(this.searchQuery.toLowerCase()));
       
-      const status = emp.isActive ? 'Active' : 'Inactive';
+        const status = emp.active_inactive !== false ? 'Active' : 'Inactive';
       const matchesStatus = this.filterStatus === 'All' || status === this.filterStatus;
       
       return matchesSearch && matchesStatus;

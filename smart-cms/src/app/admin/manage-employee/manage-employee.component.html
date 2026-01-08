@@ -228,25 +228,25 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              <tr *ngFor="let emp of filteredEmployees" class="hover:bg-blue-50/50 transition-colors">
-                <td class="px-6 py-4 font-medium text-slate-500">{{ emp.employeeId || 'N/A' }}</td>
-                <td class="px-6 py-4">
-                  <div class="flex items-center gap-3">
-                    <div class="h-8 w-8 rounded-full bg-[#3083DC]/10 flex items-center justify-center text-[#3083DC] font-bold">
-                      {{ getDisplayName(emp).charAt(0) }}
+                <tr *ngFor="let emp of filteredEmployees" class="hover:bg-blue-50/50 transition-colors">
+                  <td class="px-6 py-4 font-medium text-slate-500">{{ emp.employeeId || 'N/A' }}</td>
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="h-8 w-8 rounded-full bg-[#3083DC]/10 flex items-center justify-center text-[#3083DC] font-bold">
+                        {{ getDisplayName(emp).charAt(0) }}
+                      </div>
+                      <span class="font-bold text-[#101935]">{{ getDisplayName(emp) }}</span>
                     </div>
-                    <span class="font-bold text-[#101935]">{{ getDisplayName(emp) }}</span>
-                  </div>
-                </td>
-                <td class="px-6 py-4 text-slate-600">{{ emp.email }}</td>
-                <td class="px-6 py-4 text-slate-600">{{ emp.department || 'N/A' }}</td>
-                <td class="px-6 py-4 text-slate-600">{{ emp.designation || 'N/A' }}</td>
-                <td class="px-6 py-4">
-                  <span [class]="emp.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'"
-                    class="px-2.5 py-1 rounded-full text-xs font-bold border border-transparent">
-                    {{ emp.isActive ? 'Active' : 'Inactive' }}
-                  </span>
-                </td>
+                  </td>
+                  <td class="px-6 py-4 text-slate-600">{{ emp.email }}</td>
+                  <td class="px-6 py-4 text-slate-600">{{ emp.department || 'N/A' }}</td>
+                  <td class="px-6 py-4 text-slate-600">{{ emp.designation || 'N/A' }}</td>
+                  <td class="px-6 py-4">
+                    <span [class]="emp.active_inactive !== false ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'"
+                      class="px-2.5 py-1 rounded-full text-xs font-bold border border-transparent">
+                      {{ emp.active_inactive !== false ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex justify-end gap-2">
                     <button class="p-2 text-slate-400 hover:text-[#3083DC] transition-colors" title="View Profile">
