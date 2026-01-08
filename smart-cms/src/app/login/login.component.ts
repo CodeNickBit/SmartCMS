@@ -200,13 +200,14 @@ export class LoginComponent {
           localStorage.setItem('token', response.user.token || ''); // Assuming token might be in user object or separate
           localStorage.setItem('user', JSON.stringify(response.user));
 
-          // Navigate based on role
-          if (response.role === 'admin') {
-            this.router.navigate(['/admin/dashboard']);
-          } else {
-            // Navigate to user dashboard or home page
-            // this.router.navigate(['/dashboard']);
-          }
+            // Navigate based on role
+            if (response.role === 'admin') {
+              this.router.navigate(['/admin/dashboard']);
+            } else {
+              // Navigate to user dashboard or home page
+              this.router.navigate(['/home']);
+            }
+
         },
         error: (error) => {
           this.isLoading = false;
