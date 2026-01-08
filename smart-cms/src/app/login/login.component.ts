@@ -219,6 +219,13 @@ export class LoginComponent {
 
           this.authService.setUser(response.user);
           this.router.navigate(['/home']);
+            // Navigate based on role
+            if (response.role === 'admin') {
+              this.router.navigate(['/admin/dashboard']);
+            } else {
+              // Navigate to user dashboard or home page
+              this.router.navigate(['/home']);
+            }
 
         },
         error: (error) => {
