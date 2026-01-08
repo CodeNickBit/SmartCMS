@@ -10,5 +10,6 @@ export const routes: Routes = [
 	{ path: 'home', component: HomeComponent },
 	{ path: 'admin/dashboard', component: DashboardComponent },
 	{ path: 'admin/add-users', loadComponent: () => import('./admin/add-user/add-user.component').then(m => m.AddUserComponent) },
+	{ path: 'admin/manage-employee', loadComponent: () => import('./admin/manage-employee/manage-employee.component').then(m => m.ManageEmployeeComponent) },
 	{ path: '', redirectTo: 'login', pathMatch: 'full' },
 ];
