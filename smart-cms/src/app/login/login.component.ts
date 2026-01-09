@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-login',
-  standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   email: string = '';
@@ -16,6 +16,20 @@ export class LoginComponent {
   isLoading: boolean = false;
   errors: { [key: string]: string } = {};
 
+  // Forgot Password State
+  showForgotModal: boolean = false;
+  resetStep: number = 1; // 1: Email, 2: OTP, 3: New Password
+  resetEmail: string = '';
+  resetOtp: string = '';
+  newPassword: string = '';
+  confirmPassword: string = '';
+  resetToken: string = '';
+  resetLoading: boolean = false;
+  resetError: string = '';
+
+  showPassword: boolean = false;
+
+  constructor(private authService: AuthService, private router: Router) { }
   // Validate Email
   validateEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,7 +71,7 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.isLoading) return;
-    
+
     if (!this.validateForm()) {
       // Scroll to first error
       const firstError = Object.keys(this.errors)[0];
@@ -69,20 +83,115 @@ export class LoginComponent {
       }
       return;
     }
-    
+
     this.isLoading = true;
-    console.log('Login attempt:', { 
-      email: this.email, 
-      password: this.password,
-      rememberMe: this.rememberMe,
-      timestamp: new Date().toISOString()
+    this.authService.login({ email: this.email, password: this.password })
+      .subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          alert(response.message);
+
+          // Store session
+          localStorage.setItem('token', response.user.token || ''); // Assuming token might be in user object or separate
+          localStorage.setItem('user', JSON.stringify(response.user));
+
+          // Navigate based on role
+          if (response.role === 'admin') {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            // Navigate to user dashboard or home page
+            // this.router.navigate(['/dashboard']);
+          }
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Login Error:', error);
+          if (error.error && error.error.message) {
+            alert(error.error.message);
+            this.errors['general'] = error.error.message;
+          } else {
+            alert('Login failed: ' + error.message);
+            this.errors['general'] = 'Login failed: ' + error.message;
+          }
+        }
+      });
+  }
+
+  // Forgot Password Methods
+  openForgotModal() {
+    this.showForgotModal = true;
+    this.resetStep = 1;
+    this.resetEmail = '';
+    this.resetOtp = '';
+    this.newPassword = '';
+    this.confirmPassword = '';
+    this.resetError = '';
+  }
+
+  closeForgotModal() {
+    this.showForgotModal = false;
+  }
+
+  sendResetOtp() {
+    if (!this.validateEmail(this.resetEmail)) {
+      this.resetError = 'Please enter a valid email address';
+      return;
+    }
+    this.resetLoading = true;
+    this.resetError = '';
+    this.authService.sendOTP(this.resetEmail).subscribe({
+      next: (res) => {
+        this.resetLoading = false;
+        this.resetStep = 2;
+      },
+      error: (err) => {
+        this.resetLoading = false;
+        console.error('Send OTP Error:', err);
+        this.resetError = err.error?.message || 'Failed to send OTP';
+      }
     });
-    
-    // Simulate API call
-    setTimeout(() => {
-      this.isLoading = false;
-      // Add your authentication logic here
-      console.log('Authentication completed');
-    }, 2000);
+  }
+
+  verifyResetOtp() {
+    this.resetLoading = true;
+    this.resetError = '';
+    this.authService.verifyOTP(this.resetEmail, this.resetOtp, true).subscribe({
+      next: (res) => {
+        this.resetLoading = false;
+        this.resetToken = res.resetToken || '';
+        this.resetStep = 3;
+      },
+      error: (err) => {
+        this.resetLoading = false;
+        console.error('Verify OTP Error:', err);
+        this.resetError = err.error?.message || 'Invalid OTP';
+      }
+    });
+  }
+
+  submitResetPassword() {
+    if (this.newPassword.length < 8) {
+      this.resetError = 'Password must be at least 8 characters';
+      return;
+    }
+    if (this.newPassword !== this.confirmPassword) {
+      this.resetError = 'Passwords do not match';
+      return;
+    }
+
+    this.resetLoading = true;
+    this.resetError = '';
+    this.authService.resetPassword(this.resetEmail, this.newPassword, this.resetToken).subscribe({
+      next: (res) => {
+        this.resetLoading = false;
+        alert('Password reset successfully! You can now login with your new password.');
+        this.closeForgotModal();
+      },
+      error: (err) => {
+        this.resetLoading = false;
+        console.error('Reset Password Error:', err);
+        this.resetError = err.error?.message || 'Failed to reset password';
+      }
+    });
   }
 }
