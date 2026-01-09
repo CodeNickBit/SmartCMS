@@ -3,6 +3,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -27,7 +29,11 @@ export class DashboardComponent implements OnInit {
   adminRole: string = 'Administrator';
   lastLogin: string = '';
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private authService: AuthService,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -51,5 +57,10 @@ export class DashboardComponent implements OnInit {
         }
       }
     }
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }
