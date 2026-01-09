@@ -138,6 +138,10 @@ router.post('/register-admin', async (req, res) => {
   }
 });
 
+const jwt = require('jsonwebtoken');
+
+// ... (imports)
+
 // Login route
 router.post('/login', async (req, res) => {
   try {
@@ -153,15 +157,13 @@ router.post('/login', async (req, res) => {
         });
       }
 
-      // Check password - handle both hashed and plain text (for manually inserted records)
+      // Check password
       let isPasswordValid = false;
       const isHashed = admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$') || admin.password.startsWith('$2y$');
 
       if (isHashed) {
-        // Password is already hashed, use comparePassword
         isPasswordValid = await admin.comparePassword(password);
       } else {
-        // Password is plain text (manually inserted), compare directly
         if (admin.password === password) {
           isPasswordValid = true;
           // Hash the password and save it for future logins
@@ -185,9 +187,17 @@ router.post('/login', async (req, res) => {
       const adminResponse = admin.toObject();
       delete adminResponse.password;
 
+      // Generate JWT
+      const token = jwt.sign(
+        { id: admin._id, email: admin.email, role: admin.role },
+        process.env.JWT_SECRET || 'secret_key_change_this_in_production',
+        { expiresIn: '24h' }
+      );
+
       return res.json({
         message: 'Admin login successful',
         user: adminResponse,
+        token: token,
         role: 'admin'
       });
     }
@@ -212,9 +222,17 @@ router.post('/login', async (req, res) => {
     const userResponse = user.toObject();
     delete userResponse.password;
 
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: 'user' },
+      process.env.JWT_SECRET || 'secret_key_change_this_in_production',
+      { expiresIn: '24h' }
+    );
+
     res.json({
       message: 'Login successful',
       user: userResponse,
+      token: token,
       role: 'user'
     });
   } catch (error) {

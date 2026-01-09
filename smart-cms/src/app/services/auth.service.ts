@@ -31,6 +31,7 @@ export interface LoginResponse {
   message: string;
   user: any;
   role?: string;
+  token?: string;
 }
 
 export interface OTPResponse {
@@ -71,5 +72,33 @@ export class AuthService {
 
   resetPassword(email: string, newPassword: string, resetToken: string): Observable<any> {
     return this.http.post(`${API_URL}/reset-password`, { email, newPassword, resetToken });
+  }
+  logout(): void {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+  }
+
+  isAuthenticated(): boolean {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return !!localStorage.getItem('token');
+    }
+    return false;
+  }
+
+  isAdmin(): boolean {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          return user.role === 'admin';
+        } catch (e) {
+          return false;
+        }
+      }
+    }
+    return false;
   }
 }
