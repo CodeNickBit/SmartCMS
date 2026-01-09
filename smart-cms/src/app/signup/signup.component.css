@@ -1,0 +1,129 @@
+/* Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:host {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+/* Custom Scrollbar for Webkit */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #101935;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1B264F;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3083DC;
+}
+
+/* Form Elements Overrides */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+select option {
+  background-color: #1B264F;
+  color: white;
+}
+
+/* Radio Button Custom Styling */
+.form-radio {
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 50%;
+  width: 1.2em;
+  height: 1.2em;
+  border: 2px solid #6B7280;
+  background-color: #101935;
+  display: inline-grid;
+  place-content: center;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.form-radio:hover {
+  border-color: #3083DC;
+}
+
+.form-radio::before {
+  content: "";
+  width: 0.65em;
+  height: 0.65em;
+  border-radius: 50%;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em #3083DC;
+}
+
+.form-radio:checked {
+  border-color: #3083DC;
+  background-color: #101935;
+}
+
+.form-radio:checked::before {
+  transform: scale(1);
+}
+
+.form-radio:focus {
+  outline: 2px solid #3083DC;
+  outline-offset: 2px;
+  outline-color: #3083DC;
+}
+
+/* Cursor Utilities */
+button,
+a,
+input[type="radio"],
+input[type="checkbox"],
+select,
+input[type="date"] {
+  cursor: pointer;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"] {
+  cursor: text;
+}
+
+/* Loading Spinner Animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
