@@ -3,9 +3,11 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, MatSnackBarModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -29,14 +31,14 @@ export class LoginComponent {
 
   showPassword: boolean = false;
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private snackBar: MatSnackBar) { }
   // Validate Email
   validateEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email.trim());
   }
 
-  // Validate single field
+  // .. (validateField and validateForm are unchanged) ..
   validateField(fieldName: string): void {
     switch (fieldName) {
       case 'email':
@@ -89,10 +91,12 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           this.isLoading = false;
-          alert(response.message);
+          this.snackBar.open(response.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['success-snackbar'] });
 
           // Store session
-          localStorage.setItem('token', response.user.token || ''); // Assuming token might be in user object or separate
+          // Backend now returns token at top level
+          const token = response.token || response.user.token || '';
+          localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(response.user));
 
           // Navigate based on role
@@ -107,10 +111,10 @@ export class LoginComponent {
           this.isLoading = false;
           console.error('Login Error:', error);
           if (error.error && error.error.message) {
-            alert(error.error.message);
+            this.snackBar.open(error.error.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['error-snackbar'] });
             this.errors['general'] = error.error.message;
           } else {
-            alert('Login failed: ' + error.message);
+            this.snackBar.open('Login failed: ' + error.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['error-snackbar'] });
             this.errors['general'] = 'Login failed: ' + error.message;
           }
         }
@@ -184,7 +188,7 @@ export class LoginComponent {
     this.authService.resetPassword(this.resetEmail, this.newPassword, this.resetToken).subscribe({
       next: (res) => {
         this.resetLoading = false;
-        alert('Password reset successfully! You can now login with your new password.');
+        this.snackBar.open('Password reset successfully! You can now login with your new password.', 'Close', { duration: 5000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['success-snackbar'] });
         this.closeForgotModal();
       },
       error: (err) => {
