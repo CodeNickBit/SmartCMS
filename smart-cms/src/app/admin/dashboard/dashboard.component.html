@@ -14,8 +14,8 @@
     <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
 
       <!-- Dashboard Item -->
-      <a href="/admin/dashboard"
-        class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 bg-white/5 hover:text-white transition-all">
+      <a routerLink="/admin/dashboard" routerLinkActive="bg-white/5 text-white"
+        class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:text-white transition-all cursor-pointer">
         <svg class="h-5 w-5 text-[#3083DC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -24,8 +24,8 @@
       </a>
 
       <!-- Add Users Item -->
-      <a href="/admin/add-users"
-        class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+      <a routerLink="/admin/add-users" routerLinkActive="bg-white/5 text-white"
+        class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all cursor-pointer">
         <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24"
           stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -117,8 +117,7 @@
 
     <!-- User Profile (Bottom Sidebar) -->
     <div class="p-4 border-t border-blue-900/30">
-      <button
-        class="group relative flex items-center w-full gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors text-left">
+      <div class="group relative flex items-center w-full gap-3 p-2 rounded-xl text-left select-none">
         <div class="relative">
           <div class="h-10 w-10 rounded-full bg-slate-700 border-2 border-slate-600 overflow-hidden">
             <!-- Placeholder Avatar -->
@@ -139,7 +138,7 @@
           class="absolute left-4 top-[-40px] px-2 py-1 bg-slate-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-slate-700">
           Profile Settings
         </span>
-      </button>
+      </div>
 
       <div class="mt-4 flex items-center justify-between px-2">
         <a href="#" class="group relative text-slate-400 hover:text-white transition-colors">
@@ -230,22 +229,22 @@
 
     <!-- Content Scroller (Navy #101935) -->
     <main class="flex-1 overflow-y-auto bg-[#101935] p-6 lg:p-8 space-y-8 scroll-smooth">
-      <!-- Summary Cards Grid (White Cards - Text Dark) -->
+      <!-- Summary Cards Grid (Dark Theme) -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
         <!-- Total Employees Card -->
         <div
-          class="bg-white text-[#101935] border border-slate-200 rounded-2xl p-6 shadow-xl shadow-slate-900/5 hover:-translate-y-1 transition-all group relative">
+          class="bg-[#1B264F] text-white border border-blue-900/30 rounded-2xl p-6 shadow-xl shadow-slate-900/20 hover:-translate-y-1 transition-all group relative">
           <div class="flex items-center justify-between mb-4">
             <div
               class="h-12 w-12 rounded-xl bg-[#3083DC]/20 flex items-center justify-center group-hover:bg-[#3083DC]/30 transition-colors">
-              <svg class="h-6 w-6 text-[#101935]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-6 w-6 text-[#3083DC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
             <span
-              class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800 border border-emerald-200">
+              class="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/20">
               <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -254,130 +253,108 @@
             </span>
           </div>
           <div>
-            <p class="text-sm font-extrabold text-slate-900">Total Employees</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-1">1,240</p>
+            <p class="text-sm font-bold text-slate-400">Total Employees</p>
+            <p class="text-2xl font-extrabold text-white mt-1">1,240</p>
           </div>
-          <!-- Tooltip -->
-          <span
-            class="absolute top-2 right-2 px-2 py-1 bg-slate-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-slate-700">
-            Total active employees
-          </span>
         </div>
 
         <!-- Departments Card -->
         <div
-          class="bg-white text-[#101935] border border-slate-200 rounded-2xl p-6 shadow-xl shadow-slate-900/5 hover:-translate-y-1 transition-all group relative">
+          class="bg-[#1B264F] text-white border border-blue-900/30 rounded-2xl p-6 shadow-xl shadow-slate-900/20 hover:-translate-y-1 transition-all group relative">
           <div class="flex items-center justify-between mb-4">
             <div
               class="h-12 w-12 rounded-xl bg-[#EE964B]/20 flex items-center justify-center group-hover:bg-[#EE964B]/30 transition-colors">
-              <svg class="h-6 w-6 text-[#101935]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-6 w-6 text-[#EE964B]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
               </svg>
             </div>
             <span
-              class="inline-flex items-center gap-1 rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-700 border border-slate-300">
+              class="inline-flex items-center gap-1 rounded-full bg-slate-700/50 px-2.5 py-0.5 text-xs font-bold text-slate-300 border border-slate-600">
               0%
             </span>
           </div>
           <div>
-            <p class="text-sm font-extrabold text-slate-900">Departments</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-1">12</p>
+            <p class="text-sm font-bold text-slate-400">Departments</p>
+            <p class="text-2xl font-extrabold text-white mt-1">12</p>
           </div>
-          <span
-            class="absolute top-2 right-2 px-2 py-1 bg-slate-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-slate-700">
-            Active departments
-          </span>
         </div>
 
         <!-- Pending Leave Card -->
         <div
-          class="bg-white text-[#101935] border border-slate-200 rounded-2xl p-6 shadow-xl shadow-slate-900/5 hover:-translate-y-1 transition-all group relative">
+          class="bg-[#1B264F] text-white border border-blue-900/30 rounded-2xl p-6 shadow-xl shadow-slate-900/20 hover:-translate-y-1 transition-all group relative">
           <div class="flex items-center justify-between mb-4">
             <div
               class="h-12 w-12 rounded-xl bg-pink-500/20 flex items-center justify-center group-hover:bg-pink-500/30 transition-colors">
-              <svg class="h-6 w-6 text-[#101935]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-6 w-6 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
             <span
-              class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800 border border-amber-200">
+              class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-500 border border-amber-500/20">
               +2 New
             </span>
           </div>
           <div>
-            <p class="text-sm font-extrabold text-slate-900">Pending Leave</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-1">5</p>
-          </div>,
-          <span
-            class="absolute top-2 right-2 px-2 py-1 bg-slate-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-slate-700">
-            Leaves requiring approval
-          </span>
+            <p class="text-sm font-bold text-slate-400">Pending Leave</p>
+            <p class="text-2xl font-extrabold text-white mt-1">5</p>
+          </div>
         </div>
 
         <!-- Active Projects Card -->
         <div
-          class="bg-white text-[#101935] border border-slate-200 rounded-2xl p-6 shadow-xl shadow-slate-900/5 hover:-translate-y-1 transition-all group relative">
+          class="bg-[#1B264F] text-white border border-blue-900/30 rounded-2xl p-6 shadow-xl shadow-slate-900/20 hover:-translate-y-1 transition-all group relative">
           <div class="flex items-center justify-between mb-4">
             <div
               class="h-12 w-12 rounded-xl bg-violet-500/20 flex items-center justify-center group-hover:bg-violet-500/30 transition-colors">
-              <svg class="h-6 w-6 text-[#101935]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg class="h-6 w-6 text-violet-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
             <span
-              class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800 border border-emerald-200">
+              class="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/20">
               Active
             </span>
           </div>
           <div>
-            <p class="text-sm font-extrabold text-slate-900">Active Projects</p>
-            <p class="text-2xl font-extrabold text-slate-900 mt-1">8</p>
+            <p class="text-sm font-bold text-slate-400">Active Projects</p>
+            <p class="text-2xl font-extrabold text-white mt-1">8</p>
           </div>
-          <span
-            class="absolute top-2 right-2 px-2 py-1 bg-slate-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-slate-700">
-            Ongoing projects
-          </span>
         </div>
       </div>
 
-      <!-- Charts Section (Bg White, Text Dark) -->
+      <!-- Charts Section (Dark Theme) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <!-- Attendance Overview (Bar Chart) -->
         <div
-          class="lg:col-span-2 bg-white text-[#101935] border border-slate-200 rounded-2xl p-6 shadow-xl shadow-slate-900/5">
+          class="lg:col-span-2 bg-[#1B264F] text-white border border-blue-900/30 rounded-2xl p-6 shadow-xl shadow-slate-900/20">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-[#101935] tracking-tight">Attendance Overview</h3>
+            <h3 class="text-lg font-bold text-white tracking-tight">Attendance Overview</h3>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-medium text-slate-500">Weekly View</span>
+              <span class="text-xs font-medium text-slate-400">Weekly View</span>
               <button
-                class="group relative p-1 rounded bg-slate-200 text-slate-600 hover:text-[#3083DC] transition-colors">
+                class="group relative p-1 rounded bg-[#101935] text-slate-400 hover:text-[#3083DC] transition-colors border border-blue-900/30">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
-                <span
-                  class="absolute bottom-8 right-0 px-2 py-1 bg-slate-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-slate-700">
-                  Toggle View
-                </span>
               </button>
             </div>
           </div>
 
-          <!-- Added pl-12 to fix Y-axis clipping -->
           <div class="h-64 relative mt-4 pl-12">
-            <!-- Grid Lines (Darker for light bg) -->
+            <!-- Grid Lines -->
             <div class="absolute inset-0 left-12 flex flex-col justify-between text-xs text-slate-500 font-medium">
-              <div class="relative w-full border-b border-slate-300"><span
+              <div class="relative w-full border-b border-blue-900/20"><span
                   class="absolute -top-2.5 right-full pr-3 w-10 text-right">100%</span></div>
-              <div class="relative w-full border-b border-slate-300"><span
+              <div class="relative w-full border-b border-blue-900/20"><span
                   class="absolute -top-2.5 right-full pr-3 w-10 text-right">75%</span></div>
-              <div class="relative w-full border-b border-slate-300"><span
+              <div class="relative w-full border-b border-blue-900/20"><span
                   class="absolute -top-2.5 right-full pr-3 w-10 text-right">50%</span></div>
-              <div class="relative w-full border-b border-slate-300"><span
+              <div class="relative w-full border-b border-blue-900/20"><span
                   class="absolute -top-2.5 right-full pr-3 w-10 text-right">25%</span></div>
-              <div class="relative w-full border-b border-slate-300"><span
+              <div class="relative w-full border-b border-blue-900/20"><span
                   class="absolute -top-2.5 right-full pr-3 w-10 text-right">0%</span></div>
             </div>
 
@@ -386,80 +363,78 @@
               <!-- Mon -->
               <div class="w-1/12 group relative flex flex-col items-center gap-2 h-full justify-end">
                 <div
-                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#E1F2FE] rounded-t-md hover:from-blue-600 hover:to-blue-200 transition-all cursor-pointer shadow-lg shadow-blue-500/20"
+                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#3083DC]/60 rounded-t-lg shadow-[0_0_10px_rgba(48,131,220,0.3)]"
                   style="height: 65%">
                   <div
-                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1B264F] text-white text-xs py-1 px-2 rounded-md shadow border border-slate-700 transition-opacity z-20">
+                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#101935] text-white text-xs py-1 px-2 rounded-md shadow border border-blue-900/50 transition-opacity z-20">
                     65%
                   </div>
                 </div>
-                <span class="text-xs font-bold text-slate-600">Mon</span>
+                <span class="text-xs font-bold text-slate-400">Mon</span>
               </div>
 
               <!-- Tue -->
               <div class="w-1/12 group relative flex flex-col items-center gap-2 h-full justify-end">
                 <div
-                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#E1F2FE] rounded-t-md hover:from-blue-600 hover:to-blue-200 transition-colors shadow-lg shadow-blue-500/20"
+                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#3083DC]/60 rounded-t-lg hover:brightness-125 transition-all shadow-[0_0_10px_rgba(48,131,220,0.3)]"
                   style="height: 85%">
                   <div
-                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1B264F] text-white text-xs py-1 px-2 rounded-md shadow border border-slate-700 transition-opacity z-20">
+                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#101935] text-white text-xs py-1 px-2 rounded-md shadow border border-blue-900/50 transition-opacity z-20">
                     85%
                   </div>
                 </div>
-                <span class="text-xs font-bold text-slate-600">Tue</span>
+                <span class="text-xs font-bold text-slate-400">Tue</span>
               </div>
 
               <!-- Wed -->
               <div class="w-1/12 group relative flex flex-col items-center gap-2 h-full justify-end">
                 <div
-                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#E1F2FE] rounded-t-md hover:from-blue-600 hover:to-blue-200 transition-colors shadow-lg shadow-blue-500/20"
+                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#3083DC]/60 rounded-t-lg hover:brightness-125 transition-all shadow-[0_0_10px_rgba(48,131,220,0.3)]"
                   style="height: 45%">
                   <div
-                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1B264F] text-white text-xs py-1 px-2 rounded-md shadow border border-slate-700 transition-opacity z-20">
+                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#101935] text-white text-xs py-1 px-2 rounded-md shadow border border-blue-900/50 transition-opacity z-20">
                     45%
                   </div>
                 </div>
-                <span class="text-xs font-bold text-slate-600">Wed</span>
+                <span class="text-xs font-bold text-slate-400">Wed</span>
               </div>
 
               <!-- Thu -->
               <div class="w-1/12 group relative flex flex-col items-center gap-2 h-full justify-end">
                 <div
-                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#E1F2FE] rounded-t-md hover:from-blue-600 hover:to-blue-200 transition-colors shadow-lg shadow-blue-500/20"
+                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#3083DC]/60 rounded-t-lg hover:brightness-125 transition-all shadow-[0_0_10px_rgba(48,131,220,0.3)]"
                   style="height: 90%">
                   <div
-                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1B264F] text-white text-xs py-1 px-2 rounded-md shadow border border-slate-700 transition-opacity z-20">
+                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#101935] text-white text-xs py-1 px-2 rounded-md shadow border border-blue-900/50 transition-opacity z-20">
                     90%
                   </div>
                 </div>
-                <span class="text-xs font-bold text-slate-600">Thu</span>
+                <span class="text-xs font-bold text-slate-400">Thu</span>
               </div>
 
               <!-- Fri -->
               <div class="w-1/12 group relative flex flex-col items-center gap-2 h-full justify-end">
                 <div
-                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#E1F2FE] rounded-t-md hover:from-blue-600 hover:to-blue-200 transition-colors shadow-lg shadow-blue-500/20"
+                  class="w-full bg-gradient-to-t from-[#3083DC] to-[#3083DC]/60 rounded-t-lg hover:brightness-125 transition-all shadow-[0_0_10px_rgba(48,131,220,0.3)]"
                   style="height: 75%">
                   <div
-                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#1B264F] text-white text-xs py-1 px-2 rounded-md shadow border border-slate-700 transition-opacity z-20">
+                    class="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 -translate-x-1/2 bg-[#101935] text-white text-xs py-1 px-2 rounded-md shadow border border-blue-900/50 transition-opacity z-20">
                     75%
                   </div>
                 </div>
-                <span class="text-xs font-bold text-slate-600">Fri</span>
+                <span class="text-xs font-bold text-slate-400">Fri</span>
               </div>
 
               <!-- Sat -->
               <div class="w-1/12 group relative flex flex-col items-center gap-2 h-full justify-end">
-                <div class="w-full bg-gradient-to-t from-slate-400 to-slate-200 rounded-t-md opacity-50"
-                  style="height: 30%"></div>
-                <span class="text-xs font-bold text-slate-600">Sat</span>
+                <div class="w-full bg-slate-700/30 rounded-t-lg" style="height: 30%"></div>
+                <span class="text-xs font-bold text-slate-500">Sat</span>
               </div>
 
               <!-- Sun -->
               <div class="w-1/12 group relative flex flex-col items-center gap-2 h-full justify-end">
-                <div class="w-full bg-gradient-to-t from-slate-400 to-slate-200 rounded-t-md opacity-50"
-                  style="height: 20%"></div>
-                <span class="text-xs font-bold text-slate-600">Sun</span>
+                <div class="w-full bg-slate-700/30 rounded-t-lg" style="height: 20%"></div>
+                <span class="text-xs font-bold text-slate-500">Sun</span>
               </div>
             </div>
           </div>
@@ -467,21 +442,22 @@
 
         <!-- Employee Distribution (Donut Chart & Legend) -->
         <div
-          class="bg-white text-[#101935] border border-slate-200 rounded-2xl p-6 shadow-xl shadow-slate-900/5 flex flex-col">
-          <h3 class="text-lg font-bold text-[#101935] tracking-tight mb-6">Distribution</h3>
+          class="bg-[#1B264F] text-white border border-blue-900/30 rounded-2xl p-6 shadow-xl shadow-slate-900/20 flex flex-col">
+          <h3 class="text-lg font-bold text-white tracking-tight mb-6">Distribution</h3>
 
           <div class="flex-1 flex flex-col items-center justify-center">
             <!-- Pure CSS Donut Chart -->
-            <div class="relative h-48 w-48 rounded-full shadow-inner" style="background: conic-gradient(
+            <div class="relative h-48 w-48 rounded-full shadow-2xl" style="background: conic-gradient(
                   #3083DC 0% 30%, 
                   #EE964B 30% 55%, 
                   #8b5cf6 55% 75%, 
                   #101935 75% 100%
                 );">
-              <!-- Inner Circle for cutoff (White) -->
-              <div class="absolute inset-4 bg-white rounded-full flex flex-col items-center justify-center shadow-sm">
-                <span class="text-3xl font-extrabold text-[#101935]">12</span>
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Depts</span>
+              <!-- Inner Circle -->
+              <div
+                class="absolute inset-4 bg-[#1B264F] rounded-full flex flex-col items-center justify-center shadow-inner">
+                <span class="text-3xl font-extrabold text-white">12</span>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Depts</span>
               </div>
             </div>
           </div>
@@ -489,31 +465,31 @@
           <div class="mt-8 space-y-3">
             <div class="flex items-center justify-between group">
               <div class="flex items-center gap-2">
-                <span class="h-3 w-3 rounded-full bg-[#3083DC]"></span>
-                <span class="text-sm font-semibold text-slate-700">Engineering</span>
+                <span class="h-3 w-3 rounded-full bg-[#3083DC] shadow-[0_0_8px_rgba(48,131,220,0.5)]"></span>
+                <span class="text-sm font-semibold text-slate-300">Engineering</span>
               </div>
-              <span class="text-sm font-bold text-[#101935]">30%</span>
+              <span class="text-sm font-bold text-white">30%</span>
             </div>
             <div class="flex items-center justify-between group">
               <div class="flex items-center gap-2">
-                <span class="h-3 w-3 rounded-full bg-[#EE964B]"></span>
-                <span class="text-sm font-semibold text-slate-700">Marketing</span>
+                <span class="h-3 w-3 rounded-full bg-[#EE964B] shadow-[0_0_8px_rgba(238,150,75,0.5)]"></span>
+                <span class="text-sm font-semibold text-slate-300">Marketing</span>
               </div>
-              <span class="text-sm font-bold text-[#101935]">25%</span>
+              <span class="text-sm font-bold text-white">25%</span>
             </div>
             <div class="flex items-center justify-between group">
               <div class="flex items-center gap-2">
-                <span class="h-3 w-3 rounded-full bg-violet-500"></span>
-                <span class="text-sm font-semibold text-slate-700">Sales</span>
+                <span class="h-3 w-3 rounded-full bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]"></span>
+                <span class="text-sm font-semibold text-slate-300">Sales</span>
               </div>
-              <span class="text-sm font-bold text-[#101935]">20%</span>
+              <span class="text-sm font-bold text-white">20%</span>
             </div>
             <div class="flex items-center justify-between group">
               <div class="flex items-center gap-2">
                 <span class="h-3 w-3 rounded-full bg-[#101935] border border-slate-600"></span>
-                <span class="text-sm font-semibold text-slate-700">Others</span>
+                <span class="text-sm font-semibold text-slate-300">Others</span>
               </div>
-              <span class="text-sm font-bold text-[#101935]">25%</span>
+              <span class="text-sm font-bold text-white">25%</span>
             </div>
           </div>
         </div>
@@ -525,15 +501,15 @@
 
         <!-- Recent Activities Table -->
         <div
-          class="lg:col-span-2 bg-white text-[#101935] border border-slate-200 rounded-2xl p-6 shadow-xl shadow-slate-900/5 overflow-hidden">
+          class="lg:col-span-2 bg-[#1B264F] text-white border border-blue-900/30 rounded-2xl p-6 shadow-xl shadow-slate-900/20 overflow-hidden">
           <div class="flex items-center justify-between mb-6">
-            <h3 class="text-lg font-bold text-[#101935] tracking-tight">Recent Activity</h3>
-            <button class="text-sm font-semibold text-[#3083DC] hover:text-blue-700 transition-colors">View All</button>
+            <h3 class="text-lg font-bold text-white tracking-tight">Recent Activity</h3>
+            <button class="text-sm font-semibold text-[#3083DC] hover:text-blue-400 transition-colors">View All</button>
           </div>
 
           <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-700">
-              <thead class="text-xs uppercase text-slate-600 font-bold bg-slate-200/50 rounded-lg">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="text-xs uppercase text-slate-400 font-bold bg-[#101935]/50 rounded-lg">
                 <tr>
                   <th class="px-4 py-3 rounded-l-lg">Employee</th>
                   <th class="px-4 py-3">Activity</th>
@@ -542,25 +518,25 @@
                   <th class="px-4 py-3 rounded-r-lg text-right">Action</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200">
-                <tr class="group hover:bg-[#3083DC]/5 transition-colors">
+              <tbody class="divide-y divide-blue-900/30">
+                <tr class="group hover:bg-[#3083DC]/10 transition-colors">
                   <td class="px-4 py-4 whitespace-nowrap">
                     <div class="flex items-center gap-3">
-                      <div class="h-8 w-8 rounded-full bg-slate-300 overflow-hidden">
+                      <div class="h-8 w-8 rounded-full bg-slate-700 overflow-hidden border border-slate-600">
                         <!-- Avatar Placeholder -->
-                        <svg class="h-full w-full text-slate-500" fill="currentColor" viewBox="0 0 24 24">
+                        <svg class="h-full w-full text-slate-400" fill="currentColor" viewBox="0 0 24 24">
                           <path
                             d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                       </div>
-                      <span class="font-bold text-[#101935]">Sarah Jenkins</span>
+                      <span class="font-bold text-white">Sarah Jenkins</span>
                     </div>
                   </td>
-                  <td class="px-4 py-4 text-slate-700 font-medium">Submitted Q3 Report</td>
+                  <td class="px-4 py-4 text-slate-300 font-medium">Submitted Q3 Report</td>
                   <td class="px-4 py-4 text-xs font-semibold text-slate-500">Oct 24, 2023</td>
                   <td class="px-4 py-4">
                     <span
-                      class="inline-flex rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-700 border border-emerald-200">
+                      class="inline-flex rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/20">
                       Completed
                     </span>
                   </td>
@@ -579,23 +555,23 @@
                     </button>
                   </td>
                 </tr>
-                <tr class="group hover:bg-[#3083DC]/5 transition-colors">
+                <tr class="group hover:bg-[#3083DC]/10 transition-colors">
                   <td class="px-4 py-4 whitespace-nowrap">
                     <div class="flex items-center gap-3">
-                      <div class="h-8 w-8 rounded-full bg-slate-300 overflow-hidden">
-                        <svg class="h-full w-full text-slate-500" fill="currentColor" viewBox="0 0 24 24">
+                      <div class="h-8 w-8 rounded-full bg-slate-700 overflow-hidden border border-slate-600">
+                        <svg class="h-full w-full text-slate-400" fill="currentColor" viewBox="0 0 24 24">
                           <path
                             d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                       </div>
-                      <span class="font-bold text-[#101935]">Michael Chen</span>
+                      <span class="font-bold text-white">Michael Chen</span>
                     </div>
                   </td>
-                  <td class="px-4 py-4 text-slate-700 font-medium">Requested Sick Leave</td>
+                  <td class="px-4 py-4 text-slate-300 font-medium">Requested Sick Leave</td>
                   <td class="px-4 py-4 text-xs font-semibold text-slate-500">Oct 23, 2023</td>
                   <td class="px-4 py-4">
                     <span
-                      class="inline-flex rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-700 border border-amber-200">
+                      class="inline-flex rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-500 border border-amber-500/20">
                       Pending
                     </span>
                   </td>
@@ -612,23 +588,23 @@
                     </button>
                   </td>
                 </tr>
-                <tr class="group hover:bg-[#3083DC]/5 transition-colors">
+                <tr class="group hover:bg-[#3083DC]/10 transition-colors">
                   <td class="px-4 py-4 whitespace-nowrap">
                     <div class="flex items-center gap-3">
-                      <div class="h-8 w-8 rounded-full bg-slate-300 overflow-hidden">
-                        <svg class="h-full w-full text-slate-500" fill="currentColor" viewBox="0 0 24 24">
+                      <div class="h-8 w-8 rounded-full bg-slate-700 overflow-hidden border border-slate-600">
+                        <svg class="h-full w-full text-slate-400" fill="currentColor" viewBox="0 0 24 24">
                           <path
                             d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                       </div>
-                      <span class="font-bold text-[#101935]">David Kim</span>
+                      <span class="font-bold text-white">David Kim</span>
                     </div>
                   </td>
-                  <td class="px-4 py-4 text-slate-700 font-medium">New Onboarding</td>
+                  <td class="px-4 py-4 text-slate-300 font-medium">New Onboarding</td>
                   <td class="px-4 py-4 text-xs font-semibold text-slate-500">Oct 22, 2023</td>
                   <td class="px-4 py-4">
                     <span
-                      class="inline-flex rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-bold text-blue-700 border border-blue-200">
+                      class="inline-flex rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-bold text-blue-400 border border-blue-500/20">
                       In Progress
                     </span>
                   </td>
@@ -654,12 +630,13 @@
 
         <!-- Pending Approvals Widget -->
         <div
-          class="bg-white text-[#101935] border border-slate-200 rounded-2xl p-6 shadow-xl shadow-slate-900/5 flex flex-col">
-          <h3 class="text-lg font-bold text-[#101935] tracking-tight mb-6">Pending Approvals</h3>
+          class="bg-[#1B264F] text-white border border-blue-900/30 rounded-2xl p-6 shadow-xl shadow-slate-900/20 flex flex-col">
+          <h3 class="text-lg font-bold text-white tracking-tight mb-6">Pending Approvals</h3>
           <div class="space-y-4">
 
             <!-- Approval Item -->
-            <div class="bg-white/60 border border-slate-200 rounded-xl p-4 hover:border-[#3083DC]/50 transition-colors">
+            <div
+              class="bg-[#101935]/50 border border-blue-900/30 rounded-xl p-4 hover:border-[#3083DC]/50 transition-colors">
               <div class="flex justify-between items-start mb-2">
                 <div class="flex items-center gap-3">
                   <div class="h-10 w-10 rounded-lg bg-[#EE964B]/20 flex items-center justify-center text-[#EE964B]">
@@ -669,11 +646,11 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm font-bold text-[#101935]">Expense Claim</p>
-                    <p class="text-xs text-slate-500 font-medium">Jessica L. · $450</p>
+                    <p class="text-sm font-bold text-white">Expense Claim</p>
+                    <p class="text-xs text-slate-400 font-medium">Jessica L. · $450</p>
                   </div>
                 </div>
-                <button class="text-slate-400 hover:text-red-500 group relative">
+                <button class="text-slate-500 hover:text-red-400 group relative">
                   <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -685,14 +662,15 @@
               </div>
               <div class="flex gap-2 mt-3">
                 <button
-                  class="flex-1 bg-[#3083DC] hover:bg-blue-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors">Approve</button>
+                  class="flex-1 bg-[#3083DC] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors">Approve</button>
                 <button
-                  class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition-colors">Reject</button>
+                  class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold py-2 px-3 rounded-lg transition-colors">Reject</button>
               </div>
             </div>
 
             <!-- Approval Item -->
-            <div class="bg-white/60 border border-slate-200 rounded-xl p-4 hover:border-[#3083DC]/50 transition-colors">
+            <div
+              class="bg-[#101935]/50 border border-blue-900/30 rounded-xl p-4 hover:border-[#3083DC]/50 transition-colors">
               <div class="flex justify-between items-start mb-2">
                 <div class="flex items-center gap-3">
                   <div class="h-10 w-10 rounded-lg bg-[#3083DC]/20 flex items-center justify-center text-[#3083DC]">
@@ -702,11 +680,11 @@
                     </svg>
                   </div>
                   <div>
-                    <p class="text-sm font-bold text-[#101935]">Leave Request</p>
-                    <p class="text-xs text-slate-500 font-medium">Annual Leave · 3 Days</p>
+                    <p class="text-sm font-bold text-white">Leave Request</p>
+                    <p class="text-xs text-slate-400 font-medium">Annual Leave · 3 Days</p>
                   </div>
                 </div>
-                <button class="text-slate-400 hover:text-red-500 group relative">
+                <button class="text-slate-500 hover:text-red-400 group relative">
                   <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -718,9 +696,9 @@
               </div>
               <div class="flex gap-2 mt-3">
                 <button
-                  class="flex-1 bg-[#3083DC] hover:bg-blue-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors">Approve</button>
+                  class="flex-1 bg-[#3083DC] hover:bg-blue-600 text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors">Approve</button>
                 <button
-                  class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition-colors">Reject</button>
+                  class="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold py-2 px-3 rounded-lg transition-colors">Reject</button>
               </div>
             </div>
 
