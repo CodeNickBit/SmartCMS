@@ -9,7 +9,6 @@
             <img src="/assets/MEAN_Logo_Dark.png" alt="SmartCMS Logo" class="h-[80px] w-auto object-contain">
           </div>
         </div>
-        <!-- <span class="text-md tracking-tight text-white">Smart Corporate Management System</span> -->
         <h1 class="text-3xl font-bold text-white leading-tight mb-2">Welcome Back</h1>
         <p class="text-gray-400 text-base">Sign in to your account to continue</p>
       </div>
@@ -37,9 +36,7 @@
             </div>
             <p *ngIf="errors['email']" class="!text-[#EE964B] text-xs font-medium">{{ errors['email'] }}</p>
             <p *ngIf="emailInput.invalid && emailInput.touched && !errors['email']"
-              class="!text-[#EE964B] text-xs font-medium">
-            <p *ngIf="emailInput.invalid && emailInput.touched && !errors['email']" class="!text-[#EE964B] text-xs font-medium">
-              Email is required</p>
+              class="!text-[#EE964B] text-xs font-medium">Email is required</p>
           </div>
 
           <!-- Password Field -->
@@ -57,10 +54,6 @@
               </div>
               <input [type]="showPassword ? 'text' : 'password'" id="password" name="password" [(ngModel)]="password"
                 required (blur)="validateField('password')" #passwordInput="ngModel"
-                [class.border-[#EE964B]]="errors['password'] || (passwordInput.invalid && passwordInput.touched)"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg pl-9 pr-10 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:border-transparent transition-all hover:border-[#3083DC]/50"
-              <input type="password" id="password" name="password" [(ngModel)]="password" required
-                (blur)="validateField('password')" #passwordInput="ngModel"
                 [class.border-[#EE964B]]="errors['password'] || (passwordInput.invalid && passwordInput.touched)"
                 class="w-full bg-[#1B264F] border border-gray-600 rounded-lg pl-9 pr-10 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:border-transparent transition-all hover:border-[#3083DC]/50"
                 placeholder="Enter your password">
@@ -148,7 +141,6 @@
 <!-- Forgot Password Modal -->
 <div *ngIf="showForgotModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
   style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
-<div *ngIf="showForgotModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" style="backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
   <div class="bg-[#1B264F] rounded-xl shadow-2xl w-full max-w-md border border-gray-600 overflow-hidden">
     <div class="p-6 border-b border-gray-700 flex justify-between items-center">
       <h3 class="text-xl font-bold text-white">Reset Password</h3>
@@ -163,7 +155,7 @@
       <!-- Step 1: Email -->
       <div *ngIf="resetStep === 1" class="space-y-4">
         <p class="text-gray-300 text-sm">Enter your email address to receive a verification code.</p>
-        <input type="email" [(ngModel)]="resetEmail" placeholder="Enter your email"
+        <input type="email" [(ngModel)]="resetEmail" name="resetEmail" placeholder="Enter your email"
           class="w-full bg-[#101935] border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-[#3083DC]">
         <button (click)="sendResetOtp()" [disabled]="resetLoading || !resetEmail"
           class="w-full bg-[#3083DC] hover:bg-[#206bc4] text-white font-semibold py-3 rounded-lg disabled:opacity-50">
@@ -175,7 +167,7 @@
       <div *ngIf="resetStep === 2" class="space-y-4">
         <p class="text-gray-300 text-sm">Enter the 6-digit code sent to <span
             class="text-[#3083DC]">{{resetEmail}}</span></p>
-        <input type="text" [(ngModel)]="resetOtp" placeholder="Enter 6-digit OTP" maxlength="6"
+        <input type="text" [(ngModel)]="resetOtp" name="resetOtp" placeholder="Enter 6-digit OTP" maxlength="6"
           class="w-full bg-[#101935] border border-gray-600 rounded-lg px-4 py-3 text-white text-center text-2xl tracking-widest focus:ring-2 focus:ring-[#3083DC]">
         <button (click)="verifyResetOtp()" [disabled]="resetLoading || resetOtp.length !== 6"
           class="w-full bg-[#3083DC] hover:bg-[#206bc4] text-white font-semibold py-3 rounded-lg disabled:opacity-50">
@@ -187,9 +179,9 @@
       <!-- Step 3: New Password -->
       <div *ngIf="resetStep === 3" class="space-y-4">
         <p class="text-gray-300 text-sm">Create a new password for your account.</p>
-        <input type="password" [(ngModel)]="newPassword" placeholder="New Password (min 8 chars)"
+        <input type="password" [(ngModel)]="newPassword" name="newPassword" placeholder="New Password (min 8 chars)"
           class="w-full bg-[#101935] border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-[#3083DC]">
-        <input type="password" [(ngModel)]="confirmPassword" placeholder="Confirm New Password"
+        <input type="password" [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Confirm New Password"
           class="w-full bg-[#101935] border border-gray-600 rounded-lg px-4 py-3 text-white focus:ring-2 focus:ring-[#3083DC]">
         <button (click)="submitResetPassword()" [disabled]="resetLoading || !newPassword || !confirmPassword"
           class="w-full bg-[#3083DC] hover:bg-[#206bc4] text-white font-semibold py-3 rounded-lg disabled:opacity-50">

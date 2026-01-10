@@ -8,7 +8,7 @@ import { AuthService } from '../services/auth.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
   userName: string = 'User';
@@ -33,6 +33,8 @@ export class HomeComponent implements OnInit {
     const user = this.authService.getUser();
     if (user && user.firstName) {
       this.userName = user.firstName;
+    } else if (user && user.name) {
+      this.userName = user.name.split(' ')[0];
     }
   }
 

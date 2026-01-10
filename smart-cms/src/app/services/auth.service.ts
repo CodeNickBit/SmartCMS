@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 
 const API_URL = 'http://localhost:3000/api/auth';
 
@@ -30,6 +30,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   message: string;
   user: any;
+  token?: string;
   role?: string;
 }
 
@@ -47,7 +48,19 @@ export interface VerifyOTPResponse {
   providedIn: 'root'
 })
 export class AuthService {
-  constructor(private http: HttpClient) { }
+  private userSubject = new BehaviorSubject<any>(null);
+  public user$ = this.userSubject.asObservable();
+
+  constructor(private http: HttpClient) {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      try {
+        this.userSubject.next(JSON.parse(savedUser));
+      } catch (e) {
+        console.error('Error parsing saved user', e);
+      }
+    }
+  }
 
   register(data: RegisterRequest): Observable<RegisterResponse> {
     return this.http.post<RegisterResponse>(`${API_URL}/register`, data);
@@ -71,5 +84,20 @@ export class AuthService {
 
   resetPassword(email: string, newPassword: string, resetToken: string): Observable<any> {
     return this.http.post(`${API_URL}/reset-password`, { email, newPassword, resetToken });
+  }
+
+  setUser(user: any): void {
+    this.userSubject.next(user);
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  getUser(): any {
+    return this.userSubject.value;
+  }
+
+  logout(): void {
+    this.userSubject.next(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
   }
 }
