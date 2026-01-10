@@ -480,4 +480,51 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
+// Get all users
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find({}, '-password');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch users', error: error.message });
+  }
+});
+
+// Update user
+router.put('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    
+    // Don't allow password update through this route for safety
+    delete updates.password;
+    
+    const user = await User.findByIdAndUpdate(id, updates, { new: true }).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update user', error: error.message });
+  }
+});
+
+// Update user status
+router.patch('/users/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    const user = await User.findByIdAndUpdate(id, { active_inactive: status }, { new: true }).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update user status', error: error.message });
+  }
+});
+
 module.exports = router;

@@ -116,10 +116,10 @@
       <div class="animate-fade-in-up" style="animation-delay: 0.6s">
         <h2 class="text-xl font-semibold text-white mb-6">Recent Activity</h2>
         <div class="bg-[#1B264F] border border-gray-700/50 rounded-xl p-6">
-          <div class="space-y-5">
-            <div *ngFor="let activity of recentActivities; let last = last" 
-              class="flex items-start gap-4" [class.pb-5]="!last" [class.border-b]="!last" [class.border-gray-700/50]="!last">
-              <div class="w-2 h-2 rounded-full bg-[#3083DC] mt-2 flex-shrink-0"></div>
+            <div class="space-y-5">
+              <div *ngFor="let activity of recentActivities; let last = last" class="flex items-start gap-4" [class.pb-5]="!last" [class.border-b]="!last" [class.border-gray-700/50]="!last">
+                <div class="w-2 h-2 rounded-full bg-[#3083DC] mt-2 flex-shrink-0"></div>
+
               <div class="flex-1 min-w-0">
                 <p class="text-white text-sm font-medium">{{ activity.action }}</p>
                 <p class="text-gray-400 text-sm truncate">{{ activity.item }}</p>

@@ -66,10 +66,10 @@ export class ManageEmployeeComponent implements OnInit {
 
   loadEmployees() {
     this.authService.getUsers().subscribe({
-      next: (data) => {
+      next: (data: any[]) => {
         this.employees = data;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Failed to fetch employees', err);
       }
     });
@@ -118,7 +118,7 @@ export class ManageEmployeeComponent implements OnInit {
         this.editingEmployee = null;
         alert('Employee updated successfully');
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error('Update failed', err);
         alert('Failed to update employee');
       }
@@ -135,7 +135,7 @@ export class ManageEmployeeComponent implements OnInit {
           this.loadEmployees();
           alert(`Employee ${newStatus ? 'activated' : 'deactivated'} successfully`);
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Status update failed', err);
           alert('Failed to update status');
         }
