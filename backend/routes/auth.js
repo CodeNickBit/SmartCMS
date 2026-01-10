@@ -14,6 +14,13 @@ function createTransporter() {
   // Remove all spaces from app password (Google app passwords should be 16 characters without spaces)
   const emailPassword = process.env.EMAIL_PASSWORD
     ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '')
+
+  const emailPassword = process.env.EMAIL_PASSWORD 
+    ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '') 
+
+  // Remove all spaces from app password (Google app passwords should be 16 characters without spaces)
+  const emailPassword = process.env.EMAIL_PASSWORD
+    ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '')
     : '';
 
   if (!emailPassword) {
@@ -193,7 +200,21 @@ router.post('/login', async (req, res) => {
     }
 
     // If not admin, check for regular user
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'Email and password are required'
+      });
+    }
+
     const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+      });
+    }
+
+    // If not admin, check for regular user
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
       return res.status(401).json({
         message: 'Invalid email or password'
