@@ -110,7 +110,7 @@
         <div class="bg-[#1B264F] border border-gray-700/50 rounded-xl p-6">
           <div class="space-y-5">
             <ng-container *ngFor="let activity of recentActivities; let last = last">
-              <div class="flex items-start gap-4" [class.pb-5]="!last" [class.border-b]="!last" [class.border-gray-700/50]="!last">
+              <div class="flex items-start gap-4" [ngClass]="{'pb-5': !last, 'border-b': !last, 'border-gray-700/50': !last}">
                 <div class="w-2 h-2 rounded-full bg-[#3083DC] mt-2 flex-shrink-0"></div>
                 <div class="flex-1 min-w-0">
                   <p class="text-white text-sm font-medium">{{ activity.action }}</p>
