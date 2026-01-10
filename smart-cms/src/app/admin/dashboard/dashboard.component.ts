@@ -21,15 +21,13 @@ export class DashboardComponent implements OnInit {
       if (userStr) {
         try {
           const user = JSON.parse(userStr);
-          // Combine first and last name if available, otherwise use name or fallback
           this.adminName = user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : 'Admin User');
-          this.adminRole = user.role || 'Administrator'; // Capitalize if needed
+          this.adminRole = user.role || 'Administrator';
 
-          // Format last login if available
           if (user.lastLogin) {
             this.lastLogin = new Date(user.lastLogin).toLocaleString();
           } else {
-            this.lastLogin = new Date().toLocaleString(); // Fallback to current time
+            this.lastLogin = new Date().toLocaleString();
           }
 
         } catch (e) {
