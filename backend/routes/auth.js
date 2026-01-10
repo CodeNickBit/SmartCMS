@@ -281,7 +281,7 @@ router.post('/send-otp', async (req, res) => {
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #3083DC;">Email Verification</h2>
           <p>Your verification code is:</p>
-          <h1 style="color: #3083DC; font-size: 32px; letter-spacing: 8px; text-align: center; padding: 20px; background: #f0f0f0; border-radius: 8px;">\${otp}</h1>
+          <h1 style="color: #3083DC; font-size: 32px; letter-spacing: 8px; text-align: center; padding: 20px; background: #f0f0f0; border-radius: 8px;">${otp}</h1>
           <p>This code will expire in 5 minutes.</p>
           <p>If you didn't request this code, please ignore this email.</p>
           <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
@@ -292,7 +292,7 @@ router.post('/send-otp', async (req, res) => {
 
     try {
       const emailResult = await transporter.sendMail(mailOptions);
-      console.log(\`OTP sent successfully to \${normalizedEmail}. MessageId: \${emailResult.messageId}\`);
+        console.log(`OTP sent successfully to ${normalizedEmail}. MessageId: ${emailResult.messageId}`);
       res.status(200).json({
         message: 'OTP sent successfully to your email'
       });
