@@ -10,8 +10,8 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-            <a href="/admin/dashboard"
-                class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+            <a routerLink="/admin/dashboard" routerLinkActive="bg-white/5 text-white"
+                class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all cursor-pointer">
                 <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -21,8 +21,8 @@
             </a>
 
             <!-- Active State for Add Users -->
-            <a href="/admin/add-users"
-                class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 bg-white/5 hover:text-white transition-all">
+            <a routerLink="/admin/add-users" routerLinkActive="bg-white/5 text-white"
+                class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:text-white transition-all cursor-pointer">
                 <svg class="h-5 w-5 text-[#3083DC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
