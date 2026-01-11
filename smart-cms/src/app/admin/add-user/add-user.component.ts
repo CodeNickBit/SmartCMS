@@ -9,7 +9,6 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from '../../services/auth.service';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-add-user',
@@ -23,14 +22,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
-    MatSelectModule,
-    MatSnackBarModule
+    MatSelectModule
   ],
   templateUrl: './add-user.component.html',
   styleUrl: './add-user.component.css'
 })
 export class AddUserComponent implements OnInit {
-  // ... (properties unchanged)
   adminName: string = 'Admin User';
   adminRole: string = 'Administrator';
   lastLogin: string = '';
@@ -62,7 +59,7 @@ export class AddUserComponent implements OnInit {
     { id: 'USR005', name: 'Michael Wilson', email: 'michael@example.com', role: 'Manager', dept: 'Operations', status: 'Active' },
   ];
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService, private snackBar: MatSnackBar) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService) { }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -177,7 +174,6 @@ export class AddUserComponent implements OnInit {
       next: (response) => {
         // Show success message
         this.successMessage = `Successfully created ${this.modalRole} user: ${this.newUser.name}`;
-        this.snackBar.open(this.successMessage, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['success-snackbar'] });
         this.closeModal();
 
         // Clear message after 3 seconds
@@ -189,9 +185,11 @@ export class AddUserComponent implements OnInit {
         console.error('Error creating user:', error);
         // Display backend error as a general error or alert
         if (error.error?.message) {
-          this.snackBar.open(error.error.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['error-snackbar'] });
+          // For now, mapping backend error to alert or specific field if possible
+          // But user requested "Avoid alert prompts", so let's try to map to fields if we can, default to a general alert only if critical
+          alert(error.error.message); // Keeping alert for backend failures for now as we don't have a general error UI in modal
         } else {
-          this.snackBar.open('Failed to create user', 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['error-snackbar'] });
+          alert('Failed to create user');
         }
       }
     });

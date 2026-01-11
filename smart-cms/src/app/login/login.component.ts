@@ -3,11 +3,19 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+<<<<<<< HEAD
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
   imports: [FormsModule, CommonModule, MatSnackBarModule],
+=======
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [FormsModule, CommonModule],
+>>>>>>> d03f37711ee4ea43c5c232096e8e40a4e0b4ad1a
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -31,7 +39,12 @@ export class LoginComponent {
 
   showPassword: boolean = false;
 
+<<<<<<< HEAD
   constructor(private authService: AuthService, private router: Router, private snackBar: MatSnackBar) { }
+=======
+  constructor(private authService: AuthService, private router: Router) { }
+
+>>>>>>> d03f37711ee4ea43c5c232096e8e40a4e0b4ad1a
   // Validate Email
   validateEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -75,14 +88,6 @@ export class LoginComponent {
     if (this.isLoading) return;
 
     if (!this.validateForm()) {
-      // Scroll to first error
-      const firstError = Object.keys(this.errors)[0];
-      if (firstError) {
-        const element = document.querySelector(`[name="${firstError}"]`);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
       return;
     }
 
@@ -91,6 +96,7 @@ export class LoginComponent {
       .subscribe({
         next: (response) => {
           this.isLoading = false;
+<<<<<<< HEAD
           this.snackBar.open(response.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['success-snackbar'] });
 
           // Store session
@@ -105,11 +111,20 @@ export class LoginComponent {
           } else {
             // Navigate to user dashboard or home page
             // this.router.navigate(['/dashboard']);
+=======
+          this.authService.setUser(response.user);
+          
+          if (response.role === 'admin') {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            this.router.navigate(['/home']);
+>>>>>>> d03f37711ee4ea43c5c232096e8e40a4e0b4ad1a
           }
         },
         error: (error) => {
           this.isLoading = false;
           console.error('Login Error:', error);
+<<<<<<< HEAD
           if (error.error && error.error.message) {
             this.snackBar.open(error.error.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['error-snackbar'] });
             this.errors['general'] = error.error.message;
@@ -117,6 +132,9 @@ export class LoginComponent {
             this.snackBar.open('Login failed: ' + error.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['error-snackbar'] });
             this.errors['general'] = 'Login failed: ' + error.message;
           }
+=======
+          this.errors['general'] = error.error?.message || 'Login failed: ' + error.message;
+>>>>>>> d03f37711ee4ea43c5c232096e8e40a4e0b4ad1a
         }
       });
   }
@@ -188,7 +206,11 @@ export class LoginComponent {
     this.authService.resetPassword(this.resetEmail, this.newPassword, this.resetToken).subscribe({
       next: (res) => {
         this.resetLoading = false;
+<<<<<<< HEAD
         this.snackBar.open('Password reset successfully! You can now login with your new password.', 'Close', { duration: 5000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['success-snackbar'] });
+=======
+        alert('Password reset successfully! You can now login with your new password.');
+>>>>>>> d03f37711ee4ea43c5c232096e8e40a4e0b4ad1a
         this.closeForgotModal();
       },
       error: (err) => {
@@ -198,4 +220,8 @@ export class LoginComponent {
       }
     });
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> d03f37711ee4ea43c5c232096e8e40a4e0b4ad1a
