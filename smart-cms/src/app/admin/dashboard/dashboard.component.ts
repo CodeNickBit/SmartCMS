@@ -1,25 +1,27 @@
 import { Component, PLATFORM_ID, Inject, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
-  userName: string = 'Admin User';
+  adminName: string = 'Admin User';
   adminRole: string = 'Administrator';
   lastLogin: string = '';
   currentDate: Date = new Date();
+  searchQuery: string = '';
 
   quickActions = [
-    { title: 'Add New User', description: 'Create a new staff account', icon: 'users', color: '#3083DC' },
-    { title: 'Project Files', description: 'Manage project documents', icon: 'folder', color: '#10B981' },
-    { title: 'Analytics', description: 'View system performance', icon: 'chart', color: '#8B5CF6' },
-    { title: 'Settings', description: 'Configure system options', icon: 'settings', color: '#EE964B' }
+    { icon: 'users', title: 'Manage Users', description: 'View and manage team', color: '#3083DC' },
+    { icon: 'user-plus', title: 'Add User', description: 'Create new employee', color: '#10B981' }, // Added Action
+    { icon: 'chart', title: 'Analytics', description: 'Performance metrics', color: '#8B5CF6' },
+    { icon: 'settings', title: 'Settings', description: 'System preferences', color: '#EE964B' }
   ];
 
   recentActivities = [
@@ -40,7 +42,7 @@ export class DashboardComponent implements OnInit {
       if (userStr) {
         try {
           const user = JSON.parse(userStr);
-          this.userName = user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : 'Admin User');
+          this.adminName = user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : 'Admin User');
           this.adminRole = user.role || 'Administrator';
 
           if (user.lastLogin) {
