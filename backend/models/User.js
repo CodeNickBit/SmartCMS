@@ -55,10 +55,14 @@ const userSchema = new mongoose.Schema({
     required: true,
     enum: ['full-time', 'contract', 'intern']
   },
-  joiningDate: {
-    type: Date
-  }
-}, {
+    joiningDate: {
+      type: Date
+    },
+    active_inactive: {
+      type: Boolean,
+      default: true
+    }
+  }, {
   timestamps: true
 });
 

@@ -31,7 +31,10 @@ export interface LoginResponse {
   message: string;
   user: any;
   role?: string;
+<<<<<<< HEAD
   token?: string;
+=======
+>>>>>>> d03f37711ee4ea43c5c232096e8e40a4e0b4ad1a
 }
 
 export interface OTPResponse {
@@ -73,6 +76,7 @@ export class AuthService {
   resetPassword(email: string, newPassword: string, resetToken: string): Observable<any> {
     return this.http.post(`${API_URL}/reset-password`, { email, newPassword, resetToken });
   }
+<<<<<<< HEAD
   logout(): void {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem('token');
@@ -100,5 +104,42 @@ export class AuthService {
       }
     }
     return false;
+=======
+
+  setUser(user: any): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(user));
+      if (user.token) {
+        localStorage.setItem('token', user.token);
+      }
+    }
+  }
+
+  getUser(): any {
+    if (typeof window !== 'undefined') {
+      const user = localStorage.getItem('user');
+      return user ? JSON.parse(user) : null;
+    }
+    return null;
+  }
+
+  logout(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    }
+  }
+
+  getUsers(): Observable<any[]> {
+    return this.http.get<any[]>(`${API_URL}/users`);
+  }
+
+  updateUser(id: string, data: any): Observable<any> {
+    return this.http.put(`${API_URL}/users/${id}`, data);
+  }
+
+  updateUserStatus(id: string, status: boolean): Observable<any> {
+    return this.http.patch(`${API_URL}/users/${id}/status`, { status });
+>>>>>>> d03f37711ee4ea43c5c232096e8e40a4e0b4ad1a
   }
 }
