@@ -49,8 +49,9 @@ router.post('/register', async (req, res) => {
       joiningDate
     } = req.body;
 
+    const normalizedEmail = email.trim().toLowerCase();
     const existingUser = await User.findOne({
-      $or: [{ email }, { employeeId }]
+      $or: [{ email: normalizedEmail }, { employeeId }]
     });
 
     if (existingUser) {
@@ -62,7 +63,7 @@ router.post('/register', async (req, res) => {
     const user = new User({
       firstName,
       lastName,
-      email,
+      email: normalizedEmail,
       phone,
       password,
       employeeId,
@@ -99,8 +100,10 @@ router.post('/register-admin', async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     // Check if admin already exists
-    const existingAdmin = await Admin.findOne({ email });
+    const existingAdmin = await Admin.findOne({ email: normalizedEmail });
     if (existingAdmin) {
       return res.status(400).json({
         message: 'Admin already exists with this email'
@@ -110,7 +113,7 @@ router.post('/register-admin', async (req, res) => {
     // Create new admin
     const admin = new Admin({
       name,
-      email,
+      email: normalizedEmail,
       password,
       role: role || 'admin'
     });
@@ -145,10 +148,12 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email.trim().toLowerCase();
 
-    // First check if it's an admin
-    const admin = await Admin.findOne({ email: normalizedEmail });
+    // First check if it's an admin - Case Insensitive Search for robustness
+    const admin = await Admin.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') }
+    });
     if (admin) {
       // Check if admin is active
       if (!admin.isActive) {
@@ -203,7 +208,9 @@ router.post('/login', async (req, res) => {
     }
 
     // If not admin, check for regular user
-    const user = await User.findOne({ email: normalizedEmail });
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') }
+    });
     if (!user) {
       return res.status(401).json({
         message: 'Invalid email or password'
