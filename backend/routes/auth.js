@@ -5,13 +5,13 @@ const Admin = require('../models/Admin');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-// In-memory storage for OTPs (in production, use Redis or database)
 const otpStore = new Map();
 
-// Function to create email transporter
 function createTransporter() {
   const emailUser = (process.env.EMAIL_USER || 'ankbizzcorp@gmail.com').trim();
+
   // Remove all spaces from app password (Google app passwords should be 16 characters without spaces)
   const emailPassword = process.env.EMAIL_PASSWORD
     ? process.env.EMAIL_PASSWORD.trim().replace(/\s+/g, '')
@@ -34,7 +34,6 @@ function createTransporter() {
   });
 }
 
-// Register/Registration route
 router.post('/register', async (req, res) => {
   try {
     const {
@@ -50,7 +49,6 @@ router.post('/register', async (req, res) => {
       joiningDate
     } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email }, { employeeId }]
     });
@@ -61,7 +59,6 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Create new user
     const user = new User({
       firstName,
       lastName,
@@ -77,7 +74,6 @@ router.post('/register', async (req, res) => {
 
     await user.save();
 
-    // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
 
@@ -138,17 +134,21 @@ router.post('/register-admin', async (req, res) => {
   }
 });
 
-const jwt = require('jsonwebtoken');
-
-// ... (imports)
-
 // Login route
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({
+        message: 'Email and password are required'
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+
     // First check if it's an admin
-    const admin = await Admin.findOne({ email: email.toLowerCase() });
+    const admin = await Admin.findOne({ email: normalizedEmail });
     if (admin) {
       // Check if admin is active
       if (!admin.isActive) {
@@ -203,22 +203,20 @@ router.post('/login', async (req, res) => {
     }
 
     // If not admin, check for regular user
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(401).json({
         message: 'Invalid email or password'
       });
     }
 
-    // Check password
-    const isPasswordValid = await user.comparePassword(password);
-    if (!isPasswordValid) {
+    const isUserPasswordValid = await user.comparePassword(password);
+    if (!isUserPasswordValid) {
       return res.status(401).json({
         message: 'Invalid email or password'
       });
     }
 
-    // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
 
@@ -236,6 +234,7 @@ router.post('/login', async (req, res) => {
       role: 'user'
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({
       message: 'Login failed',
       error: error.message
@@ -243,10 +242,8 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Send OTP to email
 router.post('/send-otp', async (req, res) => {
   try {
-    // Validate input
     const { email } = req.body;
 
     if (!email) {
@@ -255,7 +252,6 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
       return res.status(400).json({
@@ -265,7 +261,6 @@ router.post('/send-otp', async (req, res) => {
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Create transporter (created here to ensure env vars are loaded)
     let transporter;
     try {
       transporter = createTransporter();
@@ -276,7 +271,6 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Verify transporter connection (optional but helpful for debugging)
     try {
       await transporter.verify();
       console.log('Email transporter verified successfully');
@@ -287,31 +281,13 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Generate 6-digit OTP
-    let otp;
-    try {
-      otp = crypto.randomInt(100000, 999999).toString();
-    } catch (otpError) {
-      console.error('OTP generation error:', otpError);
-      return res.status(500).json({
-        message: 'Failed to generate OTP. Please try again.'
-      });
-    }
+    let otp = crypto.randomInt(100000, 999999).toString();
 
-    // Store OTP with expiration (5 minutes)
-    try {
-      otpStore.set(normalizedEmail, {
-        otp,
-        expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes
-      });
-    } catch (storeError) {
-      console.error('OTP storage error:', storeError);
-      return res.status(500).json({
-        message: 'Failed to process OTP request. Please try again.'
-      });
-    }
+    otpStore.set(normalizedEmail, {
+      otp,
+      expiresAt: Date.now() + 5 * 60 * 1000
+    });
 
-    // Prepare email content
     const emailUser = (process.env.EMAIL_USER || 'ankbizzcorp@gmail.com').trim();
     const mailOptions = {
       from: emailUser,
@@ -330,11 +306,12 @@ router.post('/send-otp', async (req, res) => {
       `
     };
 
-    // Send email
-    let emailResult;
     try {
-      emailResult = await transporter.sendMail(mailOptions);
+      const emailResult = await transporter.sendMail(mailOptions);
       console.log(`OTP sent successfully to ${normalizedEmail}. MessageId: ${emailResult.messageId}`);
+      res.status(200).json({
+        message: 'OTP sent successfully to your email'
+      });
     } catch (emailError) {
       console.error('Email sending error:', emailError);
       console.error('Error code:', emailError.code);
@@ -350,7 +327,6 @@ router.post('/send-otp', async (req, res) => {
 
       if (emailError.code === 'EAUTH') {
         errorMessage = 'Email authentication failed. Please check email configuration.';
-        statusCode = 500;
       } else if (emailError.code === 'ECONNECTION' || emailError.code === 'ETIMEDOUT') {
         errorMessage = 'Could not connect to email server. Please try again later.';
         statusCode = 503;
@@ -364,13 +340,7 @@ router.post('/send-otp', async (req, res) => {
       });
     }
 
-    // Success response
-    res.status(200).json({
-      message: 'OTP sent successfully to your email'
-    });
-
   } catch (error) {
-    // Catch any unexpected errors
     console.error('Unexpected error in send-otp endpoint:', error);
     console.error('Error stack:', error.stack);
 
@@ -380,7 +350,6 @@ router.post('/send-otp', async (req, res) => {
   }
 });
 
-// Verify OTP
 router.post('/verify-otp', async (req, res) => {
   try {
     const { email, otp, isPasswordReset } = req.body;
@@ -391,7 +360,8 @@ router.post('/verify-otp', async (req, res) => {
       });
     }
 
-    const storedOtpData = otpStore.get(email.toLowerCase());
+    const normalizedEmail = email.toLowerCase();
+    const storedOtpData = otpStore.get(normalizedEmail);
 
     if (!storedOtpData) {
       return res.status(400).json({
@@ -399,15 +369,13 @@ router.post('/verify-otp', async (req, res) => {
       });
     }
 
-    // Check if OTP has expired
     if (Date.now() > storedOtpData.expiresAt) {
-      otpStore.delete(email.toLowerCase());
+      otpStore.delete(normalizedEmail);
       return res.status(400).json({
         message: 'OTP has expired. Please request a new OTP.'
       });
     }
 
-    // Verify OTP
     if (storedOtpData.otp !== otp) {
       return res.status(400).json({
         message: 'Invalid OTP. Please try again.'
@@ -417,7 +385,7 @@ router.post('/verify-otp', async (req, res) => {
     // If this is for password reset, generate a temporary token instead of just deleting
     if (isPasswordReset) {
       const resetToken = crypto.randomBytes(32).toString('hex');
-      otpStore.set(email.toLowerCase(), {
+      otpStore.set(normalizedEmail, {
         resetToken,
         expiresAt: Date.now() + 5 * 60 * 1000 // 5 minutes to reset password
       });
@@ -429,7 +397,7 @@ router.post('/verify-otp', async (req, res) => {
     }
 
     // OTP verified successfully - remove from store
-    otpStore.delete(email.toLowerCase());
+    otpStore.delete(normalizedEmail);
 
     res.json({
       message: 'Email verified successfully',
@@ -453,27 +421,75 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const storedData = otpStore.get(email.toLowerCase());
+    const normalizedEmail = email.toLowerCase();
+    const storedData = otpStore.get(normalizedEmail);
 
     if (!storedData || !storedData.resetToken || storedData.resetToken !== resetToken) {
       return res.status(400).json({ message: 'Invalid or expired reset session. Please try again.' });
     }
 
     if (Date.now() > storedData.expiresAt) {
-      otpStore.delete(email.toLowerCase());
+      otpStore.delete(normalizedEmail);
       return res.status(400).json({ message: 'Session expired. Please try again.' });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     user.password = newPassword;
     await user.save();
 
-    otpStore.delete(email.toLowerCase());
+    otpStore.delete(normalizedEmail);
     res.json({ message: 'Password reset successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to reset password', error: error.message });
+  }
+});
+
+// Get all users
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find({}, '-password');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch users', error: error.message });
+  }
+});
+
+// Update user
+router.put('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    // Don't allow password update through this route for safety
+    delete updates.password;
+
+    const user = await User.findByIdAndUpdate(id, updates, { new: true }).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update user', error: error.message });
+  }
+});
+
+// Update user status
+router.patch('/users/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const user = await User.findByIdAndUpdate(id, { active_inactive: status }, { new: true }).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update user status', error: error.message });
   }
 });
 
