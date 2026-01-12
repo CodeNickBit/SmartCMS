@@ -18,6 +18,11 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/add-user/add-user.component').then(m => m.AddUserComponent),
     canActivate: [adminGuard]
   },
+  {
+    path: 'admin/manage-employee',
+    loadComponent: () => import('./admin/manage-employee/manage-employee.component').then(m => m.ManageEmployeeComponent),
+    canActivate: [adminGuard]
+  },
   { path: 'home', component: HomeComponent },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
