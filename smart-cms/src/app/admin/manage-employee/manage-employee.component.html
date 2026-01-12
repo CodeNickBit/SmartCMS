@@ -234,6 +234,11 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Employee ID</label>
+            <input type="text" [(ngModel)]="editingEmployee.employeeId"
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+          </div>
+          <div class="space-y-2">
             <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">First Name</label>
             <input type="text" [(ngModel)]="editingEmployee.firstName"
               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
@@ -269,15 +274,18 @@
             <input type="text" [(ngModel)]="editingEmployee.designation"
               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
           </div>
-          <!-- Personal Information Fields -->
           <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Address (Personal Info 1)</label>
-            <input type="text" [(ngModel)]="editingEmployee.address"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Employment Type</label>
+            <select [(ngModel)]="editingEmployee.employmentType"
+              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
+              <option value="full-time">Full-time</option>
+              <option value="contract">Contract</option>
+              <option value="intern">Intern</option>
+            </select>
           </div>
           <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Emergency Contact (Personal Info 2)</label>
-            <input type="text" [(ngModel)]="editingEmployee.emergencyContact"
+            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Joining Date</label>
+            <input type="date" [(ngModel)]="editingEmployee.joiningDate"
               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
           </div>
         </div>
@@ -337,14 +345,19 @@
                       </svg>
                     </button>
                     <button (click)="toggleStatus(emp)" 
-                      [class]="emp.active_inactive !== false ? 'hover:text-red-500' : 'hover:text-emerald-500'"
+                      [class]="emp.active_inactive !== false ? 'hover:text-orange-500' : 'hover:text-emerald-500'"
                       class="p-2 text-slate-400 transition-colors" 
-                      [title]="emp.active_inactive !== false ? 'Deactivate (Soft Delete)' : 'Activate'">
+                      [title]="emp.active_inactive !== false ? 'Deactivate' : 'Activate'">
                       <svg *ngIf="emp.active_inactive !== false" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                       </svg>
                       <svg *ngIf="emp.active_inactive === false" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+                    <button (click)="deleteEmployee(emp)" class="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Delete Employee">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
                   </div>

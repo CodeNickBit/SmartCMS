@@ -100,6 +100,13 @@ export class ManageEmployeeComponent implements OnInit {
   // Actions
   editEmployee(emp: any) {
     this.editingEmployee = { ...emp };
+    // Format joiningDate for date input (YYYY-MM-DD)
+    if (this.editingEmployee.joiningDate) {
+      const date = new Date(this.editingEmployee.joiningDate);
+      if (!isNaN(date.getTime())) {
+        this.editingEmployee.joiningDate = date.toISOString().split('T')[0];
+      }
+    }
     this.isEditing = true;
   }
 
@@ -138,6 +145,22 @@ export class ManageEmployeeComponent implements OnInit {
         error: (err: any) => {
           console.error('Status update failed', err);
           alert('Failed to update status');
+        }
+      });
+    }
+  }
+
+  deleteEmployee(emp: any) {
+    const employeeName = this.getDisplayName(emp);
+    if (confirm(`Are you sure you want to permanently delete ${employeeName}? This action cannot be undone.`)) {
+      this.authService.deleteUser(emp._id).subscribe({
+        next: () => {
+          this.loadEmployees();
+          alert('Employee deleted successfully');
+        },
+        error: (err: any) => {
+          console.error('Delete failed', err);
+          alert('Failed to delete employee');
         }
       });
     }
