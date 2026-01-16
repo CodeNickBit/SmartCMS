@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -41,7 +42,7 @@ export class ManageEmployeeComponent implements OnInit {
   isEditing: boolean = false;
   editingEmployee: any = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService, private router: Router) { }
 
   ngOnInit() {
     this.loadAdminData();
@@ -168,6 +169,14 @@ export class ManageEmployeeComponent implements OnInit {
 
   empUpload() {
     alert('EMP Upload functionality coming soon!');
+  }
+
+  navigateToRegister() {
+    // Store flag to indicate admin is registering
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.setItem('adminRegistering', 'true');
+    }
+    this.router.navigate(['/signup']);
   }
 
   logout() {
