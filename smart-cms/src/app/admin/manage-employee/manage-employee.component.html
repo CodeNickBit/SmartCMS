@@ -211,20 +211,20 @@
             </svg>
             EMP Upload
           </button>
-          <a href="/admin/add-users"
-            class="px-6 py-2.5 bg-[#3083DC] hover:bg-blue-600 text-white text-sm font-bold rounded-lg shadow-lg flex items-center gap-2 transition-all">
+          <button (click)="navigateToRegister()"
+            class="text-[#3083DC] hover:text-blue-400 text-sm font-bold flex items-center gap-2 transition-all underline">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Add New Employee
-          </a>
+          </button>
         </div>
       </div>
 
       <!-- Edit Employee Form (Conditional) -->
-      <div *ngIf="isEditing" class="bg-white text-[#101935] rounded-2xl shadow-xl p-8 border border-blue-100 animate-in fade-in slide-in-from-top-4 duration-300">
+      <div *ngIf="isEditing" class="bg-[#1B264F] text-white rounded-2xl shadow-xl p-8 border border-blue-900/30 animate-in fade-in slide-in-from-top-4 duration-300">
         <div class="flex items-center justify-between mb-8">
-          <h2 class="text-2xl font-bold text-[#1B264F]">Edit Employee Details</h2>
+          <h2 class="text-2xl font-bold text-white">Edit Employee Details</h2>
           <button (click)="cancelEdit()" class="text-slate-400 hover:text-red-500 transition-colors">
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -234,34 +234,24 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Employee ID</label>
-            <input type="text" [(ngModel)]="editingEmployee.employeeId"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
-          </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">First Name</label>
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">First Name</label>
             <input type="text" [(ngModel)]="editingEmployee.firstName"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
           </div>
           <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Last Name</label>
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Last Name</label>
             <input type="text" [(ngModel)]="editingEmployee.lastName"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
           </div>
           <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address</label>
-            <input type="email" [(ngModel)]="editingEmployee.email"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
-          </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone Number</label>
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Phone Number</label>
             <input type="text" [(ngModel)]="editingEmployee.phone"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
           </div>
           <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Department</label>
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Department</label>
             <select [(ngModel)]="editingEmployee.department"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
+              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
               <option value="engineering">Engineering</option>
               <option value="marketing">Marketing</option>
               <option value="sales">Sales</option>
@@ -270,29 +260,24 @@
             </select>
           </div>
           <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Designation</label>
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Designation</label>
             <input type="text" [(ngModel)]="editingEmployee.designation"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
           </div>
           <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Employment Type</label>
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Employment Type</label>
             <select [(ngModel)]="editingEmployee.employmentType"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
+              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
               <option value="full-time">Full-time</option>
               <option value="contract">Contract</option>
               <option value="intern">Intern</option>
             </select>
           </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-500 uppercase tracking-wider">Joining Date</label>
-            <input type="date" [(ngModel)]="editingEmployee.joiningDate"
-              class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
-          </div>
         </div>
 
-        <div class="mt-8 flex items-center justify-end gap-3 border-t border-slate-100 pt-6">
+        <div class="mt-8 flex items-center justify-end gap-3 border-t border-slate-700 pt-6">
           <button (click)="cancelEdit()"
-            class="px-6 py-2.5 border border-slate-200 text-slate-600 text-sm font-bold rounded-lg hover:bg-slate-50 transition-all">
+            class="px-6 py-2.5 border border-slate-600 text-slate-300 text-sm font-bold rounded-lg hover:bg-[#101935] transition-all">
             Cancel
           </button>
           <button (click)="saveEmployee()"
@@ -303,10 +288,10 @@
       </div>
 
       <!-- Employee Table -->
-      <div class="bg-white text-[#101935] rounded-2xl shadow-xl overflow-hidden">
+      <div class="bg-[#1B264F] text-white rounded-2xl shadow-xl overflow-hidden border border-blue-900/30">
         <div class="overflow-x-auto">
           <table class="w-full text-left text-sm">
-            <thead class="bg-slate-100 text-slate-600 font-bold border-b border-slate-200">
+            <thead class="bg-[#101935] text-slate-300 font-bold border-b border-slate-700">
               <tr>
                 <th class="px-6 py-4">Employee ID</th>
                 <th class="px-6 py-4">Name</th>
@@ -317,22 +302,22 @@
                 <th class="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
-                <tr *ngFor="let emp of filteredEmployees" class="hover:bg-blue-50/50 transition-colors">
-                  <td class="px-6 py-4 font-medium text-slate-500">{{ emp.employeeId || 'N/A' }}</td>
+            <tbody class="divide-y divide-slate-700">
+                <tr *ngFor="let emp of filteredEmployees" class="hover:bg-[#101935]/50 transition-colors">
+                  <td class="px-6 py-4 font-medium text-slate-300">{{ emp.employeeId || 'N/A' }}</td>
                   <td class="px-6 py-4">
                     <div class="flex items-center gap-3">
-                      <div class="h-8 w-8 rounded-full bg-[#3083DC]/10 flex items-center justify-center text-[#3083DC] font-bold">
+                      <div class="h-8 w-8 rounded-full bg-[#3083DC]/20 flex items-center justify-center text-[#3083DC] font-bold">
                         {{ getDisplayName(emp).charAt(0) }}
                       </div>
-                      <span class="font-bold text-[#101935]">{{ getDisplayName(emp) }}</span>
+                      <span class="font-bold text-white">{{ getDisplayName(emp) }}</span>
                     </div>
                   </td>
-                  <td class="px-6 py-4 text-slate-600">{{ emp.email }}</td>
-                  <td class="px-6 py-4 text-slate-600 capitalize">{{ emp.department || 'N/A' }}</td>
-                  <td class="px-6 py-4 text-slate-600">{{ emp.designation || 'N/A' }}</td>
+                  <td class="px-6 py-4 text-slate-300">{{ emp.email }}</td>
+                  <td class="px-6 py-4 text-slate-300 capitalize">{{ emp.department || 'N/A' }}</td>
+                  <td class="px-6 py-4 text-slate-300">{{ emp.designation || 'N/A' }}</td>
                   <td class="px-6 py-4">
-                    <span [class]="emp.active_inactive !== false ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-orange-100 text-orange-700 border-orange-200'"
+                    <span [class]="emp.active_inactive !== false ? 'bg-emerald-900/30 text-emerald-300 border-emerald-700' : 'bg-orange-900/30 text-orange-300 border-orange-700'"
                       class="px-2.5 py-1 rounded-full text-xs font-bold border">
                       {{ emp.active_inactive !== false ? 'Active' : 'Inactive' }}
                     </span>
@@ -345,7 +330,7 @@
                       </svg>
                     </button>
                     <button (click)="toggleStatus(emp)" 
-                      [class]="emp.active_inactive !== false ? 'hover:text-orange-500' : 'hover:text-emerald-500'"
+                      [class]="emp.active_inactive !== false ? 'hover:text-orange-400' : 'hover:text-emerald-400'"
                       class="p-2 text-slate-400 transition-colors" 
                       [title]="emp.active_inactive !== false ? 'Deactivate' : 'Activate'">
                       <svg *ngIf="emp.active_inactive !== false" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -355,16 +340,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </button>
-                    <button (click)="deleteEmployee(emp)" class="p-2 text-slate-400 hover:text-red-500 transition-colors" title="Delete Employee">
-                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
                   </div>
                 </td>
               </tr>
               <tr *ngIf="filteredEmployees.length === 0">
-                <td colspan="7" class="px-6 py-10 text-center text-slate-500 italic">
+                <td colspan="7" class="px-6 py-10 text-center text-slate-400 italic">
                   No employees found matching your criteria.
                 </td>
               </tr>

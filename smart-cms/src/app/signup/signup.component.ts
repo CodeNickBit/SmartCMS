@@ -147,13 +147,27 @@ export class SignupComponent {
     this.isLoading = true;
     this.showVerificationModal = false;
 
+    // Check if admin is registering
+    const isAdminRegistering = typeof window !== 'undefined' && sessionStorage.getItem('adminRegistering') === 'true';
+
     // Now register the user after OTP is verified
     this.authService.register(this.pendingFormData).subscribe({
       next: (response) => {
         this.isLoading = false;
         console.log('Registration successful:', response);
-        // Redirect to login page after successful registration
-        this.router.navigate(['/login']);
+        
+        // Clear the admin registering flag
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('adminRegistering');
+        }
+        
+        // If admin was registering, redirect to admin dashboard
+        if (isAdminRegistering) {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          // Otherwise redirect to login page
+          this.router.navigate(['/login']);
+        }
       },
       error: (error) => {
         this.isLoading = false;
