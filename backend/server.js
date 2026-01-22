@@ -30,8 +30,13 @@ app.get('/', (req, res) => {
 // Import routes
 const authRoutes = require('./routes/auth');
 const managerRoutes = require('./routes/manager');
+const departmentRoutes = require('./routes/department');
+const designationRoutes = require('./routes/designation');
+
 app.use('/api/auth', authRoutes);
 app.use('/api/manager', managerRoutes);
+app.use('/api/department', departmentRoutes);
+app.use('/api/designation', designationRoutes);
 
 // Handle 404 routes with JSON response
 app.use((req, res, next) => {

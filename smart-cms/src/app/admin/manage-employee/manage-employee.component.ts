@@ -3,6 +3,8 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { DepartmentService, Department } from '../../services/department.service';
+import { DesignationService, Designation } from '../../services/designation.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
 
@@ -28,10 +30,21 @@ export class ManageEmployeeComponent implements OnInit {
   isEditing: boolean = false;
   editingEmployee: any = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService, private router: Router) { }
+  dbDepartments: Department[] = [];
+  dbDesignations: Designation[] = [];
+
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private authService: AuthService,
+    private router: Router,
+    private departmentService: DepartmentService,
+    private designationService: DesignationService
+  ) { }
 
   ngOnInit() {
     this.loadEmployees();
+    this.loadDepartments();
+    this.loadDesignations();
   }
 
   loadEmployees() {
@@ -41,6 +54,28 @@ export class ManageEmployeeComponent implements OnInit {
       },
       error: (err: any) => {
         console.error('Failed to fetch employees', err);
+      }
+    });
+  }
+
+  loadDepartments() {
+    this.departmentService.getDepartments().subscribe({
+      next: (data) => {
+        this.dbDepartments = data;
+      },
+      error: (error) => {
+        console.error('Error fetching departments:', error);
+      }
+    });
+  }
+
+  loadDesignations() {
+    this.designationService.getDesignations().subscribe({
+      next: (data) => {
+        this.dbDesignations = data;
+      },
+      error: (error) => {
+        console.error('Error fetching designations:', error);
       }
     });
   }
