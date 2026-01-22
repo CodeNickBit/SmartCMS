@@ -37,21 +37,71 @@ function createTransporter() {
 router.post('/register', async (req, res) => {
   try {
     const {
+      // Personal Details
       firstName,
+      middleName,
       lastName,
-      email,
+      gender,
+      dateOfBirth,
+      maritalStatus,
       phone,
-      password,
+      email,
+      currentAddress,
+      permanentAddress,
+      emergencyContactName,
+      emergencyContactNumber,
+      
+      // Gender-based conditional fields
+      fatherGuardianName,
+      guardianContact,
+      spouseName,
+      spouseContactNumber,
+      marriageDate,
+      preferredName,
+      pronouns,
+      
+      // Professional Details
       employeeId,
       department,
       designation,
+      reportingManager,
+      joiningDate,
       employmentType,
-      joiningDate
+      workLocation,
+      shiftType,
+      
+      // Work & Pay Details
+      workingHoursStart,
+      workingHoursEnd,
+      weeklyWorkingDays,
+      wageType,
+      salaryAmount,
+      allowances,
+      overtimeEligible,
+      bankAccountNumber,
+      bankName,
+      bankIFSC,
+      pfApplicable,
+      esicApplicable,
+      
+      // Maternity & Flexible Hours
+      maternityEligible,
+      flexibleWorkingHours,
+      
+      // Phase 2: Pregnancy tracking
+      pregnancyStatus,
+      expectedDeliveryDate,
+      medicalFitnessCertificate,
+      
+      // Authentication
+      password
     } = req.body;
 
     const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmployeeId = employeeId.trim().toUpperCase();
+    
     const existingUser = await User.findOne({
-      $or: [{ email: normalizedEmail }, { employeeId }]
+      $or: [{ email: normalizedEmail }, { employeeId: normalizedEmployeeId }]
     });
 
     if (existingUser) {
@@ -60,17 +110,94 @@ router.post('/register', async (req, res) => {
       });
     }
 
+    // Calculate age from dateOfBirth
+    let age = 0;
+    if (dateOfBirth) {
+      const today = new Date();
+      const birthDate = new Date(dateOfBirth);
+      age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+    }
+
+    // Set lastNameEditable based on gender and marital status
+    let lastNameEditable = false;
+    if (gender === 'Female' && maritalStatus === 'Married') {
+      lastNameEditable = true;
+    }
+
+    // Set maternityEligible for married females
+    let autoMaternityEligible = false;
+    if (gender === 'Female' && maritalStatus === 'Married') {
+      autoMaternityEligible = true;
+    }
+
     const user = new User({
+      // Personal Details
       firstName,
+      middleName: middleName || undefined,
       lastName,
-      email: normalizedEmail,
+      gender,
+      dateOfBirth: dateOfBirth || undefined,
+      age,
+      maritalStatus: maritalStatus || undefined,
       phone,
-      password,
-      employeeId,
+      email: normalizedEmail,
+      currentAddress,
+      permanentAddress,
+      emergencyContactName,
+      emergencyContactNumber,
+      
+      // Gender-based conditional fields
+      fatherGuardianName: (gender === 'Female' && maritalStatus === 'Single') ? fatherGuardianName : undefined,
+      guardianContact: (gender === 'Female' && maritalStatus === 'Single') ? guardianContact : undefined,
+      spouseName: (gender === 'Female' && maritalStatus === 'Married') ? spouseName : undefined,
+      spouseContactNumber: (gender === 'Female' && maritalStatus === 'Married') ? spouseContactNumber : undefined,
+      marriageDate: (gender === 'Female' && maritalStatus === 'Married') ? (marriageDate || undefined) : undefined,
+      preferredName: (gender === 'Other') ? preferredName : undefined,
+      pronouns: (gender === 'Other') ? pronouns : undefined,
+      
+      // Last Name Edit Rules
+      lastNameEditable,
+      lastNameEditUsed: false,
+      
+      // Professional Details
+      employeeId: normalizedEmployeeId,
       department,
       designation,
+      reportingManager: reportingManager || undefined,
+      joiningDate: joiningDate || undefined,
       employmentType,
-      joiningDate: joiningDate || undefined
+      workLocation,
+      shiftType: shiftType || undefined,
+      
+      // Work & Pay Details
+      workingHoursStart: workingHoursStart || undefined,
+      workingHoursEnd: workingHoursEnd || undefined,
+      weeklyWorkingDays: weeklyWorkingDays || 5,
+      wageType: wageType || undefined,
+      salaryAmount: salaryAmount || undefined,
+      allowances: allowances || 0,
+      overtimeEligible: overtimeEligible || false,
+      bankAccountNumber: bankAccountNumber || undefined,
+      bankName: bankName || undefined,
+      bankIFSC: bankIFSC || undefined,
+      pfApplicable: pfApplicable || false,
+      esicApplicable: esicApplicable || false,
+      
+      // Maternity & Flexible Hours
+      maternityEligible: maternityEligible !== undefined ? maternityEligible : autoMaternityEligible,
+      flexibleWorkingHours: flexibleWorkingHours || false,
+      
+      // Phase 2: Pregnancy tracking
+      pregnancyStatus: pregnancyStatus || 'Not Pregnant',
+      expectedDeliveryDate: expectedDeliveryDate || undefined,
+      medicalFitnessCertificate: medicalFitnessCertificate || undefined,
+      
+      // Authentication
+      password
     });
 
     await user.save();
@@ -88,6 +215,7 @@ router.post('/register', async (req, res) => {
         message: 'User already exists with this email or employee ID'
       });
     }
+    console.error('Registration error:', error);
     res.status(400).json({
       message: 'Registration failed',
       error: error.message
