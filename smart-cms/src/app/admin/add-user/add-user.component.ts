@@ -1,37 +1,23 @@
 import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { MatSelectModule } from '@angular/material/select';
 import { AuthService } from '../../services/auth.service';
+import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
+import { AdminHeaderComponent } from '../components/header/header.component';
 
 @Component({
   selector: 'app-add-user',
   standalone: true,
   imports: [
     CommonModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
     FormsModule,
-    MatSelectModule
+    AdminSidebarComponent,
+    AdminHeaderComponent
   ],
   templateUrl: './add-user.component.html',
   styleUrl: './add-user.component.css'
 })
 export class AddUserComponent implements OnInit {
-  adminName: string = 'Admin User';
-  adminRole: string = 'Administrator';
-  lastLogin: string = '';
-
   // Form State
   selectedRole: 'admin' | 'hr' | 'manager' = 'admin';
   showModal: boolean = false;
@@ -62,25 +48,6 @@ export class AddUserComponent implements OnInit {
   constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService) { }
 
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          this.adminName = user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : 'Admin User');
-          this.adminRole = user.role || 'Administrator';
-
-          if (user.lastLogin) {
-            this.lastLogin = new Date(user.lastLogin).toLocaleString();
-          } else {
-            this.lastLogin = new Date().toLocaleString();
-          }
-
-        } catch (e) {
-          console.error('Error parsing user data', e);
-        }
-      }
-    }
   }
 
   get filteredUsers() {
@@ -168,29 +135,17 @@ export class AddUserComponent implements OnInit {
       return;
     }
 
-    console.log('Creating User:', this.newUser);
-
     this.authService.registerAdmin(this.newUser).subscribe({
       next: (response) => {
-        // Show success message
         this.successMessage = `Successfully created ${this.modalRole} user: ${this.newUser.name}`;
         this.closeModal();
-
-        // Clear message after 3 seconds
         setTimeout(() => {
           this.successMessage = '';
         }, 3000);
       },
       error: (error) => {
         console.error('Error creating user:', error);
-        // Display backend error as a general error or alert
-        if (error.error?.message) {
-          // For now, mapping backend error to alert or specific field if possible
-          // But user requested "Avoid alert prompts", so let's try to map to fields if we can, default to a general alert only if critical
-          alert(error.error.message); // Keeping alert for backend failures for now as we don't have a general error UI in modal
-        } else {
-          alert('Failed to create user');
-        }
+        alert(error.error?.message || 'Failed to create user');
       }
     });
   }

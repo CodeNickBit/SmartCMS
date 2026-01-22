@@ -10,6 +10,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request Logger
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/smartcms';
 mongoose.connect(MONGODB_URI)
@@ -23,7 +29,9 @@ app.get('/', (req, res) => {
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const managerRoutes = require('./routes/manager');
 app.use('/api/auth', authRoutes);
+app.use('/api/manager', managerRoutes);
 
 // Handle 404 routes with JSON response
 app.use((req, res, next) => {
