@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../services/auth.service';
+import { DepartmentService, Department } from '../services/department.service';
+import { DesignationService, Designation } from '../services/designation.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
 
 @Component({
@@ -11,7 +13,7 @@ import { EmailVerificationModalComponent } from '../components/email-verificatio
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   firstName: string = '';
   lastName: string = '';
   email: string = '';
@@ -28,10 +30,42 @@ export class SignupComponent {
   showVerificationModal: boolean = false;
   pendingFormData: any = null; // Store form data until OTP is verified
 
+  dbDepartments: Department[] = [];
+  dbDesignations: Designation[] = [];
+
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private departmentService: DepartmentService,
+    private designationService: DesignationService
   ) {}
+
+  ngOnInit() {
+    this.loadDepartments();
+    this.loadDesignations();
+  }
+
+  loadDepartments() {
+    this.departmentService.getDepartments().subscribe({
+      next: (data) => {
+        this.dbDepartments = data;
+      },
+      error: (error) => {
+        console.error('Error fetching departments:', error);
+      }
+    });
+  }
+
+  loadDesignations() {
+    this.designationService.getDesignations().subscribe({
+      next: (data) => {
+        this.dbDesignations = data;
+      },
+      error: (error) => {
+        console.error('Error fetching designations:', error);
+      }
+    });
+  }
 
   validateField(fieldName: string): void {
     delete this.errors[fieldName];

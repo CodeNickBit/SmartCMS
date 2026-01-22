@@ -63,22 +63,20 @@
             <input type="text" [(ngModel)]="editingEmployee.phone"
               class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
           </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Department</label>
-            <select [(ngModel)]="editingEmployee.department"
-              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
-              <option value="engineering">Engineering</option>
-              <option value="marketing">Marketing</option>
-              <option value="sales">Sales</option>
-              <option value="hr">HR</option>
-              <option value="finance">Finance</option>
-            </select>
-          </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Designation</label>
-            <input type="text" [(ngModel)]="editingEmployee.designation"
-              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
-          </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Department</label>
+              <select [(ngModel)]="editingEmployee.department"
+                class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
+                <option *ngFor="let dept of dbDepartments" [value]="dept.name">{{dept.name | titlecase}}</option>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Designation</label>
+              <select [(ngModel)]="editingEmployee.designation"
+                class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
+                <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
+              </select>
+            </div>
           <div class="space-y-2">
             <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Employment Type</label>
             <select [(ngModel)]="editingEmployee.employmentType"

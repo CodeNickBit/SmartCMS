@@ -2,6 +2,8 @@ import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ManagerService, ManagerRegistrationRequest } from '../../services/manager.service';
+import { DepartmentService, Department } from '../../services/department.service';
+import { DesignationService, Designation } from '../../services/designation.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
 
@@ -41,20 +43,26 @@ export class AddManagerComponent implements OnInit {
     designation: ''
   };
 
-  departments = [
-    'engineering', 'marketing', 'sales', 'hr', 'finance', 'operations', 'it', 'management'
-  ];
+  dbDepartments: Department[] = [];
+  dbDesignations: Designation[] = [];
 
   // Table State
   filterDept: string = 'All';
   searchQuery: string = '';
   managers: any[] = [];
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private managerService: ManagerService) { }
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private managerService: ManagerService,
+    private departmentService: DepartmentService,
+    private designationService: DesignationService
+  ) { }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       this.loadManagers();
+      this.loadDepartments();
+      this.loadDesignations();
     }
   }
 
@@ -65,6 +73,28 @@ export class AddManagerComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching managers:', error);
+      }
+    });
+  }
+
+  loadDepartments() {
+    this.departmentService.getDepartments().subscribe({
+      next: (data) => {
+        this.dbDepartments = data;
+      },
+      error: (error) => {
+        console.error('Error fetching departments:', error);
+      }
+    });
+  }
+
+  loadDesignations() {
+    this.designationService.getDesignations().subscribe({
+      next: (data) => {
+        this.dbDesignations = data;
+      },
+      error: (error) => {
+        console.error('Error fetching designations:', error);
       }
     });
   }

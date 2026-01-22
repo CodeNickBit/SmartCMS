@@ -124,23 +124,25 @@
             <p *ngIf="errors['email']" class="text-xs text-red-400">{{errors['email']}}</p>
           </div>
 
-          <div class="space-y-1.5">
-            <label class="text-sm font-semibold text-slate-300">Department</label>
-            <select [(ngModel)]="newManager.department" 
-              class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-4 py-2.5 text-white focus:border-[#3083DC] outline-none transition-all appearance-none">
-              <option value="" disabled>Select Department</option>
-              <option *ngFor="let dept of departments" [value]="dept">{{dept | titlecase}}</option>
-            </select>
-            <p *ngIf="errors['department']" class="text-xs text-red-400">{{errors['department']}}</p>
-          </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-semibold text-slate-300">Department</label>
+              <select [(ngModel)]="newManager.department" 
+                class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-4 py-2.5 text-white focus:border-[#3083DC] outline-none transition-all appearance-none">
+                <option value="" disabled>Select Department</option>
+                <option *ngFor="let dept of dbDepartments" [value]="dept.name">{{dept.name | titlecase}}</option>
+              </select>
+              <p *ngIf="errors['department']" class="text-xs text-red-400">{{errors['department']}}</p>
+            </div>
 
-          <div class="space-y-1.5">
-            <label class="text-sm font-semibold text-slate-300">Designation</label>
-            <input type="text" [(ngModel)]="newManager.designation" 
-              class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-4 py-2.5 text-white focus:border-[#3083DC] outline-none transition-all"
-              placeholder="e.g. Senior Manager">
-            <p *ngIf="errors['designation']" class="text-xs text-red-400">{{errors['designation']}}</p>
-          </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-semibold text-slate-300">Designation</label>
+              <select [(ngModel)]="newManager.designation" 
+                class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-4 py-2.5 text-white focus:border-[#3083DC] outline-none transition-all appearance-none">
+                <option value="" disabled>Select Designation</option>
+                <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
+              </select>
+              <p *ngIf="errors['designation']" class="text-xs text-red-400">{{errors['designation']}}</p>
+            </div>
 
           <div class="space-y-1.5">
             <label class="text-sm font-semibold text-slate-300">Temporary Password</label>
@@ -205,20 +207,21 @@
               placeholder="manager@company.com">
           </div>
 
-          <div class="space-y-1.5">
-            <label class="text-sm font-semibold text-slate-300">Department</label>
-            <select [(ngModel)]="editingManager.department" 
-              class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-4 py-2.5 text-white focus:border-[#3083DC] outline-none transition-all appearance-none">
-              <option *ngFor="let dept of departments" [value]="dept">{{dept | titlecase}}</option>
-            </select>
-          </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-semibold text-slate-300">Department</label>
+              <select [(ngModel)]="editingManager.department" 
+                class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-4 py-2.5 text-white focus:border-[#3083DC] outline-none transition-all appearance-none">
+                <option *ngFor="let dept of dbDepartments" [value]="dept.name">{{dept.name | titlecase}}</option>
+              </select>
+            </div>
 
-          <div class="space-y-1.5">
-            <label class="text-sm font-semibold text-slate-300">Designation</label>
-            <input type="text" [(ngModel)]="editingManager.designation" 
-              class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-4 py-2.5 text-white focus:border-[#3083DC] outline-none transition-all"
-              placeholder="e.g. Senior Manager">
-          </div>
+            <div class="space-y-1.5">
+              <label class="text-sm font-semibold text-slate-300">Designation</label>
+              <select [(ngModel)]="editingManager.designation" 
+                class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-4 py-2.5 text-white focus:border-[#3083DC] outline-none transition-all appearance-none">
+                <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
+              </select>
+            </div>
         </div>
       </div>
 
