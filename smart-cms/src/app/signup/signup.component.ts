@@ -7,7 +7,6 @@ import { EmailVerificationModalComponent } from '../components/email-verificatio
 
 @Component({
   selector: 'app-signup',
-  standalone: true,
   imports: [CommonModule, FormsModule, RouterLink, EmailVerificationModalComponent],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
