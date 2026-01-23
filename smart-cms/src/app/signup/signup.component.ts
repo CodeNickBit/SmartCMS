@@ -4,7 +4,6 @@ import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService, RegisterRequest } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../services/auth.service';
 import { DepartmentService, Department } from '../services/department.service';
 import { DesignationService, Designation } from '../services/designation.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
@@ -12,8 +11,7 @@ import { EmailVerificationModalComponent } from '../components/email-verificatio
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, EmailVerificationModalComponent],
-  imports: [CommonModule, FormsModule, RouterLink, EmailVerificationModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterLink, EmailVerificationModalComponent],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
 })
@@ -34,6 +32,7 @@ export class SignupComponent implements OnInit {
   showPassword: boolean = false;
   showVerificationModal: boolean = false;
   pendingFormData: RegisterRequest | null = null;
+  isAdminRegistering: boolean = false;
 
   dbDepartments: Department[] = [];
   dbDesignations: Designation[] = [];
@@ -41,11 +40,15 @@ export class SignupComponent implements OnInit {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private departmentService: DepartmentService,
+    private designationService: DesignationService
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
+    this.loadDepartments();
+    this.loadDesignations();
     
     // Watch for gender and marital status changes to show/hide conditional fields
     this.registrationForm.get('gender')?.valueChanges.subscribe(() => {
@@ -55,13 +58,11 @@ export class SignupComponent implements OnInit {
     this.registrationForm.get('maritalStatus')?.valueChanges.subscribe(() => {
       this.updateConditionalFields();
     });
-    private departmentService: DepartmentService,
-    private designationService: DesignationService
-  ) {}
 
-  ngOnInit() {
-    this.loadDepartments();
-    this.loadDesignations();
+    // Watch for date of birth changes to calculate age
+    this.registrationForm.get('dateOfBirth')?.valueChanges.subscribe(() => {
+      this.calculateAge();
+    });
   }
 
   loadDepartments() {
@@ -88,11 +89,6 @@ export class SignupComponent implements OnInit {
 
   validateField(fieldName: string): void {
     delete this.errors[fieldName];
-
-    // Watch for date of birth changes to calculate age
-    this.registrationForm.get('dateOfBirth')?.valueChanges.subscribe(() => {
-      this.calculateAge();
-    });
   }
 
   initializeForm(): void {
@@ -371,7 +367,6 @@ export class SignupComponent implements OnInit {
       next: (response) => {
         this.isLoading = false;
         console.log('Registration successful:', response);
-        this.router.navigate(['/login']);
         
         // Clear the admin registering flag
         if (typeof window !== 'undefined') {

@@ -98,10 +98,13 @@ router.post('/register', async (req, res) => {
     } = req.body;
 
     const normalizedEmail = email.trim().toLowerCase();
-    const normalizedEmployeeId = employeeId.trim().toUpperCase();
     
+    // Check if user exists by email or employeeId
     const existingUser = await User.findOne({
-      $or: [{ email: normalizedEmail }, { employeeId: normalizedEmployeeId }]
+      $or: [
+        { email: normalizedEmail },
+        { employeeId: employeeId ? employeeId.trim().toUpperCase() : null }
+      ].filter(cond => cond.employeeId !== null || cond.email)
     });
 
     if (existingUser) {
@@ -110,30 +113,7 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Calculate age from dateOfBirth
-    let age = 0;
-    if (dateOfBirth) {
-      const today = new Date();
-      const birthDate = new Date(dateOfBirth);
-      age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-    }
-
-    // Set lastNameEditable based on gender and marital status
-    let lastNameEditable = false;
-    if (gender === 'Female' && maritalStatus === 'Married') {
-      lastNameEditable = true;
-    }
-
-    // Set maternityEligible for married females
-    let autoMaternityEligible = false;
-    if (gender === 'Female' && maritalStatus === 'Married') {
-      autoMaternityEligible = true;
-    }
-
+    // Create user instance first to get the generated _id
     const user = new User({
       // Personal Details
       firstName,
@@ -164,7 +144,7 @@ router.post('/register', async (req, res) => {
       lastNameEditUsed: false,
       
       // Professional Details
-      employeeId: normalizedEmployeeId,
+      employeeId: employeeId ? employeeId.trim().toUpperCase() : undefined, // Will be set to _id if undefined
       department,
       designation,
       reportingManager: reportingManager || undefined,
@@ -199,6 +179,11 @@ router.post('/register', async (req, res) => {
       // Authentication
       password
     });
+
+    // If employeeId wasn't provided, use the generated _id
+    if (!user.employeeId) {
+      user.employeeId = user._id;
+    }
 
     await user.save();
 

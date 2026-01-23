@@ -226,26 +226,6 @@
                   getFieldError('spouseName') }}</p>
               </div>
 
-                <div class="flex flex-col gap-2">
-                  <label for="department" class="text-sm font-medium text-gray-300">Department <span class="!text-[#EE964B]">*</span></label>
-                  <select id="department" [(ngModel)]="department" name="department" required (blur)="validateField('department')"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                    <option value="" disabled>Select Department</option>
-                    <option *ngFor="let dept of dbDepartments" [value]="dept.name">{{dept.name | titlecase}}</option>
-                  </select>
-                  <p *ngIf="errors['department']" class="!text-[#EE964B] text-xs font-medium">{{ errors['department'] }}</p>
-                </div>
-
-                <div class="flex flex-col gap-2">
-                  <label for="designation" class="text-sm font-medium text-gray-300">Designation <span class="!text-[#EE964B]">*</span></label>
-                  <select id="designation" [(ngModel)]="designation" name="designation" required (blur)="validateField('designation')"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                    <option value="" disabled>Select Designation</option>
-                    <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
-                  </select>
-                  <p *ngIf="errors['designation']" class="!text-[#EE964B] text-xs font-medium">{{ errors['designation'] }}</p>
-                </div>
-
               <div class="flex flex-col gap-2">
                 <label for="spouseContactNumber" class="text-sm font-medium text-gray-300">Spouse Contact Number <span
                     class="!text-[#EE964B]">*</span></label>
@@ -272,28 +252,28 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Department -->
             <div class="flex flex-col gap-2">
               <label for="department" class="text-sm font-medium text-gray-300">Department <span
                   class="!text-[#EE964B]">*</span></label>
               <select id="department" formControlName="department"
                 class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
                 <option value="" disabled>Select Department</option>
-                <option value="engineering">Engineering</option>
-                <option value="marketing">Marketing</option>
-                <option value="sales">Sales</option>
-                <option value="hr">Human Resources</option>
-                <option value="finance">Finance</option>
+                <option *ngFor="let dept of dbDepartments" [value]="dept.name">{{dept.name | titlecase}}</option>
               </select>
               <p *ngIf="getFieldError('department')" class="!text-[#EE964B] text-xs font-medium">{{
                 getFieldError('department') }}</p>
             </div>
 
+            <!-- Designation -->
             <div class="flex flex-col gap-2">
               <label for="designation" class="text-sm font-medium text-gray-300">Designation <span
                   class="!text-[#EE964B]">*</span></label>
-              <input type="text" id="designation" formControlName="designation" autocomplete="organization-title"
-                placeholder="e.g. Senior Developer"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <select id="designation" formControlName="designation"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="" disabled>Select Designation</option>
+                <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
+              </select>
               <p *ngIf="getFieldError('designation')" class="!text-[#EE964B] text-xs font-medium">{{
                 getFieldError('designation') }}</p>
             </div>
