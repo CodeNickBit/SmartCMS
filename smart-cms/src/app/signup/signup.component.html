@@ -225,6 +225,27 @@
                 <p *ngIf="getFieldError('spouseName')" class="!text-[#EE964B] text-xs font-medium">{{
                   getFieldError('spouseName') }}</p>
               </div>
+
+                <div class="flex flex-col gap-2">
+                  <label for="department" class="text-sm font-medium text-gray-300">Department <span class="!text-[#EE964B]">*</span></label>
+                  <select id="department" [(ngModel)]="department" name="department" required (blur)="validateField('department')"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                    <option value="" disabled>Select Department</option>
+                    <option *ngFor="let dept of dbDepartments" [value]="dept.name">{{dept.name | titlecase}}</option>
+                  </select>
+                  <p *ngIf="errors['department']" class="!text-[#EE964B] text-xs font-medium">{{ errors['department'] }}</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label for="designation" class="text-sm font-medium text-gray-300">Designation <span class="!text-[#EE964B]">*</span></label>
+                  <select id="designation" [(ngModel)]="designation" name="designation" required (blur)="validateField('designation')"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                    <option value="" disabled>Select Designation</option>
+                    <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
+                  </select>
+                  <p *ngIf="errors['designation']" class="!text-[#EE964B] text-xs font-medium">{{ errors['designation'] }}</p>
+                </div>
+
               <div class="flex flex-col gap-2">
                 <label for="spouseContactNumber" class="text-sm font-medium text-gray-300">Spouse Contact Number <span
                     class="!text-[#EE964B]">*</span></label>

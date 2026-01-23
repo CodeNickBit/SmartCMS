@@ -1,19 +1,18 @@
-import { Component, PLATFORM_ID, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
+import { AdminHeaderComponent } from '../components/header/header.component';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AdminSidebarComponent, AdminHeaderComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit {
-  adminName: string = 'Admin User';
-  adminRole: string = 'Administrator';
-  lastLogin: string = '';
   currentDate: Date = new Date();
   searchQuery: string = '';
 
@@ -83,29 +82,11 @@ export class DashboardComponent implements OnInit {
   ];
 
   constructor(
-    @Inject(PLATFORM_ID) private platformId: Object,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) { }
 
   ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      const userStr = localStorage.getItem('user');
-      if (userStr) {
-        try {
-          const user = JSON.parse(userStr);
-          this.adminName = user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : 'Admin User');
-          this.adminRole = user.role || 'Administrator';
-
-          if (user.lastLogin) {
-            this.lastLogin = new Date(user.lastLogin).toLocaleString();
-          } else {
-            this.lastLogin = new Date().toLocaleString();
-          }
-        } catch (e) {
-          console.error('Error parsing user data', e);
-        }
-      }
-    }
   }
 
   getDepartmentGradient(): string {

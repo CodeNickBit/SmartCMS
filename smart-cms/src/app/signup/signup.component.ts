@@ -3,22 +3,40 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService, RegisterRequest } from '../services/auth.service';
+import { FormsModule } from '@angular/forms';
+import { AuthService } from '../services/auth.service';
+import { DepartmentService, Department } from '../services/department.service';
+import { DesignationService, Designation } from '../services/designation.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink, EmailVerificationModalComponent],
+  imports: [CommonModule, FormsModule, RouterLink, EmailVerificationModalComponent],
   templateUrl: './signup.component.html',
   styleUrl: './signup.component.css',
 })
 export class SignupComponent implements OnInit {
   registrationForm!: FormGroup;
+  firstName: string = '';
+  lastName: string = '';
+  email: string = '';
+  phone: string = '';
+  password: string = '';
+  employeeId: string = '';
+  department: string = '';
+  designation: string = '';
+  joiningDate: string = '';
+  employmentType: string = '';
   errors: { [key: string]: string } = {};
   isLoading: boolean = false;
   showPassword: boolean = false;
   showVerificationModal: boolean = false;
   pendingFormData: RegisterRequest | null = null;
+
+  dbDepartments: Department[] = [];
+  dbDesignations: Designation[] = [];
 
   constructor(
     private router: Router,
@@ -37,6 +55,39 @@ export class SignupComponent implements OnInit {
     this.registrationForm.get('maritalStatus')?.valueChanges.subscribe(() => {
       this.updateConditionalFields();
     });
+    private departmentService: DepartmentService,
+    private designationService: DesignationService
+  ) {}
+
+  ngOnInit() {
+    this.loadDepartments();
+    this.loadDesignations();
+  }
+
+  loadDepartments() {
+    this.departmentService.getDepartments().subscribe({
+      next: (data) => {
+        this.dbDepartments = data;
+      },
+      error: (error) => {
+        console.error('Error fetching departments:', error);
+      }
+    });
+  }
+
+  loadDesignations() {
+    this.designationService.getDesignations().subscribe({
+      next: (data) => {
+        this.dbDesignations = data;
+      },
+      error: (error) => {
+        console.error('Error fetching designations:', error);
+      }
+    });
+  }
+
+  validateField(fieldName: string): void {
+    delete this.errors[fieldName];
 
     // Watch for date of birth changes to calculate age
     this.registrationForm.get('dateOfBirth')?.valueChanges.subscribe(() => {
@@ -312,11 +363,28 @@ export class SignupComponent implements OnInit {
     this.isLoading = true;
     this.showVerificationModal = false;
 
+    // Check if admin is registering
+    const isAdminRegistering = typeof window !== 'undefined' && sessionStorage.getItem('adminRegistering') === 'true';
+
+    // Now register the user after OTP is verified
     this.authService.register(this.pendingFormData).subscribe({
       next: (response) => {
         this.isLoading = false;
         console.log('Registration successful:', response);
         this.router.navigate(['/login']);
+        
+        // Clear the admin registering flag
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('adminRegistering');
+        }
+        
+        // If admin was registering, redirect to admin dashboard
+        if (isAdminRegistering) {
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          // Otherwise redirect to login page
+          this.router.navigate(['/login']);
+        }
       },
       error: (error) => {
         this.isLoading = false;
