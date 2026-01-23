@@ -5,16 +5,64 @@ import { Observable } from 'rxjs';
 const API_URL = 'http://localhost:3000/api/auth';
 
 export interface RegisterRequest {
+  // Personal Details
   firstName: string;
+  middleName?: string;
   lastName: string;
+  gender: 'Male' | 'Female' | 'Other';
+  dateOfBirth: string;
+  maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
+  phone: string;
   email: string;
-  phone?: string;
-  password: string;
+  currentAddress: string;
+  permanentAddress: string;
+  emergencyContactName: string;
+  emergencyContactNumber: string;
+  
+  // Gender-based conditional fields
+  fatherGuardianName?: string;
+  guardianContact?: string;
+  spouseName?: string;
+  spouseContactNumber?: string;
+  marriageDate?: string;
+  preferredName?: string;
+  pronouns?: string;
+  
+  // Professional Details
   employeeId: string;
   department: string;
   designation: string;
+  reportingManager?: string;
+  joiningDate: string;
   employmentType: string;
-  joiningDate?: string;
+  workLocation: string;
+  shiftType?: 'day' | 'night' | 'rotating' | 'flexible';
+  
+  // Work & Pay Details
+  workingHoursStart?: string;
+  workingHoursEnd?: string;
+  weeklyWorkingDays?: number;
+  wageType?: 'monthly' | 'hourly' | 'daily' | 'weekly';
+  salaryAmount?: number;
+  allowances?: number;
+  overtimeEligible?: boolean;
+  bankAccountNumber?: string;
+  bankName?: string;
+  bankIFSC?: string;
+  pfApplicable?: boolean;
+  esicApplicable?: boolean;
+  
+  // Maternity & Flexible Hours
+  maternityEligible?: boolean;
+  flexibleWorkingHours?: boolean;
+  
+  // Phase 2: Pregnancy tracking
+  pregnancyStatus?: 'Not Pregnant' | 'Pregnant' | 'Post-Delivery';
+  expectedDeliveryDate?: string;
+  medicalFitnessCertificate?: string;
+  
+  // Authentication
+  password: string;
 }
 
 export interface RegisterResponse {
