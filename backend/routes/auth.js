@@ -628,4 +628,20 @@ router.patch('/users/:id/status', async (req, res) => {
   }
 });
 
+// Delete user
+router.delete('/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete user', error: error.message });
+  }
+});
+
 module.exports = router;

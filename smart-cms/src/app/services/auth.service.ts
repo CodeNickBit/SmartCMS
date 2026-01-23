@@ -179,4 +179,8 @@ export class AuthService {
   updateUserStatus(id: string, status: boolean): Observable<any> {
     return this.http.patch(`${API_URL}/users/${id}/status`, { status });
   }
+
+  deleteUser(id: string): Observable<any> {
+    return this.http.delete(`${API_URL}/users/${id}`);
+  }
 }
