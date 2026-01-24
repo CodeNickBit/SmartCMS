@@ -2,17 +2,47 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  // Personal Details
   firstName: {
     type: String,
     required: true,
     trim: true,
     minlength: 2
   },
+  middleName: {
+    type: String,
+    trim: true
+  },
   lastName: {
     type: String,
     required: true,
     trim: true,
     minlength: 2
+  },
+  gender: {
+    type: String,
+    required: true,
+    enum: ['Male', 'Female', 'Other'],
+    trim: true
+  },
+  dateOfBirth: {
+    type: Date,
+    required: true
+  },
+  age: {
+    type: Number,
+    required: true
+  },
+  maritalStatus: {
+    type: String,
+    enum: ['Single', 'Married', 'Divorced', 'Widowed'],
+    trim: true
+  },
+  phone: {
+    type: String,
+    required: true,
+    trim: true,
+    match: [/^\d{10}$/, 'Phone must be 10 digits']
   },
   email: {
     type: String,
@@ -22,16 +52,73 @@ const userSchema = new mongoose.Schema({
     trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email']
   },
-  phone: {
-    type: String,
-    trim: true,
-    match: [/^\d{10}$/, 'Phone must be 10 digits']
-  },
-  password: {
+  currentAddress: {
     type: String,
     required: true,
-    minlength: 8
+    trim: true
   },
+  permanentAddress: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  emergencyContactName: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  emergencyContactNumber: {
+    type: String,
+    required: true,
+    trim: true,
+    match: [/^\d{10}$/, 'Emergency contact number must be 10 digits']
+  },
+  
+  // Gender-based conditional fields
+  // For Unmarried Female
+  fatherGuardianName: {
+    type: String,
+    trim: true
+  },
+  guardianContact: {
+    type: String,
+    trim: true,
+    match: [/^\d{10}$/, 'Guardian contact must be 10 digits']
+  },
+  // For Married Female
+  spouseName: {
+    type: String,
+    trim: true
+  },
+  spouseContactNumber: {
+    type: String,
+    trim: true,
+    match: [/^\d{10}$/, 'Spouse contact number must be 10 digits']
+  },
+  marriageDate: {
+    type: Date
+  },
+  // For Other/Prefer Not to Say
+  preferredName: {
+    type: String,
+    trim: true
+  },
+  pronouns: {
+    type: String,
+    trim: true
+  },
+  
+  // Last Name Edit Rules
+  lastNameEditable: {
+    type: Boolean,
+    default: false
+  },
+  lastNameEditUsed: {
+    type: Boolean,
+    default: false
+  },
+  
+  // Professional Details
   employeeId: {
     type: String,
     required: true,
@@ -50,20 +137,137 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  reportingManager: {
+    type: String,
+    trim: true
+  },
+  joiningDate: {
+    type: Date,
+    required: true
+  },
   employmentType: {
     type: String,
     required: true,
-    enum: ['full-time', 'contract', 'intern']
+    enum: ['full-time', 'contract', 'intern', 'part-time']
   },
-  joiningDate: {
+  workLocation: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  shiftType: {
+    type: String,
+    enum: ['day', 'night', 'rotating', 'flexible'],
+    trim: true
+  },
+  
+  // Work & Pay Details
+  workingHoursStart: {
+    type: String,
+    trim: true
+  },
+  workingHoursEnd: {
+    type: String,
+    trim: true
+  },
+  weeklyWorkingDays: {
+    type: Number,
+    min: 1,
+    max: 7,
+    default: 5
+  },
+  wageType: {
+    type: String,
+    enum: ['monthly', 'hourly', 'daily', 'weekly'],
+    trim: true
+  },
+  salaryAmount: {
+    type: Number,
+    min: 0
+  },
+  allowances: {
+    type: Number,
+    min: 0,
+    default: 0
+  },
+  overtimeEligible: {
+    type: Boolean,
+    default: false
+  },
+  bankAccountNumber: {
+    type: String,
+    trim: true
+  },
+  bankName: {
+    type: String,
+    trim: true
+  },
+  bankIFSC: {
+    type: String,
+    trim: true
+  },
+  pfApplicable: {
+    type: Boolean,
+    default: false
+  },
+  esicApplicable: {
+    type: Boolean,
+    default: false
+  },
+  
+  // Maternity & Flexible Hours
+  maternityEligible: {
+    type: Boolean,
+    default: false
+  },
+  flexibleWorkingHours: {
+    type: Boolean,
+    default: false
+  },
+  
+  // Phase 2: Pregnancy tracking (optional)
+  pregnancyStatus: {
+    type: String,
+    enum: ['Not Pregnant', 'Pregnant', 'Post-Delivery'],
+    default: 'Not Pregnant'
+  },
+  expectedDeliveryDate: {
     type: Date
   },
+  medicalFitnessCertificate: {
+    type: String,
+    trim: true
+  },
+  
+  // Authentication
+  password: {
+    type: String,
+    required: true,
+    minlength: 8
+  },
+  
+  // Status
   active_inactive: {
     type: Boolean,
     default: true
   }
 }, {
   timestamps: true
+});
+
+// Calculate age from dateOfBirth before saving
+userSchema.pre('save', function (next) {
+  if (this.dateOfBirth && this.isModified('dateOfBirth')) {
+    const today = new Date();
+    const birthDate = new Date(this.dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    this.age = age;
+  }
+  next();
 });
 
 // Hash password before saving
