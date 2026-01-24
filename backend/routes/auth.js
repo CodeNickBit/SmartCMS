@@ -100,10 +100,12 @@ router.post('/register', async (req, res) => {
     const normalizedEmail = email.trim().toLowerCase();
     
     // Check if user exists by email or employeeId
+    const effectiveEmployeeId = (employeeId === 'TO BE GENERATED' || !employeeId) ? undefined : employeeId.trim().toUpperCase();
+    
     const existingUser = await User.findOne({
       $or: [
         { email: normalizedEmail },
-        { employeeId: employeeId ? employeeId.trim().toUpperCase() : null }
+        { employeeId: effectiveEmployeeId ? effectiveEmployeeId : null }
       ].filter(cond => cond.employeeId !== null || cond.email)
     });
 
@@ -113,6 +115,9 @@ router.post('/register', async (req, res) => {
       });
     }
 
+    // Default values for internal fields
+    const autoMaternityEligible = gender === 'Female' && maritalStatus === 'Married';
+
     // Create user instance first to get the generated _id
     const user = new User({
       // Personal Details
@@ -121,7 +126,7 @@ router.post('/register', async (req, res) => {
       lastName,
       gender,
       dateOfBirth: dateOfBirth || undefined,
-      age,
+      // Age is calculated via pre-save hook in model
       maritalStatus: maritalStatus || undefined,
       phone,
       email: normalizedEmail,
@@ -139,12 +144,8 @@ router.post('/register', async (req, res) => {
       preferredName: (gender === 'Other') ? preferredName : undefined,
       pronouns: (gender === 'Other') ? pronouns : undefined,
       
-      // Last Name Edit Rules
-      lastNameEditable,
-      lastNameEditUsed: false,
-      
       // Professional Details
-      employeeId: employeeId ? employeeId.trim().toUpperCase() : undefined, // Will be set to _id if undefined
+      employeeId: effectiveEmployeeId,
       department,
       designation,
       reportingManager: reportingManager || undefined,
