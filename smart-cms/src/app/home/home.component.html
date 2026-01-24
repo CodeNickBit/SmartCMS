@@ -1,9 +1,211 @@
-<div class="min-h-screen bg-[#101935] flex items-center justify-center text-white">
-  <div class="text-center">
-    <h1 class="text-4xl font-bold mb-4">Employee Home Page</h1>
-    <p class="text-gray-400 mb-8">This page is under construction.</p>
-    <button (click)="logout()" class="px-6 py-2 bg-[#3083DC] rounded-lg hover:bg-[#206bc4] transition-colors">
-      Logout
-    </button>
+<div class="min-h-screen bg-[#101935] text-white p-6 md:p-10 font-sans">
+  <!-- Header Section -->
+  <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 animate-fade-in-up">
+    <div>
+      <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+        Hello, {{ userProfile?.firstName || 'User' }}
+      </h1>
+      <p class="text-gray-400 mt-1 flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-[#3083DC]"></span>
+        {{ userProfile?.designation || 'Employee' }} &bull; {{ userProfile?.department || 'General' }}
+      </p>
+    </div>
+    <div class="mt-4 md:mt-0 text-right">
+      <p class="text-xl font-semibold">{{ currentDate | date: 'EEEE, d MMMM y' }}</p>
+      <button (click)="logout()"
+        class="text-sm text-[#EF4444] hover:text-red-400 transition-colors mt-2 flex items-center justify-end gap-1 ml-auto">
+        <span>Logout</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Dashboard Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+    <!-- Attendance Card -->
+    <div class="glass-card rounded-2xl p-6 relative overflow-hidden group animate-fade-in-up animate-delay-100">
+      <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 text-[#3083DC]" fill="none" viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+        <span class="p-2 bg-[#3083DC]/20 rounded-lg text-[#3083DC]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </span>
+        Attendance
+      </h2>
+
+      <div class="flex flex-col items-center justify-center py-4">
+        <div class="text-4xl font-bold mb-2 tracking-wider font-mono">
+          {{ attendance.totalHours }}
+        </div>
+        <p class="text-sm text-gray-400 mb-6">Total Hours Today</p>
+
+        <button (click)="toggleAttendance()"
+          class="w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2"
+          [ngClass]="attendance.status === 'Clocked Out' ? 'bg-[#3083DC] hover:bg-[#2563EB]' : 'bg-[#EF4444] hover:bg-[#DC2626]'">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+          </svg>
+          {{ attendance.status === 'Clocked Out' ? 'Clock In' : 'Clock Out' }}
+        </button>
+
+        <p class="mt-4 text-sm flex items-center gap-2"
+          [ngClass]="attendance.status === 'Clocked Out' ? 'text-gray-400' : 'text-[#10B981]'">
+          <span class="w-2 h-2 rounded-full"
+            [ngClass]="attendance.status === 'Clocked Out' ? 'bg-gray-500' : 'bg-[#10B981] animate-pulse'"></span>
+          Currently {{ attendance.status }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Leave Balance Card -->
+    <div class="glass-card rounded-2xl p-6 animate-fade-in-up animate-delay-200">
+      <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+        <span class="p-2 bg-[#EE964B]/20 rounded-lg text-[#EE964B]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </span>
+        Leave Balance
+      </h2>
+
+      <div class="space-y-4">
+        <div *ngFor="let leave of leaveBalances" class="bg-[#1B264F] rounded-lg p-3 border border-gray-700/50">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-sm font-medium text-gray-200">{{ leave.type }}</span>
+            <span class="text-xs font-bold bg-[#3083DC]/20 text-[#3083DC] px-2 py-1 rounded">{{ leave.available }}
+              Available</span>
+          </div>
+          <div class="w-full bg-gray-700 rounded-full h-1.5">
+            <div class="bg-gradient-to-r from-[#3083DC] to-[#60A5FA] h-1.5 rounded-full"
+              [style.width.%]="(leave.available / leave.total) * 100"></div>
+          </div>
+        </div>
+      </div>
+
+      <button (click)="onApplyLeave()"
+        class="w-full mt-6 py-3 border border-[#3083DC] text-[#3083DC] rounded-xl hover:bg-[#3083DC]/10 transition-colors font-semibold flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        Apply for Leave
+      </button>
+    </div>
+
+    <!-- Quick Actions / Payslip -->
+    <div class="glass-card rounded-2xl p-6 animate-fade-in-up animate-delay-300 flex flex-col justify-between">
+      <div>
+        <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+          <span class="p-2 bg-[#10B981]/20 rounded-lg text-[#10B981]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </span>
+          Latest Payslip
+        </h2>
+
+        <div
+          class="text-center py-6 bg-gradient-to-b from-[#1B264F] to-transparent rounded-xl border border-dashed border-gray-600 mb-4">
+          <p class="text-gray-400 text-sm mb-1">{{ recentPayslip.month }} {{ recentPayslip.year }}</p>
+          <h3 class="text-3xl font-bold text-white mb-2">{{ recentPayslip.netPay | currency:'INR' }}</h3>
+          <span
+            class="inline-block px-3 py-1 bg-[#10B981]/20 text-[#10B981] text-xs rounded-full font-medium">Credited</span>
+        </div>
+      </div>
+
+      <div class="space-y-3">
+        <button (click)="downloadPayslip(recentPayslip.id)"
+          class="w-full py-3 bg-[#1B264F] hover:bg-[#233060] text-gray-300 rounded-xl transition-colors flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download Slip
+        </button>
+        <button
+          class="w-full py-3 bg-[#EE964B]/10 text-[#EE964B] hover:bg-[#EE964B]/20 rounded-xl transition-colors flex items-center justify-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          View Profile
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tasks Section -->
+  <div class="glass-card-strong rounded-2xl p-6 animate-fade-in-up animate-delay-400">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-semibold flex items-center gap-2">
+        <span class="p-2 bg-[#8B5CF6]/20 rounded-lg text-[#8B5CF6]">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+          </svg>
+        </span>
+        My Tasks
+      </h2>
+      <button class="text-sm text-[#3083DC] hover:text-[#2563EB] font-medium">View All</button>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr class="text-gray-400 text-sm border-b border-gray-700/50">
+            <th class="pb-3 pl-2 font-medium">Task Name</th>
+            <th class="pb-3 font-medium">Due Date</th>
+            <th class="pb-3 font-medium">Priority</th>
+            <th class="pb-3 font-medium">Status</th>
+            <th class="pb-3 font-medium text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="text-sm">
+          <tr *ngFor="let task of tasks" class="group border-b border-gray-700/30 hover:bg-white/5 transition-colors">
+            <td class="py-4 pl-2 font-medium text-white">{{ task.title }}</td>
+            <td class="py-4 text-gray-300">{{ task.dueDate | date:'mediumDate' }}</td>
+            <td class="py-4">
+              <span class="px-2 py-1 rounded text-xs font-semibold"
+                [style.background-color]="getPriorityColor(task.priority) + '20'"
+                [style.color]="getPriorityColor(task.priority)">
+                {{ task.priority }}
+              </span>
+            </td>
+            <td class="py-4">
+              <span
+                class="px-2 py-1 rounded text-xs font-semibold cursor-pointer select-none hover:opacity-80 transition-opacity"
+                (click)="updateTaskStatus(task)" [style.background-color]="getStatusColor(task.status) + '20'"
+                [style.color]="getStatusColor(task.status)">
+                {{ task.status }}
+              </span>
+            </td>
+            <td class="py-4 text-right">
+              <button class="p-2 text-gray-400 hover:text-white transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

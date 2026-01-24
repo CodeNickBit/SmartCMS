@@ -1,188 +1,525 @@
 <div class="h-screen bg-[#101935] flex flex-col font-sans text-white overflow-hidden">
   <div class="flex-1 overflow-y-auto">
-    <div class="container mx-auto px-4 py-6 max-w-6xl">
-      <form (ngSubmit)="onSubmit()" #signupForm="ngForm" class="space-y-6">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+      <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <div class="space-y-3 mb-6">
+          <div class="flex items-center gap-3">
+            <img src="/assets/MEAN_Logo_Dark.png" alt="SmartCMS Logo" class="h-[100px] w-auto object-contain">
+          </div>
+          <span class="text-md text-white">Smart Corporate Management System</span>
+          <div class="space-y-2">
+            <h1 class="text-3xl font-bold text-white">Employee Onboarding</h1>
+            <p class="text-gray-400">Complete your profile setup to gain access to internal systems.</p>
+          </div>
+        </div>
 
-          <!-- Left Column: Personal Details -->
-          <div class="flex flex-col justify-start space-y-6">
-            <div class="space-y-3">
-              <div class="flex items-center gap-3">
-                <img src="/assets/MEAN_Logo_Dark.png" alt="SmartCMS Logo" class="h-[100px] w-auto object-contain">
-              </div>
-              <span class="text-md text-white">Smart Corporate Management System</span>
+        <!-- Personal Information Section -->
+        <div class="space-y-5 bg-[#1B264F]/30 p-6 rounded-lg border border-gray-700">
+          <div class="space-y-2">
+            <h3 class="!text-[#3083DC] font-semibold text-base uppercase">Personal Information</h3>
+            <div class="h-px bg-gray-700 w-full"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Employee ID (Auto-generated note) -->
+            <div class="flex flex-col gap-2">
+              <label for="employeeId" class="text-sm font-medium text-gray-300">Employee ID <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="text" id="employeeId" formControlName="employeeId" autocomplete="off" placeholder="EMP-12345"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('employeeId')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('employeeId') }}</p>
             </div>
 
-            <div class="space-y-2">
-              <h1 class="text-3xl font-bold text-white">Employee Onboarding</h1>
-              <p class="text-gray-400">Complete your profile setup to gain access to internal systems.</p>
+            <!-- First Name -->
+            <div class="flex flex-col gap-2">
+              <label for="firstName" class="text-sm font-medium text-gray-300">First Name <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="text" id="firstName" formControlName="firstName" autocomplete="given-name"
+                placeholder="Rohit"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('firstName')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('firstName') }}</p>
             </div>
 
-            <div class="space-y-5">
-              <div class="space-y-2">
-                <h3 class="!text-[#3083DC] font-semibold text-base uppercase">Personal Information</h3>
-                <div class="h-px bg-gray-700 w-full"></div>
-              </div>
+            <!-- Middle Name -->
+            <div class="flex flex-col gap-2">
+              <label for="middleName" class="text-sm font-medium text-gray-300">Middle Name</label>
+              <input type="text" id="middleName" formControlName="middleName" autocomplete="additional-name"
+                placeholder="Kumar"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex flex-col gap-2">
-                  <label for="firstName" class="text-sm font-medium text-gray-300">First Name <span class="!text-[#EE964B]">*</span></label>
-                  <input type="text" id="firstName" [(ngModel)]="firstName" name="firstName" required (blur)="validateField('firstName')" 
-                    autocomplete="given-name" placeholder="Rohit"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <p *ngIf="errors['firstName']" class="!text-[#EE964B] text-xs font-medium">{{ errors['firstName'] }}</p>
-                </div>
-                <div class="flex flex-col gap-2">
-                  <label for="lastName" class="text-sm font-medium text-gray-300">Last Name <span class="!text-[#EE964B]">*</span></label>
-                  <input type="text" id="lastName" [(ngModel)]="lastName" name="lastName" required (blur)="validateField('lastName')"
-                    autocomplete="family-name" placeholder="Sharma"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <p *ngIf="errors['lastName']" class="!text-[#EE964B] text-xs font-medium">{{ errors['lastName'] }}</p>
-                </div>
-              </div>
+            <!-- Last Name -->
+            <div class="flex flex-col gap-2">
+              <label for="lastName" class="text-sm font-medium text-gray-300">Last Name <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="text" id="lastName" formControlName="lastName" autocomplete="family-name"
+                placeholder="Sharma"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('lastName')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('lastName') }}</p>
+            </div>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex flex-col gap-2">
-                  <label for="email" class="text-sm font-medium text-gray-300">Email Address <span class="!text-[#EE964B]">*</span></label>
-                  <input type="email" id="email" [(ngModel)]="email" name="email" required (blur)="validateField('email')"
-                    autocomplete="email" placeholder="rohit@company.com"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <p *ngIf="errors['email']" class="!text-[#EE964B] text-xs font-medium">{{ errors['email'] }}</p>
-                </div>
-                <div class="flex flex-col gap-2">
-                  <label for="phone" class="text-sm font-medium text-gray-300">Phone Number</label>
-                  <input type="tel" id="phone" [(ngModel)]="phone" name="phone" (input)="onPhoneInput($event)" (blur)="validateField('phone')"
-                    autocomplete="tel" placeholder="1234567890" maxlength="10"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <p *ngIf="errors['phone']" class="!text-[#EE964B] text-xs font-medium">{{ errors['phone'] }}</p>
-                </div>
-              </div>
+            <!-- Gender -->
+            <div class="flex flex-col gap-2">
+              <label for="gender" class="text-sm font-medium text-gray-300">Gender <span
+                  class="!text-[#EE964B]">*</span></label>
+              <select id="gender" formControlName="gender"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="" disabled>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              <p *ngIf="getFieldError('gender')" class="!text-[#EE964B] text-xs font-medium">{{ getFieldError('gender')
+                }}</p>
+            </div>
 
-              <div class="flex flex-col gap-2">
-                <label for="password" class="text-sm font-medium text-gray-300">Password <span class="!text-[#EE964B]">*</span></label>
-                <div class="relative">
-                  <input [type]="showPassword ? 'text' : 'password'" id="password" [(ngModel)]="password" name="password" required 
-                    (blur)="validateField('password')" autocomplete="new-password" placeholder="Enter a strong password"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC] pr-10">
-                  <button type="button" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'" tabindex="-1"
-                    class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none">
-                    <span *ngIf="!showPassword">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                    </span>
-                    <span *ngIf="showPassword">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592m3.104-2.727A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.965 9.965 0 01-4.293 5.411M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L6 6" /></svg>
-                    </span>
-                  </button>
-                </div>
-                <p *ngIf="errors['password']" class="!text-[#EE964B] text-xs font-medium">{{ errors['password'] }}</p>
-              </div>
+            <!-- Date of Birth -->
+            <div class="flex flex-col gap-2">
+              <label for="dateOfBirth" class="text-sm font-medium text-gray-300">Date of Birth <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="date" id="dateOfBirth" formControlName="dateOfBirth"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('dateOfBirth')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('dateOfBirth') }}</p>
+            </div>
+
+            <!-- Age (Auto-calculated) -->
+            <div class="flex flex-col gap-2">
+              <label for="age" class="text-sm font-medium text-gray-300">Age</label>
+              <input type="text" id="age" formControlName="age" readonly
+                class="w-full bg-[#1B264F]/50 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-400 cursor-not-allowed">
+            </div>
+
+            <!-- Marital Status (shown only for Female) -->
+            <div class="flex flex-col gap-2" *ngIf="shouldShowMaritalStatus()">
+              <label for="maritalStatus" class="text-sm font-medium text-gray-300">Marital Status</label>
+              <select id="maritalStatus" formControlName="maritalStatus"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="">Select Marital Status</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+            </div>
+
+            <!-- Preferred Name (for Other gender) -->
+            <div class="flex flex-col gap-2" *ngIf="isOtherGender()">
+              <label for="preferredName" class="text-sm font-medium text-gray-300">Preferred Name</label>
+              <input type="text" id="preferredName" formControlName="preferredName" placeholder="Preferred name"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <!-- Pronouns (for Other gender) -->
+            <div class="flex flex-col gap-2" *ngIf="isOtherGender()">
+              <label for="pronouns" class="text-sm font-medium text-gray-300">Pronouns</label>
+              <input type="text" id="pronouns" formControlName="pronouns" placeholder="e.g., they/them"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <!-- Phone Number -->
+            <div class="flex flex-col gap-2">
+              <label for="phone" class="text-sm font-medium text-gray-300">Phone Number <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="tel" id="phone" formControlName="phone" (input)="onPhoneInput($event, 'phone')"
+                autocomplete="tel" placeholder="1234567890" maxlength="10"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('phone')" class="!text-[#EE964B] text-xs font-medium">{{ getFieldError('phone') }}
+              </p>
+            </div>
+
+            <!-- Email -->
+            <div class="flex flex-col gap-2">
+              <label for="email" class="text-sm font-medium text-gray-300">Email Address <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="email" id="email" formControlName="email" autocomplete="email"
+                placeholder="rohit@company.com"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('email')" class="!text-[#EE964B] text-xs font-medium">{{ getFieldError('email') }}
+              </p>
+            </div>
+
+            <!-- Current Address -->
+            <div class="flex flex-col gap-2 md:col-span-2">
+              <label for="currentAddress" class="text-sm font-medium text-gray-300">Current Address <span
+                  class="!text-[#EE964B]">*</span></label>
+              <textarea id="currentAddress" formControlName="currentAddress" rows="2"
+                placeholder="Enter current address"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC] resize-none"></textarea>
+              <p *ngIf="getFieldError('currentAddress')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('currentAddress') }}</p>
+            </div>
+
+            <!-- Permanent Address -->
+            <div class="flex flex-col gap-2 md:col-span-2">
+              <label for="permanentAddress" class="text-sm font-medium text-gray-300">Permanent Address <span
+                  class="!text-[#EE964B]">*</span></label>
+              <textarea id="permanentAddress" formControlName="permanentAddress" rows="2"
+                placeholder="Enter permanent address"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC] resize-none"></textarea>
+              <p *ngIf="getFieldError('permanentAddress')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('permanentAddress') }}</p>
+            </div>
+
+            <!-- Emergency Contact Name -->
+            <div class="flex flex-col gap-2">
+              <label for="emergencyContactName" class="text-sm font-medium text-gray-300">Emergency Contact Name <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="text" id="emergencyContactName" formControlName="emergencyContactName"
+                placeholder="Contact name"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('emergencyContactName')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('emergencyContactName') }}</p>
+            </div>
+
+            <!-- Emergency Contact Number -->
+            <div class="flex flex-col gap-2">
+              <label for="emergencyContactNumber" class="text-sm font-medium text-gray-300">Emergency Contact Number
+                <span class="!text-[#EE964B]">*</span></label>
+              <input type="tel" id="emergencyContactNumber" formControlName="emergencyContactNumber"
+                (input)="onPhoneInput($event, 'emergencyContactNumber')" placeholder="1234567890" maxlength="10"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('emergencyContactNumber')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('emergencyContactNumber') }}</p>
             </div>
           </div>
 
-          <!-- Right Column: Employment Details -->
-          <div class="flex flex-col justify-start space-y-5">
-            <div class="space-y-2">
-              <h3 class="!text-[#3083DC] font-semibold text-base uppercase">Employee Details</h3>
-              <div class="h-px bg-gray-700 w-full"></div>
-            </div>
-
-            <div class="space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex flex-col gap-2">
-                  <label for="employeeId" class="text-sm font-medium text-gray-300">Employee ID <span class="!text-[#EE964B]">*</span></label>
-                  <input type="text" id="employeeId" [(ngModel)]="employeeId" name="employeeId" required 
-                    (blur)="validateField('employeeId')" autocomplete="off" placeholder="EMP-12345"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <p *ngIf="errors['employeeId']" class="!text-[#EE964B] text-xs font-medium">{{ errors['employeeId'] }}</p>
-                </div>
-                <div class="flex flex-col gap-2">
-                  <label for="joiningDate" class="text-sm font-medium text-gray-300">Date of Joining</label>
-                  <input type="date" id="joiningDate" [(ngModel)]="joiningDate" name="joiningDate"
-                    autocomplete="off"
-                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                </div>
-              </div>
-
+          <!-- Gender-based Conditional Fields: Unmarried Female -->
+          <div *ngIf="isUnmarriedFemale()" class="mt-6 pt-6 border-t border-gray-700">
+            <h4 class="!text-[#3083DC] font-semibold text-sm uppercase mb-4">Guardian Information (Unmarried Female)
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div class="flex flex-col gap-2">
-                <label for="department" class="text-sm font-medium text-gray-300">Department <span class="!text-[#EE964B]">*</span></label>
-                <select id="department" [(ngModel)]="department" name="department" required (blur)="validateField('department')"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <option value="" disabled>Select Department</option>
-                  <option value="engineering">Engineering</option>
-                  <option value="marketing">Marketing</option>
-                  <option value="sales">Sales</option>
-                  <option value="hr">Human Resources</option>
-                  <option value="finance">Finance</option>
-                </select>
-                <p *ngIf="errors['department']" class="!text-[#EE964B] text-xs font-medium">{{ errors['department'] }}</p>
-              </div>
-
-              <div class="flex flex-col gap-2">
-                <label for="designation" class="text-sm font-medium text-gray-300">Designation <span class="!text-[#EE964B]">*</span></label>
-                <input type="text" id="designation" [(ngModel)]="designation" name="designation" required 
-                  (blur)="validateField('designation')" autocomplete="organization-title" placeholder="e.g. Senior Developer"
+                <label for="fatherGuardianName" class="text-sm font-medium text-gray-300">Father/Guardian Name <span
+                    class="!text-[#EE964B]">*</span></label>
+                <input type="text" id="fatherGuardianName" formControlName="fatherGuardianName"
+                  placeholder="Guardian name"
                   class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="errors['designation']" class="!text-[#EE964B] text-xs font-medium">{{ errors['designation'] }}</p>
+                <p *ngIf="getFieldError('fatherGuardianName')" class="!text-[#EE964B] text-xs font-medium">{{
+                  getFieldError('fatherGuardianName') }}</p>
               </div>
-
               <div class="flex flex-col gap-2">
-                <fieldset>
-                  <legend class="text-sm font-medium text-gray-300 mb-2">Employment Type <span class="!text-[#EE964B]">*</span></legend>
-                  <div class="flex items-center gap-4 bg-[#1B264F] p-3 rounded-lg border border-gray-600">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" id="employmentType-fulltime" name="employmentType" [(ngModel)]="employmentType" 
-                        value="full-time" (change)="validateField('employmentType')" class="form-radio text-[#3083DC]">
-                      <span class="text-sm text-gray-300">Full-time</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" id="employmentType-contract" name="employmentType" [(ngModel)]="employmentType" 
-                        value="contract" (change)="validateField('employmentType')" class="form-radio text-[#3083DC]">
-                      <span class="text-sm text-gray-300">Contract</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" id="employmentType-intern" name="employmentType" [(ngModel)]="employmentType" 
-                        value="intern" (change)="validateField('employmentType')" class="form-radio text-[#3083DC]">
-                      <span class="text-sm text-gray-300">Intern</span>
-                    </label>
-                  </div>
-                </fieldset>
-                <p *ngIf="errors['employmentType']" class="!text-[#EE964B] text-xs font-medium">{{ errors['employmentType'] }}</p>
-              </div>
-            </div>
-
-            <div class="pt-4">
-              <p *ngIf="errors['general']" class="!text-[#EE964B] text-sm mb-4 text-center font-medium">{{ errors['general'] }}</p>
-              <button type="submit" [disabled]="isLoading"
-                class="w-full bg-[#3083DC] hover:bg-[#206bc4] text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                <span *ngIf="!isLoading">Create Profile</span>
-                <span *ngIf="isLoading">Creating Profile...</span>
-              </button>
-
-              <div class="mt-4 text-left">
-                <p class="text-gray-400 text-sm">
-                  Already have an account?
-                  <a routerLink="/login" class="text-[#3083DC] hover:underline font-semibold">Login</a>
-                </p>
+                <label for="guardianContact" class="text-sm font-medium text-gray-300">Guardian Contact <span
+                    class="!text-[#EE964B]">*</span></label>
+                <input type="tel" id="guardianContact" formControlName="guardianContact"
+                  (input)="onPhoneInput($event, 'guardianContact')" placeholder="1234567890" maxlength="10"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <p *ngIf="getFieldError('guardianContact')" class="!text-[#EE964B] text-xs font-medium">{{
+                  getFieldError('guardianContact') }}</p>
               </div>
             </div>
           </div>
 
+          <!-- Gender-based Conditional Fields: Married Female -->
+          <div *ngIf="isMarriedFemale()" class="mt-6 pt-6 border-t border-gray-700">
+            <h4 class="!text-[#3083DC] font-semibold text-sm uppercase mb-4">Spouse Information (Married Female)</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex flex-col gap-2">
+                <label for="spouseName" class="text-sm font-medium text-gray-300">Spouse Name <span
+                    class="!text-[#EE964B]">*</span></label>
+                <input type="text" id="spouseName" formControlName="spouseName" placeholder="Spouse name"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <p *ngIf="getFieldError('spouseName')" class="!text-[#EE964B] text-xs font-medium">{{
+                  getFieldError('spouseName') }}</p>
+              </div>
+
+                <div class="flex flex-col gap-2">
+                  <label for="department" class="text-sm font-medium text-gray-300">Department <span class="!text-[#EE964B]">*</span></label>
+                  <select id="department" [(ngModel)]="department" name="department" required (blur)="validateField('department')"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                    <option value="" disabled>Select Department</option>
+                    <option *ngFor="let dept of dbDepartments" [value]="dept.name">{{dept.name | titlecase}}</option>
+                  </select>
+                  <p *ngIf="errors['department']" class="!text-[#EE964B] text-xs font-medium">{{ errors['department'] }}</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label for="designation" class="text-sm font-medium text-gray-300">Designation <span class="!text-[#EE964B]">*</span></label>
+                  <select id="designation" [(ngModel)]="designation" name="designation" required (blur)="validateField('designation')"
+                    class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                    <option value="" disabled>Select Designation</option>
+                    <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
+                  </select>
+                  <p *ngIf="errors['designation']" class="!text-[#EE964B] text-xs font-medium">{{ errors['designation'] }}</p>
+                </div>
+
+              <div class="flex flex-col gap-2">
+                <label for="spouseContactNumber" class="text-sm font-medium text-gray-300">Spouse Contact Number <span
+                    class="!text-[#EE964B]">*</span></label>
+                <input type="tel" id="spouseContactNumber" formControlName="spouseContactNumber"
+                  (input)="onPhoneInput($event, 'spouseContactNumber')" placeholder="1234567890" maxlength="10"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <p *ngIf="getFieldError('spouseContactNumber')" class="!text-[#EE964B] text-xs font-medium">{{
+                  getFieldError('spouseContactNumber') }}</p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <label for="marriageDate" class="text-sm font-medium text-gray-300">Marriage Date</label>
+                <input type="date" id="marriageDate" formControlName="marriageDate"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Details Section -->
+        <div class="space-y-5 bg-[#1B264F]/30 p-6 rounded-lg border border-gray-700">
+          <div class="space-y-2">
+            <h3 class="!text-[#3083DC] font-semibold text-base uppercase">Professional Details</h3>
+            <div class="h-px bg-gray-700 w-full"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-2">
+              <label for="department" class="text-sm font-medium text-gray-300">Department <span
+                  class="!text-[#EE964B]">*</span></label>
+              <select id="department" formControlName="department"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="" disabled>Select Department</option>
+                <option value="engineering">Engineering</option>
+                <option value="marketing">Marketing</option>
+                <option value="sales">Sales</option>
+                <option value="hr">Human Resources</option>
+                <option value="finance">Finance</option>
+              </select>
+              <p *ngIf="getFieldError('department')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('department') }}</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="designation" class="text-sm font-medium text-gray-300">Designation <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="text" id="designation" formControlName="designation" autocomplete="organization-title"
+                placeholder="e.g. Senior Developer"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('designation')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('designation') }}</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="reportingManager" class="text-sm font-medium text-gray-300">Reporting Manager</label>
+              <input type="text" id="reportingManager" formControlName="reportingManager" placeholder="Manager name"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="joiningDate" class="text-sm font-medium text-gray-300">Date of Joining <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="date" id="joiningDate" formControlName="joiningDate"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('joiningDate')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('joiningDate') }}</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="employmentType" class="text-sm font-medium text-gray-300">Employment Type <span
+                  class="!text-[#EE964B]">*</span></label>
+              <select id="employmentType" formControlName="employmentType"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="" disabled>Select Employment Type</option>
+                <option value="full-time">Full-time</option>
+                <option value="contract">Contract</option>
+                <option value="intern">Intern</option>
+                <option value="part-time">Part-time</option>
+              </select>
+              <p *ngIf="getFieldError('employmentType')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('employmentType') }}</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="workLocation" class="text-sm font-medium text-gray-300">Work Location <span
+                  class="!text-[#EE964B]">*</span></label>
+              <input type="text" id="workLocation" formControlName="workLocation" placeholder="Office location"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <p *ngIf="getFieldError('workLocation')" class="!text-[#EE964B] text-xs font-medium">{{
+                getFieldError('workLocation') }}</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="shiftType" class="text-sm font-medium text-gray-300">Shift Type</label>
+              <select id="shiftType" formControlName="shiftType"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="">Select Shift Type</option>
+                <option value="day">Day</option>
+                <option value="night">Night</option>
+                <option value="rotating">Rotating</option>
+                <option value="flexible">Flexible</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work & Pay Details Section -->
+        <div class="space-y-5 bg-[#1B264F]/30 p-6 rounded-lg border border-gray-700">
+          <div class="space-y-2">
+            <h3 class="!text-[#3083DC] font-semibold text-base uppercase">Work & Pay Details</h3>
+            <div class="h-px bg-gray-700 w-full"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-2">
+              <label for="workingHoursStart" class="text-sm font-medium text-gray-300">Working Hours Start</label>
+              <input type="time" id="workingHoursStart" formControlName="workingHoursStart"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="workingHoursEnd" class="text-sm font-medium text-gray-300">Working Hours End</label>
+              <input type="time" id="workingHoursEnd" formControlName="workingHoursEnd"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="weeklyWorkingDays" class="text-sm font-medium text-gray-300">Weekly Working Days</label>
+              <input type="number" id="weeklyWorkingDays" formControlName="weeklyWorkingDays" min="1" max="7"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="wageType" class="text-sm font-medium text-gray-300">Wage Type</label>
+              <select id="wageType" formControlName="wageType"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="">Select Wage Type</option>
+                <option value="monthly">Monthly</option>
+                <option value="hourly">Hourly</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="salaryAmount" class="text-sm font-medium text-gray-300">Salary / Wage Amount</label>
+              <input type="number" id="salaryAmount" formControlName="salaryAmount" min="0" placeholder="0.00"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="allowances" class="text-sm font-medium text-gray-300">Allowances</label>
+              <input type="number" id="allowances" formControlName="allowances" min="0" placeholder="0.00"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="bankAccountNumber" class="text-sm font-medium text-gray-300">Bank Account Number</label>
+              <input type="text" id="bankAccountNumber" formControlName="bankAccountNumber" placeholder="Account number"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="bankName" class="text-sm font-medium text-gray-300">Bank Name</label>
+              <input type="text" id="bankName" formControlName="bankName" placeholder="Bank name"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="bankIFSC" class="text-sm font-medium text-gray-300">Bank IFSC</label>
+              <input type="text" id="bankIFSC" formControlName="bankIFSC" placeholder="IFSC code"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+            </div>
+
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="overtimeEligible" formControlName="overtimeEligible"
+                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
+              <label for="overtimeEligible" class="text-sm font-medium text-gray-300">Overtime Eligible</label>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="pfApplicable" formControlName="pfApplicable"
+                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
+              <label for="pfApplicable" class="text-sm font-medium text-gray-300">PF Applicable</label>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="esicApplicable" formControlName="esicApplicable"
+                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
+              <label for="esicApplicable" class="text-sm font-medium text-gray-300">ESIC Applicable</label>
+            </div>
+
+            <div class="flex items-center gap-2" *ngIf="isMarriedFemale()">
+              <input type="checkbox" id="maternityEligible" formControlName="maternityEligible"
+                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
+              <label for="maternityEligible" class="text-sm font-medium text-gray-300">Maternity Eligible</label>
+            </div>
+
+            <div class="flex items-center gap-2" *ngIf="isMarriedFemale()">
+              <input type="checkbox" id="flexibleWorkingHours" formControlName="flexibleWorkingHours"
+                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
+              <label for="flexibleWorkingHours" class="text-sm font-medium text-gray-300">Flexible Working Hours</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Authentication Section -->
+        <div class="space-y-5 bg-[#1B264F]/30 p-6 rounded-lg border border-gray-700">
+          <div class="space-y-2">
+            <h3 class="!text-[#3083DC] font-semibold text-base uppercase">Account Security</h3>
+            <div class="h-px bg-gray-700 w-full"></div>
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <label for="password" class="text-sm font-medium text-gray-300">Password <span
+                class="!text-[#EE964B]">*</span></label>
+            <div class="relative">
+              <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
+                autocomplete="new-password" placeholder="Enter a strong password"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC] pr-10">
+              <button type="button" (click)="togglePassword()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'" tabindex="-1"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white focus:outline-none">
+                <span *ngIf="!showPassword">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </span>
+                <span *ngIf="showPassword">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.956 9.956 0 012.223-3.592m3.104-2.727A9.956 9.956 0 0112 5c4.478 0 8.268 2.943 9.542 7a9.965 9.965 0 01-4.293 5.411M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 6L6 6" />
+                  </svg>
+                </span>
+              </button>
+            </div>
+            <p *ngIf="getFieldError('password')" class="!text-[#EE964B] text-xs font-medium">{{
+              getFieldError('password') }}</p>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-4">
+          <p *ngIf="errors['general']" class="!text-[#EE964B] text-sm mb-4 text-center font-medium">{{ errors['general']
+            }}</p>
+          <button type="submit" [disabled]="isLoading || registrationForm.invalid"
+            class="w-full bg-[#3083DC] hover:bg-[#206bc4] text-white font-semibold py-3 px-6 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!isLoading">Create Profile</span>
+            <span *ngIf="isLoading">Creating Profile...</span>
+          </button>
+
+          <div class="mt-4 text-center">
+            <p class="text-gray-400 text-sm">
+              Already have an account?
+              <a routerLink="/login" class="text-[#3083DC] hover:underline font-semibold">Login</a>
+            </p>
+          </div>
         </div>
       </form>
     </div>
   </div>
 
   <div class="flex-shrink-0 bg-[#101935] border-t border-gray-800 py-3">
-    <div class="container mx-auto px-4 max-w-6xl text-center">
+    <div class="container mx-auto px-4 max-w-7xl text-center">
       <p class="text-gray-400 text-xs">&copy; 2025 SmartCMS. All rights reserved.</p>
     </div>
   </div>
 
   <!-- Email Verification Modal -->
-  <app-email-verification-modal
-    *ngIf="showVerificationModal"
-    [email]="email"
-    (verified)="onEmailVerified($event)"
-    (closed)="onModalClosed()">
+  <app-email-verification-modal *ngIf="showVerificationModal" [email]="registrationForm.get('email')?.value"
+    (verified)="onEmailVerified($event)" (closed)="onModalClosed()">
   </app-email-verification-modal>
 </div>
