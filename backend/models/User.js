@@ -2,6 +2,18 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: function() {
+      // Generate a meaningful 11-digit ID: YYMMDD + 5 random digits
+      const date = new Date();
+      const yy = date.getFullYear().toString().slice(-2);
+      const mm = (date.getMonth() + 1).toString().padStart(2, '0');
+      const dd = date.getDate().toString().padStart(2, '0');
+      const random = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+      return `${yy}${mm}${dd}${random}`;
+    }
+  },
   // Personal Details
   firstName: {
     type: String,
