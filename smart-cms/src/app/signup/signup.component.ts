@@ -118,7 +118,7 @@ export class SignupComponent implements OnInit {
       pronouns: [''],
 
       // Professional Details
-      employeeId: ['', Validators.required],
+      employeeId: [{ value: 'TO BE GENERATED', disabled: false }],
       department: ['', Validators.required],
       designation: ['', Validators.required],
       reportingManager: [''],
@@ -375,8 +375,10 @@ export class SignupComponent implements OnInit {
         
         // If admin was registering, redirect to admin dashboard
         if (isAdminRegistering) {
+          alert(`Profile created successfully!\n\nMeaningful Employee ID: ${response.user.employeeId}`);
           this.router.navigate(['/admin/dashboard']);
         } else {
+          alert(`Profile created successfully!\n\nMeaningful Employee ID: ${response.user.employeeId}`);
           // Otherwise redirect to login page
           this.router.navigate(['/login']);
         }

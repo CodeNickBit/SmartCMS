@@ -77,16 +77,89 @@
                 <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
               </select>
             </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Employment Type</label>
-            <select [(ngModel)]="editingEmployee.employmentType"
-              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
-              <option value="full-time">Full-time</option>
-              <option value="contract">Contract</option>
-              <option value="intern">Intern</option>
-            </select>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Employment Type</label>
+              <select [(ngModel)]="editingEmployee.employmentType"
+                class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
+                <option value="full-time">Full-time</option>
+                <option value="contract">Contract</option>
+                <option value="intern">Intern</option>
+                <option value="part-time">Part-time</option>
+              </select>
+            </div>
           </div>
-        </div>
+
+          <!-- Work & Pay Details Section in Edit Form -->
+          <div class="mt-8 pt-8 border-t border-slate-700">
+            <h3 class="text-lg font-bold text-[#3083DC] mb-6 uppercase tracking-tight">Work & Pay Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Working Hours Start</label>
+                <input type="time" [(ngModel)]="editingEmployee.workingHoursStart"
+                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Working Hours End</label>
+                <input type="time" [(ngModel)]="editingEmployee.workingHoursEnd"
+                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Weekly Working Days</label>
+                <input type="number" [(ngModel)]="editingEmployee.weeklyWorkingDays" min="1" max="7"
+                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Wage Type</label>
+                <select [(ngModel)]="editingEmployee.wageType"
+                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
+                  <option value="monthly">Monthly</option>
+                  <option value="hourly">Hourly</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Salary Amount</label>
+                <input type="number" [(ngModel)]="editingEmployee.salaryAmount"
+                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Allowances</label>
+                <input type="number" [(ngModel)]="editingEmployee.allowances"
+                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Bank Account Number</label>
+                <input type="text" [(ngModel)]="editingEmployee.bankAccountNumber"
+                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Bank Name</label>
+                <input type="text" [(ngModel)]="editingEmployee.bankName"
+                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Bank IFSC</label>
+                <input type="text" [(ngModel)]="editingEmployee.bankIFSC"
+                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+              </div>
+              <div class="flex items-center gap-3 pt-4">
+                <input type="checkbox" [(ngModel)]="editingEmployee.overtimeEligible" id="editOvertime"
+                  class="w-4 h-4 bg-[#101935] border border-slate-600 rounded text-[#3083DC] focus:ring-[#3083DC]/20 transition-all">
+                <label for="editOvertime" class="text-sm font-bold text-slate-300">Overtime Eligible</label>
+              </div>
+              <div class="flex items-center gap-3 pt-4">
+                <input type="checkbox" [(ngModel)]="editingEmployee.pfApplicable" id="editPF"
+                  class="w-4 h-4 bg-[#101935] border border-slate-600 rounded text-[#3083DC] focus:ring-[#3083DC]/20 transition-all">
+                <label for="editPF" class="text-sm font-bold text-slate-300">PF Applicable</label>
+              </div>
+              <div class="flex items-center gap-3 pt-4">
+                <input type="checkbox" [(ngModel)]="editingEmployee.esicApplicable" id="editESIC"
+                  class="w-4 h-4 bg-[#101935] border border-slate-600 rounded text-[#3083DC] focus:ring-[#3083DC]/20 transition-all">
+                <label for="editESIC" class="text-sm font-bold text-slate-300">ESIC Applicable</label>
+              </div>
+            </div>
+          </div>
 
         <div class="mt-8 flex items-center justify-end gap-3 border-t border-slate-700 pt-6">
           <button (click)="cancelEdit()"
