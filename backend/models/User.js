@@ -273,7 +273,8 @@ const userSchema = new mongoose.Schema({
 });
 
 // Calculate age from dateOfBirth before saving
-userSchema.pre('save', function (next) {
+// Calculate age from dateOfBirth before validation
+userSchema.pre('validate', function (next) {
   if (this.dateOfBirth && this.isModified('dateOfBirth')) {
     const today = new Date();
     const birthDate = new Date(this.dateOfBirth);
