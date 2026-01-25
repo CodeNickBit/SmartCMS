@@ -21,6 +21,13 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Role (Auto-filled) -->
+            <div class="flex flex-col gap-2">
+              <label for="role" class="text-sm font-medium text-gray-300">Role</label>
+              <input type="text" id="role" value="Employee" readonly
+                class="w-full bg-[#1B264F]/50 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-400 cursor-not-allowed">
+            </div>
+
             <!-- Employee ID (Auto-generated note) -->
             <div class="flex flex-col gap-2">
               <label for="employeeId" class="text-sm font-medium text-gray-300">Employee ID <span
@@ -445,13 +452,15 @@
               </div>
 
               <div class="flex flex-col gap-2" *ngIf="registrationForm.get('pregnancyStatus')?.value === 'Pregnant'">
-                <label for="expectedDeliveryDate" class="text-sm font-medium text-gray-300">Expected Delivery Date</label>
+                <label for="expectedDeliveryDate" class="text-sm font-medium text-gray-300">Expected Delivery
+                  Date</label>
                 <input type="date" id="expectedDeliveryDate" formControlName="expectedDeliveryDate"
                   class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
               </div>
 
               <div class="flex flex-col gap-2" *ngIf="registrationForm.get('pregnancyStatus')?.value === 'Pregnant'">
-                <label for="medicalFitnessCertificate" class="text-sm font-medium text-gray-300">Medical Certificate Link</label>
+                <label for="medicalFitnessCertificate" class="text-sm font-medium text-gray-300">Medical Certificate
+                  Link</label>
                 <input type="text" id="medicalFitnessCertificate" formControlName="medicalFitnessCertificate"
                   placeholder="URL to certificate"
                   class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
