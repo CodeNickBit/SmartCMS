@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
   _id: {
     type: String,
-    default: function() {
+    default: function () {
       // Generate a meaningful 11-digit ID: YYMMDD + 5 random digits
       const date = new Date();
       const yy = date.getFullYear().toString().slice(-2);
@@ -85,7 +85,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
     match: [/^\d{10}$/, 'Emergency contact number must be 10 digits']
   },
-  
+
   // Gender-based conditional fields
   // For Unmarried Female
   fatherGuardianName: {
@@ -119,7 +119,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  
+
   // Last Name Edit Rules
   lastNameEditable: {
     type: Boolean,
@@ -129,7 +129,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  
+
   // Professional Details
   employeeId: {
     type: String,
@@ -172,7 +172,7 @@ const userSchema = new mongoose.Schema({
     enum: ['day', 'night', 'rotating', 'flexible'],
     trim: true
   },
-  
+
   // Work & Pay Details
   workingHoursStart: {
     type: String,
@@ -226,7 +226,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  
+
   // Maternity & Flexible Hours
   maternityEligible: {
     type: Boolean,
@@ -236,7 +236,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  
+
   // Phase 2: Pregnancy tracking (optional)
   pregnancyStatus: {
     type: String,
@@ -250,14 +250,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  
+
   // Authentication
   password: {
     type: String,
     required: true,
     minlength: 8
   },
-  
+  role: {
+    type: String,
+    enum: ['employee'],
+    default: 'employee'
+  },
+
   // Status
   active_inactive: {
     type: Boolean,
@@ -268,7 +273,8 @@ const userSchema = new mongoose.Schema({
 });
 
 // Calculate age from dateOfBirth before saving
-userSchema.pre('save', function (next) {
+// Calculate age from dateOfBirth before validation
+userSchema.pre('validate', function (next) {
   if (this.dateOfBirth && this.isModified('dateOfBirth')) {
     const today = new Date();
     const birthDate = new Date(this.dateOfBirth);

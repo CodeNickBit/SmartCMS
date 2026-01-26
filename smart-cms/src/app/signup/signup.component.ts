@@ -43,18 +43,18 @@ export class SignupComponent implements OnInit {
     private fb: FormBuilder,
     private departmentService: DepartmentService,
     private designationService: DesignationService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initializeForm();
     this.loadDepartments();
     this.loadDesignations();
-    
+
     // Watch for gender and marital status changes to show/hide conditional fields
     this.registrationForm.get('gender')?.valueChanges.subscribe(() => {
       this.updateConditionalFields();
     });
-    
+
     this.registrationForm.get('maritalStatus')?.valueChanges.subscribe(() => {
       this.updateConditionalFields();
     });
@@ -284,7 +284,7 @@ export class SignupComponent implements OnInit {
     }
 
     const formValue = this.registrationForm.getRawValue();
-    
+
     // Prepare registration data
     const registrationData: RegisterRequest = {
       // Personal Details
@@ -344,35 +344,45 @@ export class SignupComponent implements OnInit {
       medicalFitnessCertificate: formValue.medicalFitnessCertificate?.trim() || undefined,
 
       // Authentication
+      // Authentication
       password: formValue.password
     };
 
-    this.pendingFormData = registrationData;
-    this.showVerificationModal = true;
+    // Check if admin is registering
+    const isAdminRegistering = typeof window !== 'undefined' && sessionStorage.getItem('adminRegistering') === 'true';
+
+    if (isAdminRegistering) {
+      // Bypass OTP for admin
+      this.registerUser(registrationData);
+    } else {
+      // Normal flow with OTP
+      this.pendingFormData = registrationData;
+      this.showVerificationModal = true;
+    }
   }
 
   onEmailVerified(otp: string): void {
     if (!this.pendingFormData) {
       return;
     }
-
-    this.isLoading = true;
     this.showVerificationModal = false;
+    this.registerUser(this.pendingFormData);
+  }
 
-    // Check if admin is registering
+  private registerUser(data: any): void {
+    this.isLoading = true;
     const isAdminRegistering = typeof window !== 'undefined' && sessionStorage.getItem('adminRegistering') === 'true';
 
-    // Now register the user after OTP is verified
-    this.authService.register(this.pendingFormData).subscribe({
+    this.authService.register(data).subscribe({
       next: (response) => {
         this.isLoading = false;
         console.log('Registration successful:', response);
-        
+
         // Clear the admin registering flag
         if (typeof window !== 'undefined') {
           sessionStorage.removeItem('adminRegistering');
         }
-        
+
         // If admin was registering, redirect to admin dashboard
         if (isAdminRegistering) {
           alert(`Profile created successfully!\n\nMeaningful Employee ID: ${response.user.employeeId}`);
@@ -391,7 +401,12 @@ export class SignupComponent implements OnInit {
         } else {
           this.errors['general'] = 'Registration failed. Please try again.';
         }
-        this.showVerificationModal = true;
+        // If it was a normal user registration that failed after OTP, we might want to show modal again?
+        // But if it failed due to backend error (e.g. email exists), showing modal again might not be useful without form edit.
+        // For now, let's just keep the error display.
+        if (!isAdminRegistering) {
+          this.showVerificationModal = true;
+        }
       }
     });
   }
