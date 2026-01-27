@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, afterNextRender } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -21,12 +21,10 @@ import { AdminHeaderComponent } from '../components/header/header.component';
   styleUrl: './manage-employee.component.css'
 })
 export class ManageEmployeeComponent implements OnInit {
-  // Employee State
   employees: any[] = [];
   searchQuery: string = '';
   filterStatus: string = 'All';
 
-  // Edit Mode State
   isEditing: boolean = false;
   editingEmployee: any = null;
 
@@ -39,12 +37,20 @@ export class ManageEmployeeComponent implements OnInit {
     private router: Router,
     private departmentService: DepartmentService,
     private designationService: DesignationService
-  ) { }
+  ) {
+    afterNextRender(() => {
+      this.loadEmployees();
+      this.loadDepartments();
+      this.loadDesignations();
+    });
+  }
 
   ngOnInit() {
-    this.loadEmployees();
-    this.loadDepartments();
-    this.loadDesignations();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadEmployees();
+      this.loadDepartments();
+      this.loadDesignations();
+    }
   }
 
   loadEmployees() {

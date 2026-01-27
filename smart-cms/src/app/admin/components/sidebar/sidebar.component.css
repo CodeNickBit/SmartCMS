@@ -1,5 +1,10 @@
 /* Sidebar specific styles */
 :host {
-  display: block;
+  display: flex;
   height: 100%;
+  flex-shrink: 0;
+}
+
+aside {
+  display: flex !important;
 }

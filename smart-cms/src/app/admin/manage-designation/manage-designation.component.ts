@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, afterNextRender } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DesignationService, Designation } from '../../services/designation.service';
@@ -36,7 +36,11 @@ export class ManageDesignationComponent implements OnInit {
     description: ''
   };
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private designationService: DesignationService) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private designationService: DesignationService) {
+    afterNextRender(() => {
+      this.loadDesignations();
+    });
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
