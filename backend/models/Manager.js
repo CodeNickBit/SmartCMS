@@ -21,12 +21,11 @@ const managerSchema = new mongoose.Schema({
     required: true,
     minlength: 8
   },
-  department: {
-    type: String,
-    required: true,
-    enum: ['engineering', 'marketing', 'sales', 'hr', 'finance', 'operations', 'it', 'management'],
-    trim: true
-  },
+    department: {
+      type: String,
+      required: true,
+      trim: true
+    },
   designation: {
     type: String,
     required: true,
