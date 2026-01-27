@@ -30,11 +30,13 @@ app.get('/', (req, res) => {
 // Import routes
 const authRoutes = require('./routes/auth');
 const managerRoutes = require('./routes/manager');
+const hrRoutes = require('./routes/hr');
 const departmentRoutes = require('./routes/department');
 const designationRoutes = require('./routes/designation');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/manager', managerRoutes);
+app.use('/api/hr', hrRoutes);
 app.use('/api/department', departmentRoutes);
 app.use('/api/designation', designationRoutes);
 

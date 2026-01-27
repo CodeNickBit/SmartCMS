@@ -97,13 +97,16 @@ export class LoginComponent {
             localStorage.setItem('user', JSON.stringify(user));
           }
 
-          // Navigate based on role
-          if (response.role === 'admin') {
-            this.router.navigate(['/admin/dashboard']);
-          } else {
-            // Navigate to user home page
-            this.router.navigate(['/home']);
-          }
+            // Navigate based on role
+            if (response.role === 'admin') {
+              this.router.navigate(['/admin/dashboard']);
+            } else if (response.role === 'hr' || response.role === 'manager') {
+              this.router.navigate(['/dashboard']);
+            } else {
+              // Navigate to user home page
+              this.router.navigate(['/home']);
+            }
+
         },
         error: (error) => {
           this.isLoading = false;
