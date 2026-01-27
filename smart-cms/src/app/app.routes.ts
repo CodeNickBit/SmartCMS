@@ -2,9 +2,11 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { DashboardComponent } from './admin/dashboard/dashboard.component';
+import { SharedDashboardComponent } from './dashboard/shared-dashboard.component';
 import { HomeComponent } from './home/home.component';
 import { adminGuard } from './guards/admin.guard';
 import { authGuard } from './guards/auth.guard';
+import { managerHrGuard } from './guards/manager-hr.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -13,6 +15,11 @@ export const routes: Routes = [
     path: 'admin/dashboard',
     component: DashboardComponent,
     canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard',
+    component: SharedDashboardComponent,
+    canActivate: [managerHrGuard]
   },
   {
     path: 'admin/add-users',
@@ -39,7 +46,12 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/manage-designation/manage-designation.component').then(m => m.ManageDesignationComponent),
     canActivate: [adminGuard]
   },
-  // Protect home route with authGuard
+    {
+      path: 'admin/manage-hr',
+      loadComponent: () => import('./admin/manage-hr/manage-hr.component').then(m => m.ManageHRComponent),
+      canActivate: [adminGuard]
+    },
+    // Protect home route with authGuard
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },
