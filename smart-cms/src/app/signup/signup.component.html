@@ -21,12 +21,19 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Role (Auto-filled) -->
+            <div class="flex flex-col gap-2">
+              <label for="role" class="text-sm font-medium text-gray-300">Role</label>
+              <input type="text" id="role" value="Employee" readonly
+                class="w-full bg-[#1B264F]/50 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-400 cursor-not-allowed">
+            </div>
+
             <!-- Employee ID (Auto-generated note) -->
             <div class="flex flex-col gap-2">
               <label for="employeeId" class="text-sm font-medium text-gray-300">Employee ID <span
                   class="!text-[#EE964B]">*</span></label>
-              <input type="text" id="employeeId" formControlName="employeeId" autocomplete="off" placeholder="EMP-12345"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <input type="text" id="employeeId" formControlName="employeeId" readonly
+                class="w-full bg-[#1B264F]/50 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-400 cursor-not-allowed">
               <p *ngIf="getFieldError('employeeId')" class="!text-[#EE964B] text-xs font-medium">{{
                 getFieldError('employeeId') }}</p>
             </div>
@@ -427,6 +434,37 @@
               <input type="checkbox" id="flexibleWorkingHours" formControlName="flexibleWorkingHours"
                 class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
               <label for="flexibleWorkingHours" class="text-sm font-medium text-gray-300">Flexible Working Hours</label>
+            </div>
+          </div>
+
+          <!-- Pregnancy Tracking Section (Conditional for Married Female) -->
+          <div *ngIf="isMarriedFemale()" class="mt-6 pt-6 border-t border-gray-700">
+            <h4 class="!text-[#3083DC] font-semibold text-sm uppercase mb-4">Pregnancy & Maternity Tracking</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div class="flex flex-col gap-2">
+                <label for="pregnancyStatus" class="text-sm font-medium text-gray-300">Pregnancy Status</label>
+                <select id="pregnancyStatus" formControlName="pregnancyStatus"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                  <option value="Not Pregnant">Not Pregnant</option>
+                  <option value="Pregnant">Pregnant</option>
+                  <option value="Post-Delivery">Post-Delivery</option>
+                </select>
+              </div>
+
+              <div class="flex flex-col gap-2" *ngIf="registrationForm.get('pregnancyStatus')?.value === 'Pregnant'">
+                <label for="expectedDeliveryDate" class="text-sm font-medium text-gray-300">Expected Delivery
+                  Date</label>
+                <input type="date" id="expectedDeliveryDate" formControlName="expectedDeliveryDate"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              </div>
+
+              <div class="flex flex-col gap-2" *ngIf="registrationForm.get('pregnancyStatus')?.value === 'Pregnant'">
+                <label for="medicalFitnessCertificate" class="text-sm font-medium text-gray-300">Medical Certificate
+                  Link</label>
+                <input type="text" id="medicalFitnessCertificate" formControlName="medicalFitnessCertificate"
+                  placeholder="URL to certificate"
+                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              </div>
             </div>
           </div>
         </div>
