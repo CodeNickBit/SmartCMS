@@ -51,8 +51,12 @@ export const routes: Routes = [
       loadComponent: () => import('./admin/manage-hr/manage-hr.component').then(m => m.ManageHRComponent),
       canActivate: [adminGuard]
     },
-    // Protect home route with authGuard
-  { path: 'home', component: HomeComponent, canActivate: [authGuard] },
+    {
+      path: 'dashboard/employees',
+      loadComponent: () => import('./dashboard/employees/employees.component').then(m => m.HREmployeesComponent),
+      canActivate: [managerHrGuard]
+    },
+    { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
