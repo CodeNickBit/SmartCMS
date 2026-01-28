@@ -1,4 +1,7 @@
-/* Styles for ManageEmployeeComponent */
+:host {
+  display: contents;
+}
+
 .animate-fade-in-up {
   animation: fadeInUp 0.3s ease-out;
 }

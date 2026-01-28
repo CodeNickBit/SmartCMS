@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, afterNextRender } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 
@@ -17,10 +17,20 @@ export class AdminSidebarComponent implements OnInit {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private router: Router
-  ) { }
+  ) {
+    afterNextRender(() => {
+      this.loadUserData();
+    });
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
+      this.loadUserData();
+    }
+  }
+
+  private loadUserData() {
+    if (typeof window !== 'undefined' && window.localStorage) {
       const userStr = localStorage.getItem('user');
       if (userStr) {
         try {
@@ -41,7 +51,7 @@ export class AdminSidebarComponent implements OnInit {
   }
 
   logout() {
-    if (isPlatformBrowser(this.platformId)) {
+    if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       this.router.navigate(['/login']);

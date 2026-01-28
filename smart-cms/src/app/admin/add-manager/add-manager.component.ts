@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, afterNextRender } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ManagerService, ManagerRegistrationRequest } from '../../services/manager.service';
@@ -20,7 +20,6 @@ import { AdminHeaderComponent } from '../components/header/header.component';
   styleUrl: './add-manager.component.css'
 })
 export class AddManagerComponent implements OnInit {
-  // Form State
   showModal: boolean = false;
   showEditModal: boolean = false;
   showPassword: boolean = false;
@@ -46,7 +45,6 @@ export class AddManagerComponent implements OnInit {
   dbDepartments: Department[] = [];
   dbDesignations: Designation[] = [];
 
-  // Table State
   filterDept: string = 'All';
   searchQuery: string = '';
   managers: any[] = [];
@@ -56,7 +54,13 @@ export class AddManagerComponent implements OnInit {
     private managerService: ManagerService,
     private departmentService: DepartmentService,
     private designationService: DesignationService
-  ) { }
+  ) {
+    afterNextRender(() => {
+      this.loadManagers();
+      this.loadDepartments();
+      this.loadDesignations();
+    });
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
