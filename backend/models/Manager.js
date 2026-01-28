@@ -21,16 +21,19 @@ const managerSchema = new mongoose.Schema({
     required: true,
     minlength: 8
   },
-  department: {
-    type: String,
-    required: true,
-    enum: ['engineering', 'marketing', 'sales', 'hr', 'finance', 'operations', 'it', 'management'],
-    trim: true
-  },
+    department: {
+      type: String,
+      required: true,
+      trim: true
+    },
   designation: {
     type: String,
     required: true,
     trim: true
+  },
+  role: {
+    type: String,
+    default: 'manager'
   },
   joiningDate: {
     type: Date,
@@ -53,11 +56,11 @@ const managerSchema = new mongoose.Schema({
 });
 
 // Hash temporary password before saving
-managerSchema.pre('save', async function(next) {
+managerSchema.pre('save', async function (next) {
   if (!this.isModified('temporaryPassword')) {
     return next();
   }
-  
+
   try {
     const salt = await bcrypt.genSalt(12);
     this.temporaryPassword = await bcrypt.hash(this.temporaryPassword, salt);
@@ -68,34 +71,34 @@ managerSchema.pre('save', async function(next) {
 });
 
 // Instance method to compare passwords
-managerSchema.methods.comparePassword = async function(candidatePassword) {
+managerSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.temporaryPassword);
 };
 
 // Instance method to generate full name
-managerSchema.methods.getFullName = function() {
+managerSchema.methods.getFullName = function () {
   return this.name;
 };
 
 // Virtual for formatted joining date
-managerSchema.virtual('formattedJoiningDate').get(function() {
+managerSchema.virtual('formattedJoiningDate').get(function () {
   return this.joiningDate.toLocaleDateString();
 });
 
 // Static method to find managers by department
-managerSchema.statics.findByDepartment = function(department) {
+managerSchema.statics.findByDepartment = function (department) {
   return this.find({ department, isActive: true });
 };
 
 // Static method to find active managers
-managerSchema.statics.findActive = function() {
+managerSchema.statics.findActive = function () {
   return this.find({ isActive: true });
 };
 
 // Ensure virtual fields are serialized
 managerSchema.set('toJSON', {
   virtuals: true,
-  transform: function(doc, ret) {
+  transform: function (doc, ret) {
     delete ret.temporaryPassword;
     delete ret.__v;
     return ret;
