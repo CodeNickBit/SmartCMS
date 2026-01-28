@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, afterNextRender } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HRService, HRRequest } from '../../services/hr.service';
@@ -46,7 +46,12 @@ export class ManageHRComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object,
     private hrService: HRService,
     private departmentService: DepartmentService
-  ) { }
+  ) {
+    afterNextRender(() => {
+      this.loadHRs();
+      this.loadDepartments();
+    });
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {

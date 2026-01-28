@@ -55,12 +55,12 @@ import { SharedHeaderComponent } from './components/header/header.component';
                   </h2>
                 </div>
                 <div class="p-8 grid grid-cols-2 gap-4">
-                  <button routerLink="/admin/manage-employee" class="p-4 rounded-xl bg-[#101935] border border-blue-900/30 hover:border-[#3083DC]/50 hover:bg-[#3083DC]/10 transition-all group text-left">
+                  <button routerLink="/dashboard/employees" class="p-4 rounded-xl bg-[#101935] border border-blue-900/30 hover:border-[#3083DC]/50 hover:bg-[#3083DC]/10 transition-all group text-left">
                     <div class="h-10 w-10 rounded-lg bg-[#1B264F] border border-blue-900/30 flex items-center justify-center mb-3 group-hover:text-[#3083DC] shadow-sm">
                       <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
                     </div>
-                    <p class="font-bold text-white text-sm">Add Employee</p>
-                    <p class="text-xs text-slate-400 mt-1">Onboard new talent</p>
+                    <p class="font-bold text-white text-sm">Manage Employees</p>
+                    <p class="text-xs text-slate-400 mt-1">View & edit employees</p>
                   </button>
                   <button class="p-4 rounded-xl bg-[#101935] border border-blue-900/30 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all group text-left">
                     <div class="h-10 w-10 rounded-lg bg-[#1B264F] border border-blue-900/30 flex items-center justify-center mb-3 group-hover:text-emerald-400 shadow-sm">
