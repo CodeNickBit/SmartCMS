@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID, OnInit } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, OnInit, afterNextRender } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DepartmentService, Department } from '../../services/department.service';
@@ -36,7 +36,11 @@ export class ManageDepartmentComponent implements OnInit {
     description: ''
   };
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private departmentService: DepartmentService) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private departmentService: DepartmentService) {
+    afterNextRender(() => {
+      this.loadDepartments();
+    });
+  }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
