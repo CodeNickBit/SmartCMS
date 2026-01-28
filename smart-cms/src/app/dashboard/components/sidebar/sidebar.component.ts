@@ -1,11 +1,12 @@
 import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { ProfileModalComponent } from '../profile-modal/profile-modal.component';
 
 @Component({
   selector: 'app-shared-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ProfileModalComponent],
   template: `
     <div class="flex flex-col h-full bg-[#1B264F] text-slate-300 w-64 shrink-0 transition-all duration-300 relative z-20 shadow-xl border-r border-blue-900/30">
       <!-- Logo Section -->
@@ -71,13 +72,13 @@ import { Router, RouterModule } from '@angular/router';
         <div class="pt-4 pb-2 px-3">
           <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Settings</p>
         </div>
-        <a routerLink="/dashboard/profile" routerLinkActive="bg-white/5 text-white"
-          class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+        <button (click)="openProfile()"
+          class="w-full group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all text-left">
           <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
           <span class="font-medium text-sm">My Profile</span>
-        </a>
+        </button>
       </nav>
 
       <!-- User Profile Section -->
@@ -100,8 +101,15 @@ import { Router, RouterModule } from '@angular/router';
         </button>
       </div>
     </div>
+
+    <!-- Profile Modal -->
+    <app-profile-modal
+      *ngIf="showProfileModal"
+      [user]="currentUser"
+      (close)="closeProfile()">
+    </app-profile-modal>
   `,
-    styles: [`
+  styles: [`
       .custom-scrollbar::-webkit-scrollbar { width: 4px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background: #101935; border-radius: 10px; }
@@ -111,6 +119,8 @@ import { Router, RouterModule } from '@angular/router';
 export class SharedSidebarComponent implements OnInit {
   userName: string = 'User';
   userRole: string = '';
+  currentUser: any = null;
+  showProfileModal: boolean = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -123,6 +133,7 @@ export class SharedSidebarComponent implements OnInit {
       if (userStr) {
         try {
           const user = JSON.parse(userStr);
+          this.currentUser = user; // Store full object for modal
           this.userName = user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : 'User');
           this.userRole = user.role || '';
         } catch (e) {
@@ -138,5 +149,13 @@ export class SharedSidebarComponent implements OnInit {
       localStorage.removeItem('user');
       this.router.navigate(['/login']);
     }
+  }
+
+  openProfile() {
+    this.showProfileModal = true;
+  }
+
+  closeProfile() {
+    this.showProfileModal = false;
   }
 }
