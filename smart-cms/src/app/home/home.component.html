@@ -30,8 +30,10 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
-        <span *ngIf="hasUnreadNotifications()"
-          class="absolute top-1 right-1 w-2.5 h-2.5 bg-[#EF4444] rounded-full border-2 border-[#101935]"></span>
+        <span *ngIf="unreadNotificationCount > 0"
+          class="absolute -top-1 -right-1 bg-[#EF4444] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-[#101935] min-w-[1.25rem] text-center flex items-center justify-center">
+          {{ unreadNotificationCount > 9 ? '9+' : unreadNotificationCount }}
+        </span>
       </button>
 
       <!-- Logout -->
@@ -141,6 +143,8 @@
       </button>
     </div>
 
+
+
     <!-- Quick Actions / Payslip -->
     <div class="glass-card rounded-2xl p-6 animate-fade-in-up animate-delay-300 flex flex-col justify-between">
       <div>
@@ -248,7 +252,7 @@
               d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </span>
-        Leave History
+        My leave history
       </h2>
     </div>
     <div class="overflow-x-auto">
@@ -261,7 +265,7 @@
             <th class="pb-3 font-medium">Reason</th>
             <th class="pb-3 font-medium">Status</th>
             <th class="pb-3 font-medium">Rejection Reason</th>
-            <th class="pb-3 font-medium text-right">Applied On</th>
+            <th class="pb-3 font-medium text-right">Action</th>
           </tr>
         </thead>
         <tbody class="text-sm">
@@ -271,17 +275,22 @@
             <td class="py-4 text-gray-300">{{ leave.endDate | date:'mediumDate' }}</td>
             <td class="py-4 text-slate-400 max-w-xs" title="{{ leave.reason }}">{{ leave.reason }}</td>
             <td class="py-4">
-              <span class="px-2 py-1 rounded text-xs font-bold uppercase"
-                [ngClass]="{
+              <span class="px-2 py-1 rounded text-xs font-bold uppercase" [ngClass]="{
                   'bg-amber-500/20 text-amber-500': leave.status === 'Pending',
                   'bg-emerald-500/20 text-emerald-500': leave.status === 'Approved',
-                  'bg-rose-500/20 text-rose-500': leave.status === 'Rejected'
+                  'bg-rose-500/20 text-rose-500': leave.status === 'Rejected' || leave.status === 'Cancelled'
                 }">
                 {{ leave.status }}
               </span>
             </td>
-            <td class="py-4 text-slate-400 max-w-xs" title="{{ leave.rejectionReason }}">{{ leave.rejectionReason || '–' }}</td>
-            <td class="py-4 text-gray-400 text-right">{{ leave.createdAt | date:'short' }}</td>
+            <td class="py-4 text-slate-400 max-w-xs" title="{{ leave.rejectionReason }}">{{ leave.rejectionReason || '–'
+              }}</td>
+            <td class="py-4 text-right">
+              <button *ngIf="leave.status === 'Pending'" (click)="onCancelLeave(leave._id)"
+                class="text-red-400 hover:text-red-300 hover:underline text-xs font-medium transition-colors">
+                Cancel
+              </button>
+            </td>
           </tr>
           <tr *ngIf="myLeaves.length === 0">
             <td colspan="7" class="py-8 text-center text-slate-500 italic">No leave history yet.</td>
@@ -485,7 +494,7 @@
       class="relative bg-[#1B264F] border border-blue-900/50 rounded-2xl shadow-2xl w-full max-w-md animate-fade-in-up">
 
       <div class="px-6 py-4 border-b border-blue-900/50 bg-[#101935]/50 flex justify-between items-center">
-        <h3 class="text-lg font-bold text-white">Apply for Leave</h3>
+        <h3 class="text-lg font-bold text-white">{{ isEditMode ? 'Edit Leave Request' : 'Apply for Leave' }}</h3>
         <button (click)="closeLeaveModal()" class="text-slate-400 hover:text-white">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -494,6 +503,21 @@
       </div>
 
       <div class="p-6 space-y-4">
+
+        <!-- Manager Comments Alert -->
+        <div *ngIf="isEditMode && activeManagerComments"
+          class="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl flex gap-3 animate-fade-in-up">
+          <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div>
+            <h4 class="text-sm font-bold text-amber-500 uppercase tracking-wider">Manager Requested Changes</h4>
+            <p class="text-sm text-amber-200/80 mt-1 leading-relaxed">{{ activeManagerComments }}</p>
+          </div>
+        </div>
+
         <!-- Leave Type -->
         <div>
           <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Leave Type</label>
@@ -505,6 +529,30 @@
           </select>
         </div>
 
+        <!-- Leave Duration Mode -->
+        <div class="flex gap-4 mb-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="leaveUnit" [(ngModel)]="leaveForm.leaveUnit" value="full-day"
+              class="text-[#3083DC] focus:ring-[#3083DC] bg-[#101935] border-blue-900/30">
+            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Full Day</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="leaveUnit" [(ngModel)]="leaveForm.leaveUnit" value="half-day"
+              class="text-[#3083DC] focus:ring-[#3083DC] bg-[#101935] border-blue-900/30">
+            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Half Day</span>
+          </label>
+        </div>
+
+        <!-- Half Day Period Selector -->
+        <div *ngIf="leaveForm.leaveUnit === 'half-day'" class="mb-2 animate-fade-in-up">
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Select Period</label>
+          <select [(ngModel)]="leaveForm.halfDayPeriod"
+            class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-[#3083DC] transition-colors">
+            <option value="first-half">First Half (AM)</option>
+            <option value="second-half">Second Half (PM)</option>
+          </select>
+        </div>
+
         <!-- Dates -->
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -512,7 +560,7 @@
             <input type="date" [(ngModel)]="leaveForm.startDate" [min]="minDate"
               class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-[#3083DC] transition-colors">
           </div>
-          <div>
+          <div *ngIf="leaveForm.leaveUnit !== 'half-day'">
             <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">End Date</label>
             <input type="date" [(ngModel)]="leaveForm.endDate" [min]="leaveForm.startDate || minDate"
               class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-[#3083DC] transition-colors">
@@ -524,6 +572,34 @@
           <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Reason</label>
           <textarea [(ngModel)]="leaveForm.reason" rows="3" placeholder="Brief reason for your leave..."
             class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-[#3083DC] transition-colors resize-none"></textarea>
+        </div>
+
+        <!-- Attachments (Conditional - only for medical/sick leaves) -->
+        <div *ngIf="requiresAttachment()">
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Attachments
+            (Optional)</label>
+          <div class="flex items-center justify-center w-full">
+            <label
+              class="flex flex-col items-center justify-center w-full h-24 border-2 border-blue-900/30 border-dashed rounded-lg cursor-pointer bg-[#101935] hover:bg-[#1B264F] transition-colors">
+              <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                <svg class="w-6 h-6 mb-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p class="text-xs text-slate-500"><span class="font-semibold">Click to upload</span> or drag and drop
+                </p>
+                <p class="text-[10px] text-slate-600">PDF, PNG, JPG (MAX. 5MB)</p>
+              </div>
+              <input type="file" class="hidden" multiple (change)="onFileSelected($event)"
+                accept=".pdf,.jpg,.jpeg,.png" />
+            </label>
+          </div>
+          <div *ngIf="selectedFiles.length > 0" class="mt-2 text-xs text-slate-300">
+            <p>Selected files:</p>
+            <ul class="list-disc list-inside text-slate-400">
+              <li *ngFor="let file of selectedFiles">{{ file.name }}</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -539,10 +615,8 @@
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
             </path>
           </svg>
-          {{ isSubmittingLeave ? 'Submitting...' : 'Submit Request' }}
+          {{ isSubmittingLeave ? 'Processing...' : (isEditMode ? 'Update Request' : 'Submit Request') }}
         </button>
       </div>
     </div>
   </div>
-
-</div>

@@ -79,7 +79,27 @@ export class LeavePolicyService {
         return this.http.get<LeaveRequest[]>(`${this.leaveUrl}/manager-requests/${managerId}`);
     }
 
-    updateLeaveStatus(id: string, status: string, rejectionReason?: string): Observable<LeaveRequest> {
-        return this.http.put<LeaveRequest>(`${this.leaveUrl}/${id}/status`, { status, rejectionReason });
+    getTeamCalendar(managerId: string): Observable<LeaveRequest[]> {
+        return this.http.get<LeaveRequest[]>(`${this.leaveUrl}/team-calendar/${managerId}`);
+    }
+
+    updateLeaveStatus(leaveId: string, status: 'Approved' | 'Rejected' | 'Changes Requested', rejectionReason?: string, managerComments?: string): Observable<any> {
+        return this.http.put(`${this.leaveUrl}/${leaveId}/status`, { status, rejectionReason, managerComments });
+    }
+
+    updateLeaveRequest(leaveId: string, data: any): Observable<any> {
+        return this.http.put(`${this.leaveUrl}/${leaveId}`, data);
+    }
+
+    getYearEndPreview(): Observable<any> {
+        return this.http.get<any>(`${this.leaveUrl}/year-end/preview`);
+    }
+
+    executeYearEnd(year: number): Observable<any> {
+        return this.http.post<any>(`${this.leaveUrl}/year-end/execute`, { year });
+    }
+
+    cancelLeave(id: string): Observable<any> {
+        return this.http.post(`${this.leaveUrl}/cancel/${id}`, {});
     }
 }

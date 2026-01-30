@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { LeavePolicyService, LeavePolicy } from '../services/leave-policy.service';
+import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 
 
 export interface Task {
@@ -96,16 +97,14 @@ export class HomeComponent implements OnInit {
 
   // Notifications
   showNotifications = false;
-  notifications: Notification[] = [
-    { id: 1, title: 'Leave Approved', message: 'Your casual leave for tomorrow has been approved.', date: new Date(), read: false, type: 'success', category: 'Leave' },
-    { id: 2, title: 'Team Meeting', message: 'All hands meeting at 3 PM via Zoom.', date: new Date(), read: true, type: 'info', category: 'Work' },
-    { id: 3, title: 'System Maintenance', message: 'Server down for maintenance at midnight.', date: new Date(), read: false, type: 'warning', category: 'General' }
-  ];
+  notifications: Notification[] = []; // Initialized empty, populated by Leave logic
 
   // Leave Application Modal
   showLeaveModal = false;
   leaveForm = {
     leaveType: '',
+    leaveUnit: 'full-day',
+    halfDayPeriod: 'first-half',
     startDate: '',
     endDate: '',
     reason: ''
@@ -118,14 +117,15 @@ export class HomeComponent implements OnInit {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private leavePolicyService: LeavePolicyService
+    private leavePolicyService: LeavePolicyService,
+    private confirmationModal: ConfirmationModalService
   ) { }
 
   ngOnInit(): void {
     // Get user from AuthService
     this.userProfile = this.authService.getUser();
 
-    // Fallback if no user is logged in (for development/testing specific flows)
+    // Fallback if no user is logged in
     if (!this.userProfile) {
       this.userProfile = {
         firstName: 'Guest',
@@ -139,6 +139,7 @@ export class HomeComponent implements OnInit {
       this.loadMyLeavesAndSync();
     }
   }
+  // ngOnDestroy removed as polling is removed
 
   loadLeaveData(): void {
     this.leavePolicyService.getSettings().subscribe({
@@ -247,13 +248,7 @@ export class HomeComponent implements OnInit {
   acknowledgePolicy(): void {
     this.isPolicyAcknowledged = true;
     this.closePolicyModal();
-    this.leaveForm = {
-      leaveType: this.leaveBalances.length > 0 ? this.leaveBalances[0].type : '',
-      startDate: '',
-      endDate: '',
-      reason: ''
-    };
-    this.showLeaveModal = true;
+    // Do NOT open leave form automatically. User must click "Apply" explicitly.
   }
 
   toggleNotifications(): void {
@@ -284,6 +279,10 @@ export class HomeComponent implements OnInit {
 
   hasUnreadNotifications(): boolean {
     return this.notifications.some(n => !n.read);
+  }
+
+  get unreadNotificationCount(): number {
+    return this.notifications.filter(n => !n.read).length;
   }
 
   toggleAttendance(): void {
@@ -322,77 +321,180 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  // Edit State
+  isEditMode = false;
+  editingLeaveId: string | null = null;
+  activeManagerComments: string | null = null;
+
+  // File Upload
+  selectedFiles: File[] = [];
+
+  onFileSelected(event: any): void {
+    if (event.target.files) {
+      this.selectedFiles = Array.from(event.target.files);
+    }
+  }
+
   onApplyLeave(): void {
     if (!this.isPolicyAcknowledged) {
       this.openPolicyModal();
       return;
     }
+    this.isEditMode = false;
+    this.editingLeaveId = null;
+    this.activeManagerComments = null;
     this.showLeaveModal = true;
+    this.selectedFiles = []; // Reset files
     // Reset form
     this.leaveForm = {
       leaveType: this.leaveBalances.length > 0 ? this.leaveBalances[0].type : '',
+      leaveUnit: 'full-day',
+      halfDayPeriod: 'first-half',
       startDate: '',
       endDate: '',
       reason: ''
     };
   }
 
+  // ... (onEditLeave handles files? Optional for now – usually can't re-upload easily in edit without complex UI)
+  // For simplicity, we won't support editing files in this pass, only new uploads on creation.
+
+  onEditLeave(leave: any): void {
+    this.isEditMode = true;
+    this.editingLeaveId = leave._id;
+    this.activeManagerComments = leave.managerComments;
+    this.showLeaveModal = true;
+
+    // Safety check for dates
+    const s = leave.startDate instanceof Date ? leave.startDate : new Date(leave.startDate);
+    const e = leave.endDate instanceof Date ? new Date(leave.endDate) : new Date(leave.endDate);
+
+    this.leaveForm = {
+      leaveType: leave.leaveType,
+      leaveUnit: leave.leaveUnit || 'full-day',
+      halfDayPeriod: leave.halfDayPeriod || 'first-half',
+      startDate: s.toISOString().split('T')[0],
+      endDate: e.toISOString().split('T')[0],
+      reason: leave.reason
+    };
+  }
+
   closeLeaveModal(): void {
     this.showLeaveModal = false;
+    this.isEditMode = false;
+    this.editingLeaveId = null;
+    this.activeManagerComments = null;
   }
 
   submitLeaveApplication(): void {
+    // Auto-set End Date if half-day
+    if (this.leaveForm.leaveUnit === 'half-day') {
+      this.leaveForm.endDate = this.leaveForm.startDate;
+    }
+
     if (!this.leaveForm.leaveType || !this.leaveForm.startDate || !this.leaveForm.endDate || !this.leaveForm.reason) {
-      alert('Please fill in all fields');
+      this.confirmationModal.alert('Validation Error', 'Please fill in all fields', 'warning');
       return;
     }
 
     if (new Date(this.leaveForm.endDate) < new Date(this.leaveForm.startDate)) {
-      alert('End date cannot be before start date');
+      this.confirmationModal.alert('Validation Error', 'End date cannot be before start date', 'warning');
       return;
     }
 
     this.isSubmittingLeave = true;
-    const userId = this.userProfile._id || this.userProfile.employeeId || this.userProfile.id; // Try all possible ID fields
+    const userId = this.userProfile._id || this.userProfile.employeeId || this.userProfile.id;
 
     if (!userId) {
-      alert('User ID not found. Please re-login.');
+      this.confirmationModal.alert('Error', 'User ID not found. Please re-login.', 'error');
       this.isSubmittingLeave = false;
       return;
     }
 
-    const leaveData = {
-      userId: userId,
-      leaveType: this.leaveForm.leaveType,
-      startDate: this.leaveForm.startDate,
-      endDate: this.leaveForm.endDate,
-      reason: this.leaveForm.reason
-    };
+    // Use FormData for File Upload capability
+    if (this.isEditMode && this.editingLeaveId) {
+      // Update Logic (JSON for now as we didn't add file update support yet)
+      const leaveData = {
+        userId: userId,
+        leaveType: this.leaveForm.leaveType,
+        leaveUnit: this.leaveForm.leaveUnit,
+        halfDayPeriod: this.leaveForm.leaveUnit === 'half-day' ? this.leaveForm.halfDayPeriod : undefined,
+        startDate: this.leaveForm.startDate,
+        endDate: this.leaveForm.endDate,
+        reason: this.leaveForm.reason
+      };
 
-    console.log('Submitting leave:', leaveData);
+      this.leavePolicyService.updateLeaveRequest(this.editingLeaveId, leaveData).subscribe({
+        next: (res) => {
+          console.log('Leave updated successfully', res);
+          this.loadMyLeavesAndSync();
+          this.closeLeaveModal();
+          this.isSubmittingLeave = false;
+          this.confirmationModal.alert('Success', 'Leave request updated successfully!', 'success');
+        },
+        error: (err) => {
+          console.error('Error updating leave', err);
+          this.isSubmittingLeave = false;
+          this.confirmationModal.alert('Error', err.error?.message || 'Failed to update leave request', 'error');
+        }
+      });
 
-    this.leavePolicyService.applyForLeave(leaveData).subscribe({
-      next: (res) => {
-        this.isSubmittingLeave = false;
-        this.closeLeaveModal();
-        this.notifications.unshift({
-          id: Date.now(),
-          title: 'Leave Application Submitted',
-          message: `Your request for ${leaveData.leaveType} is pending approval.`,
-          date: new Date(),
-          read: false,
-          type: 'info',
-          category: 'Leave'
-        });
+    } else {
+      // Create Logic (FormData)
+      const formData = new FormData();
+      formData.append('userId', userId);
+      formData.append('leaveType', this.leaveForm.leaveType);
+      formData.append('leaveUnit', this.leaveForm.leaveUnit);
+      if (this.leaveForm.leaveUnit === 'half-day') {
+        formData.append('halfDayPeriod', this.leaveForm.halfDayPeriod);
+      }
+      formData.append('startDate', this.leaveForm.startDate);
+      formData.append('endDate', this.leaveForm.endDate);
+      formData.append('reason', this.leaveForm.reason);
+
+      // Append files
+      this.selectedFiles.forEach(file => {
+        formData.append('attachments', file);
+      });
+
+      this.leavePolicyService.applyForLeave(formData).subscribe({
+        next: (res) => {
+          console.log('Leave applied successfully', res);
+          this.isSubmittingLeave = false;
+          this.closeLeaveModal();
+          this.confirmationModal.alert('Success', 'Leave application submitted successfully!', 'success');
+          this.loadMyLeavesAndSync();
+        },
+        error: (err) => {
+          console.error('Error applying for leave', err);
+          this.isSubmittingLeave = false;
+          const msg = err.error?.message || 'Failed to submit leave application';
+          this.confirmationModal.alert('Error', msg, 'error');
+        }
+      });
+    }
+  }
+
+  // Helper method to determine if file attachment is required/recommended
+  requiresAttachment(): boolean {
+    const leaveType = this.leaveForm.leaveType.toLowerCase();
+    return leaveType.includes('sick') || leaveType.includes('medical');
+  }
+
+  onCancelLeave(leaveId: string): void {
+    if (!confirm('Are you sure you want to cancel this leave request?')) return;
+
+    this.leavePolicyService.cancelLeave(leaveId).subscribe({
+      next: () => {
+        alert('Leave request cancelled successfully.');
         this.loadMyLeavesAndSync();
       },
       error: (err) => {
-        console.error('Error applying for leave', err);
-        this.isSubmittingLeave = false;
-        alert('Failed to submit leave application. Please try again.');
+        console.error('Error cancelling leave', err);
+        const msg = err.error?.message || 'Failed to cancel leave request';
+        alert(`Error: ${msg}`);
       }
     });
-
   }
 
   downloadPayslip(id: string): void {
@@ -405,3 +507,4 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 }
+
