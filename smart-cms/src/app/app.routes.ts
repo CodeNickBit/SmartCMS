@@ -7,6 +7,9 @@ import { HomeComponent } from './home/home.component';
 import { adminGuard } from './guards/admin.guard';
 import { authGuard } from './guards/auth.guard';
 import { managerHrGuard } from './guards/manager-hr.guard';
+import { AddUserComponent } from './admin/add-user/add-user.component';
+import { LeaveApprovalsComponent } from './dashboard/leave-approvals/leave-approvals.component';
+import { TeamCalendarComponent } from './dashboard/team-calendar/team-calendar.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -66,8 +69,16 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/leave-policy/leave-policy.component').then(m => m.LeavePolicyComponent),
     canActivate: [adminGuard]
   },
+  {
+    path: 'admin/year-end',
+    loadComponent: () => import('./admin/year-end-processing/year-end-processing.component').then(m => m.YearEndProcessingComponent),
+    canActivate: [adminGuard]
+  },
+  { path: 'dashboard/add-users', component: AddUserComponent },
+  { path: 'dashboard/leave-approvals', component: LeaveApprovalsComponent },
+  { path: 'dashboard/team-calendar', component: TeamCalendarComponent },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' }
+  { path: '**', redirectTo: '/login' }
 ];

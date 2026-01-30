@@ -24,14 +24,36 @@ const leaveRequestSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    leaveUnit: {
+        type: String,
+        enum: ['full-day', 'half-day', 'comp-off'],
+        default: 'full-day'
+    },
+    halfDayPeriod: {
+        type: String,
+        enum: ['first-half', 'second-half']
+    },
+    attachments: [{
+        filename: String,
+        path: String,
+        uploadedAt: { type: Date, default: Date.now }
+    }],
+    modificationHistory: [{
+        field: String,
+        oldValue: String,
+        newValue: String,
+        modifiedAt: { type: Date, default: Date.now }
+    }],
+    lastModifiedAt: Date,
+    managerComments: String,
     status: {
         type: String,
-        enum: ['Pending', 'Approved', 'Rejected'],
+        enum: ['Pending', 'Approved', 'Rejected', 'Cancelled', 'Changes Requested'],
         default: 'Pending'
     },
     managerId: {
         type: String,
-        ref: 'Manager'
+        ref: 'User'  // Fixed: was 'Manager', should be 'User'
     },
     rejectionReason: {
         type: String,

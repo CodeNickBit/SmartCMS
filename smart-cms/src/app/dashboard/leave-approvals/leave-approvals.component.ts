@@ -6,6 +6,7 @@ import { LeavePolicyService, LeaveRequest } from '../../services/leave-policy.se
 
 import { SharedSidebarComponent } from '../components/sidebar/sidebar.component';
 import { SharedHeaderComponent } from '../components/header/header.component';
+import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-leave-approvals',
@@ -149,7 +150,22 @@ import { SharedHeaderComponent } from '../components/header/header.component';
               class="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 disabled:pointer-events-none text-white rounded-lg text-sm font-bold">Confirm Reject</button>
           </div>
         </div>
+
+        <div class="p-6 overflow-y-auto space-y-4" *ngIf="detailConfirmMode === 'changes'">
+          <div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Comments for Employee</span>
+             <textarea [(ngModel)]="managerCommentsInModal" rows="3" placeholder="Explain what needs to be changed..."
+              class="w-full mt-1.5 bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"></textarea>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button (click)="detailConfirmMode = 'view'" class="px-4 py-2 text-slate-300 hover:text-white rounded-lg text-sm font-medium">Cancel</button>
+            <button (click)="confirmRequestChanges()" [disabled]="!managerCommentsInModal.trim()"
+              class="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 disabled:pointer-events-none text-white rounded-lg text-sm font-bold">Send Request</button>
+          </div>
+        </div>
+
         <div class="px-6 py-4 bg-[#101935]/30 border-t border-blue-900/50 flex justify-end gap-2" *ngIf="detailConfirmMode === 'view' && selectedRequest.status === 'Pending'">
+          <button (click)="detailConfirmMode = 'changes'" class="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg text-sm font-bold">Request Changes</button>
           <button (click)="detailConfirmMode = 'reject'" class="px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-lg text-sm font-bold">Reject</button>
           <button (click)="detailConfirmMode = 'approve'" class="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm font-bold">Approve</button>
         </div>
@@ -195,8 +211,9 @@ export class LeaveApprovalsComponent implements OnInit {
   currentUser: any;
   showDetailModal = false;
   selectedRequest: any = null;
-  detailConfirmMode: 'view' | 'approve' | 'reject' = 'view';
+  detailConfirmMode: 'view' | 'approve' | 'reject' | 'changes' = 'view';
   rejectReasonInModal = '';
+  managerCommentsInModal = '';
   showNotifications = false;
 
   get pendingLeaveNotificationsCount(): number {
@@ -225,7 +242,8 @@ export class LeaveApprovalsComponent implements OnInit {
 
   constructor(
     private leaveService: LeavePolicyService,
-    private authService: AuthService
+    private authService: AuthService,
+    private confirmationModal: ConfirmationModalService
   ) { }
 
   ngOnInit(): void {
@@ -252,6 +270,7 @@ export class LeaveApprovalsComponent implements OnInit {
     this.selectedRequest = request;
     this.detailConfirmMode = 'view';
     this.rejectReasonInModal = '';
+    this.managerCommentsInModal = '';
     this.showDetailModal = true;
   }
 
@@ -260,27 +279,72 @@ export class LeaveApprovalsComponent implements OnInit {
     this.selectedRequest = null;
     this.detailConfirmMode = 'view';
     this.rejectReasonInModal = '';
+    this.managerCommentsInModal = '';
   }
 
   confirmApprove(): void {
     if (!this.selectedRequest?._id) return;
-    this.leaveService.updateLeaveStatus(this.selectedRequest._id, 'Approved').subscribe({
-      next: () => {
-        this.closeDetail();
-        this.loadRequests();
-      },
-      error: (err) => alert(err?.error?.message || 'Failed to approve leave')
+
+    this.confirmationModal.confirm({
+      title: 'Approve Leave Request',
+      message: 'Are you sure you want to approve this leave request?',
+      confirmText: 'Approve',
+      type: 'success'
+    }).then(confirmed => {
+      if (!confirmed) return;
+
+      this.leaveService.updateLeaveStatus(this.selectedRequest._id, 'Approved').subscribe({
+        next: () => {
+          this.closeDetail();
+          this.loadRequests();
+          this.confirmationModal.alert('Success', 'Leave request approved successfully!', 'success');
+        },
+        error: (err) => this.confirmationModal.alert('Error', err?.error?.message || 'Failed to approve leave', 'error')
+      });
     });
   }
 
   confirmReject(): void {
     if (!this.selectedRequest?._id || !this.rejectReasonInModal?.trim()) return;
-    this.leaveService.updateLeaveStatus(this.selectedRequest._id, 'Rejected', this.rejectReasonInModal.trim()).subscribe({
-      next: () => {
-        this.closeDetail();
-        this.loadRequests();
-      },
-      error: (err) => alert(err?.error?.message || 'Failed to reject leave')
+
+    this.confirmationModal.confirm({
+      title: 'Reject Leave Request',
+      message: 'Are you sure you want to reject this request? This action cannot be undone.',
+      confirmText: 'Reject',
+      type: 'error'
+    }).then(confirmed => {
+      if (!confirmed) return;
+
+      this.leaveService.updateLeaveStatus(this.selectedRequest._id, 'Rejected', this.rejectReasonInModal.trim()).subscribe({
+        next: () => {
+          this.closeDetail();
+          this.loadRequests();
+          this.confirmationModal.alert('Success', 'Leave request rejected.', 'success');
+        },
+        error: (err) => this.confirmationModal.alert('Error', err?.error?.message || 'Failed to reject leave', 'error')
+      });
+    });
+  }
+
+  confirmRequestChanges(): void {
+    if (!this.selectedRequest?._id || !this.managerCommentsInModal?.trim()) return;
+
+    this.confirmationModal.confirm({
+      title: 'Request Changes',
+      message: 'Are you sure you want to request changes for this leave request?',
+      confirmText: 'Request Changes',
+      type: 'warning'
+    }).then(confirmed => {
+      if (!confirmed) return;
+
+      this.leaveService.updateLeaveStatus(this.selectedRequest._id, 'Changes Requested', undefined, this.managerCommentsInModal.trim()).subscribe({
+        next: () => {
+          this.closeDetail();
+          this.loadRequests();
+          this.confirmationModal.alert('Success', 'Change request sent to employee.', 'success');
+        },
+        error: (err) => this.confirmationModal.alert('Error', err?.error?.message || 'Failed to request changes', 'error')
+      });
     });
   }
 }
