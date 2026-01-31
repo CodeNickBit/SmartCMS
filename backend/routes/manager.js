@@ -57,6 +57,29 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get active managers only
+router.get('/active', async (req, res) => {
+  try {
+    const { department } = req.query;
+    
+    const query = { isActive: true };
+    if (department && department !== 'all') {
+      query.department = new RegExp(`^${department}$`, 'i');
+    }
+
+    const managers = await Manager.find(query)
+      .select('_id name email department designation')
+      .sort({ name: 1 });
+    
+    console.log(`GET /api/manager/active - Department: ${department}, Found: ${managers.length} managers`);
+    
+    res.json(managers);
+  } catch (error) {
+    console.error('Error fetching active managers:', error);
+    res.status(500).json({ message: 'Failed to fetch active managers', error: error.message });
+  }
+});
+
 // Update manager
 router.put('/:id', async (req, res) => {
   try {

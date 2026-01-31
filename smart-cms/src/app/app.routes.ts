@@ -46,17 +46,32 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/manage-designation/manage-designation.component').then(m => m.ManageDesignationComponent),
     canActivate: [adminGuard]
   },
-    {
-      path: 'admin/manage-hr',
-      loadComponent: () => import('./admin/manage-hr/manage-hr.component').then(m => m.ManageHRComponent),
-      canActivate: [adminGuard]
-    },
-    {
-      path: 'dashboard/employees',
-      loadComponent: () => import('./dashboard/employees/employees.component').then(m => m.HREmployeesComponent),
-      canActivate: [managerHrGuard]
-    },
-    { path: 'home', component: HomeComponent, canActivate: [authGuard] },
+  {
+    path: 'admin/manage-hr',
+    loadComponent: () => import('./admin/manage-hr/manage-hr.component').then(m => m.ManageHRComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/attendance-settings',
+    loadComponent: () => import('./admin/attendance-settings/attendance-settings.component').then(m => m.AttendanceSettingsComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/employees',
+    loadComponent: () => import('./dashboard/employees/employees.component').then(m => m.HREmployeesComponent),
+    canActivate: [managerHrGuard]
+  },
+  {
+    path: 'dashboard/attendance',
+    loadComponent: () => import('./dashboard/attendance/attendance.component').then(m => m.AttendanceComponent),
+    canActivate: [managerHrGuard]
+  },
+  {
+    path: 'dashboard/manager-approvals',
+    loadComponent: () => import('./dashboard/manager-approvals/manager-approvals.component').then(m => m.ManagerApprovalsComponent),
+    canActivate: [managerHrGuard]
+  },
+  { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
