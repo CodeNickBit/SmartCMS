@@ -39,6 +39,7 @@ export class SignupComponent implements OnInit {
   dbDepartments: Department[] = [];
   dbDesignations: Designation[] = [];
   dbManagers: { _id: string; name: string; email: string }[] = [];
+  activeManagers: Manager[] = [];
 
   constructor(
     private router: Router,
@@ -98,16 +99,6 @@ export class SignupComponent implements OnInit {
   }
 
   loadManagers() {
-    this.managerService.getManagers().subscribe({
-      next: (data) => {
-        this.dbManagers = (data || []).map((m: any) => ({
-          _id: m._id || m.id,
-          name: m.name || '',
-          email: m.email || ''
-        }));
-      },
-      error: (error) => {
-        console.error('Error fetching managers:', error);
     console.log('Signup: Loading all active managers...');
     this.managerService.getActiveManagers().subscribe({
       next: (data) => {
