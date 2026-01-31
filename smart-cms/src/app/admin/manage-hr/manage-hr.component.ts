@@ -5,6 +5,7 @@ import { HRService, HRRequest } from '../../services/hr.service';
 import { DepartmentService, Department } from '../../services/department.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
+import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-manage-hr',
@@ -160,7 +161,14 @@ export class ManageHRComponent implements OnInit {
   }
 
   confirmDelete(hr: any) {
-    if (confirm(`Are you sure you want to deactivate HR ${hr.name}?`)) {
+    this.confirmationModal.confirm({
+      title: 'Deactivate HR',
+      message: 'Are you sure you want to deactivate HR ' + hr.name + '?',
+      confirmText: 'Yes, Deactivate',
+      cancelText: 'Cancel',
+      type: 'warning'
+    }).then(confirmed => {
+      if (!confirmed) return;
       this.hrService.deleteHR(hr._id).subscribe({
         next: () => {
           this.successMessage = 'HR deactivated successfully';
@@ -171,6 +179,6 @@ export class ManageHRComponent implements OnInit {
           this.errorMessage = error.error?.message || 'Failed to deactivate HR';
         }
       });
-    }
+    });
   }
 }

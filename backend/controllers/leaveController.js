@@ -1,6 +1,6 @@
 const LeaveRequest = require('../models/LeaveRequest');
 const User = require('../models/User');
-
+const Manager = require('../models/Manager');
 const LeavePolicy = require('../models/LeavePolicy');
 
 exports.applyForLeave = async (req, res) => {
@@ -12,35 +12,23 @@ exports.applyForLeave = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if user has a reporting manager string
-        // This could be an Email (old data) or an Employee ID (new data/frontend behavior)
         const managerIdentifier = user.reportingManager ? String(user.reportingManager).trim() : null;
-
         if (!managerIdentifier) {
             return res.status(400).json({ message: 'No reporting manager assigned to your profile. Please contact HR.' });
         }
 
-        // Try finding by Email OR EmployeeId OR valid MongoId
-        let managerQuery = {
-            $or: [
-                { email: { $regex: new RegExp(`^${managerIdentifier}$`, 'i') } },
-                { employeeId: managerIdentifier }
-            ]
-        };
-
-        // If it looks like a Mongo ID (24 hex chars), add that to query
+        let manager = null;
         if (/^[0-9a-fA-F]{24}$/.test(managerIdentifier)) {
-            managerQuery.$or.push({ _id: managerIdentifier });
+            manager = await Manager.findById(managerIdentifier);
+        }
+        if (!manager) {
+            manager = await Manager.findOne({ email: new RegExp(`^${managerIdentifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
+        }
+        if (!manager) {
+            return res.status(400).json({ message: 'Reporting manager not found in the system. Please contact HR to assign a valid manager (by name & email).' });
         }
 
-        const managerUser = await User.findOne(managerQuery);
-
-        // If manager not found in system
-        if (!managerUser) {
-            return res.status(400).json({ message: `Reporting manager (${managerIdentifier}) not found in the system. Please verify the manager's Employee ID or Email with HR.` });
-        }
-
-        const managerId = String(managerUser._id);
+        const managerId = String(manager._id);
 
         const start = new Date(startDate);
         const end = new Date(endDate);

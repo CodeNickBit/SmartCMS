@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
+import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-add-user',
@@ -45,7 +46,7 @@ export class AddUserComponent implements OnInit {
     { id: 'USR005', name: 'Michael Wilson', email: 'michael@example.com', role: 'Manager', dept: 'Operations', status: 'Active' },
   ];
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService) { }
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService, private confirmationModal: ConfirmationModalService) { }
 
   ngOnInit() {
   }
@@ -145,7 +146,7 @@ export class AddUserComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error creating user:', error);
-        alert(error.error?.message || 'Failed to create user');
+        this.confirmationModal.alert('Error', error.error?.message || 'Failed to create user', 'error');
       }
     });
   }

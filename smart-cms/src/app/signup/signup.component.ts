@@ -8,6 +8,7 @@ import { DepartmentService, Department } from '../services/department.service';
 import { DesignationService, Designation } from '../services/designation.service';
 import { ManagerService } from '../services/manager.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
+import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-signup',
@@ -45,7 +46,8 @@ export class SignupComponent implements OnInit {
     private fb: FormBuilder,
     private departmentService: DepartmentService,
     private designationService: DesignationService,
-    private managerService: ManagerService
+    private managerService: ManagerService,
+    private confirmationModal: ConfirmationModalService
   ) { }
 
   ngOnInit(): void {
@@ -403,14 +405,14 @@ export class SignupComponent implements OnInit {
         }
 
         // If admin was registering, redirect to admin dashboard
-        if (isAdminRegistering) {
-          alert(`Profile created successfully!\n\nMeaningful Employee ID: ${response.user.employeeId}`);
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          alert(`Profile created successfully!\n\nMeaningful Employee ID: ${response.user.employeeId}`);
-          // Otherwise redirect to login page
-          this.router.navigate(['/login']);
-        }
+        const msg = 'Profile created successfully! Employee ID: ' + response.user.employeeId;
+        this.confirmationModal.alert('Success', msg, 'success').then(() => {
+          if (isAdminRegistering) {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            this.router.navigate(['/login']);
+          }
+        });
       },
       error: (error) => {
         this.isLoading = false;
