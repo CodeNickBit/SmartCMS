@@ -82,6 +82,7 @@ export const routes: Routes = [
   { path: 'dashboard/add-users', component: AddUserComponent },
   { path: 'dashboard/leave-approvals', component: LeaveApprovalsComponent },
   { path: 'dashboard/team-calendar', component: TeamCalendarComponent },
+  {
     path: 'dashboard/attendance',
     loadComponent: () => import('./dashboard/attendance/attendance.component').then(m => m.AttendanceComponent),
     canActivate: [managerHrGuard]
