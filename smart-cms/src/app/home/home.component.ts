@@ -1,15 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { LeavePolicyService, LeavePolicy } from '../services/leave-policy.service';
 import { ConfirmationModalService } from '../shared/confirmation-modal.service';
-
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
 import { OfficeLocationService } from '../services/office-location.service';
 import { AttendanceService, AttendanceRecord } from '../services/attendance.service';
 
@@ -137,10 +132,13 @@ export class HomeComponent implements OnInit {
   myLeaves: any[] = [];
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private router: Router,
     private authService: AuthService,
     private leavePolicyService: LeavePolicyService,
-    private confirmationModal: ConfirmationModalService
+    private confirmationModal: ConfirmationModalService,
+    private officeLocationService: OfficeLocationService,
+    private attendanceService: AttendanceService
   ) { }
 
   ngOnInit(): void {
@@ -159,6 +157,7 @@ export class HomeComponent implements OnInit {
     if (this.userProfile) {
       this.loadMyLeavesAndSync();
     }
+    this.loadAttendanceData();
   }
   // ngOnDestroy removed as polling is removed
 
@@ -304,7 +303,9 @@ export class HomeComponent implements OnInit {
 
   get unreadNotificationCount(): number {
     return this.notifications.filter(n => !n.read).length;
+  }
 
+  loadAttendanceData(): void {
     if (isPlatformBrowser(this.platformId)) {
       this.loadOfficeLocations();
       this.loadTodayAttendance();
