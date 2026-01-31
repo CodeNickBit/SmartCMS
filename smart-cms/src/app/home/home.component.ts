@@ -482,18 +482,24 @@ export class HomeComponent implements OnInit {
   }
 
   onCancelLeave(leaveId: string): void {
-    if (!confirm('Are you sure you want to cancel this leave request?')) return;
-
-    this.leavePolicyService.cancelLeave(leaveId).subscribe({
-      next: () => {
-        alert('Leave request cancelled successfully.');
-        this.loadMyLeavesAndSync();
-      },
-      error: (err) => {
-        console.error('Error cancelling leave', err);
-        const msg = err.error?.message || 'Failed to cancel leave request';
-        alert(`Error: ${msg}`);
-      }
+    this.confirmationModal.confirm({
+      title: 'Cancel Leave Request',
+      message: 'Are you sure you want to cancel this leave request?',
+      confirmText: 'Yes, Cancel',
+      cancelText: 'No',
+      type: 'warning'
+    }).then(confirmed => {
+      if (!confirmed) return;
+      this.leavePolicyService.cancelLeave(leaveId).subscribe({
+        next: () => {
+          this.confirmationModal.alert('Success', 'Leave request cancelled successfully.', 'success');
+          this.loadMyLeavesAndSync();
+        },
+        error: (err) => {
+          const msg = err.error?.message || 'Failed to cancel leave request';
+          this.confirmationModal.alert('Error', msg, 'error');
+        }
+      });
     });
   }
 

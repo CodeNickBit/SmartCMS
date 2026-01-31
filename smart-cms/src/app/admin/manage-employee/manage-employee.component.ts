@@ -7,6 +7,7 @@ import { DepartmentService, Department } from '../../services/department.service
 import { DesignationService, Designation } from '../../services/designation.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
+import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-manage-employee',
@@ -36,7 +37,8 @@ export class ManageEmployeeComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private departmentService: DepartmentService,
-    private designationService: DesignationService
+    private designationService: DesignationService,
+    private confirmationModal: ConfirmationModalService
   ) {
     afterNextRender(() => {
       this.loadEmployees();
@@ -154,16 +156,19 @@ export class ManageEmployeeComponent implements OnInit {
 
   deleteEmployee(emp: any) {
     const employeeName = this.getDisplayName(emp);
-    if (confirm(`Are you sure you want to permanently delete ${employeeName}?`)) {
+    this.confirmationModal.confirm({
+      title: 'Delete Employee',
+      message: 'Are you sure you want to permanently delete ' + employeeName + '?',
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      type: 'warning'
+    }).then(confirmed => {
+      if (!confirmed) return;
       this.authService.deleteUser(emp._id).subscribe({
-        next: () => {
-          this.loadEmployees();
-        },
-        error: (err: any) => {
-          console.error('Delete failed', err);
-        }
+        next: () => this.loadEmployees(),
+        error: (err: any) => console.error('Delete failed', err)
       });
-    }
+    });
   }
 
   navigateToRegister() {

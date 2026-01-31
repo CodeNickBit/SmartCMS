@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DesignationService, Designation } from '../../services/designation.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
+import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-manage-designation',
@@ -36,7 +37,7 @@ export class ManageDesignationComponent implements OnInit {
     description: ''
   };
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private designationService: DesignationService) {
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private designationService: DesignationService, private confirmationModal: ConfirmationModalService) {
     afterNextRender(() => {
       this.loadDesignations();
     });
@@ -127,19 +128,24 @@ export class ManageDesignationComponent implements OnInit {
   }
 
   confirmDelete(desig: Designation) {
-    if (confirm(`Are you sure you want to delete designation ${desig.title}?`)) {
-      if (desig._id) {
-        this.designationService.deleteDesignation(desig._id).subscribe({
-          next: () => {
-            this.successMessage = 'Designation deleted successfully';
-            this.loadDesignations();
-            setTimeout(() => this.successMessage = '', 3000);
-          },
-          error: (error) => {
-            this.errorMessage = error.error?.message || 'Failed to delete designation';
-          }
-        });
-      }
-    }
+    this.confirmationModal.confirm({
+      title: 'Delete Designation',
+      message: 'Are you sure you want to delete designation ' + desig.title + '?',
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      type: 'warning'
+    }).then(confirmed => {
+      if (!confirmed || !desig._id) return;
+      this.designationService.deleteDesignation(desig._id).subscribe({
+        next: () => {
+          this.successMessage = 'Designation deleted successfully';
+          this.loadDesignations();
+          setTimeout(() => this.successMessage = '', 3000);
+        },
+        error: (error) => {
+          this.errorMessage = error.error?.message || 'Failed to delete designation';
+        }
+      });
+    });
   }
 }
