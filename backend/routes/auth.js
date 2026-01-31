@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { protect } = require('../middleware/authMiddleware');
 
 const otpStore = new Map();
 
@@ -677,6 +678,36 @@ router.delete('/users/:id', async (req, res) => {
     res.json({ message: 'User deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete user', error: error.message });
+  }
+});
+
+router.get('/my-team', protect, async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    const managerId = req.user._id || req.user.id;
+    const managerName = req.user.name || `${req.user.firstName} ${req.user.lastName}`;
+    const managerEmail = req.user.email;
+
+    console.log('Manager fetching team:', { managerId, managerName, managerEmail });
+
+    const teamMembers = await User.find({
+      $or: [
+        { reportingManager: managerId.toString() },
+        { reportingManager: managerName },
+        { reportingManager: managerEmail },
+        { reportingManager: { $regex: new RegExp(`^${managerName}$`, 'i') } }
+      ]
+    }).select('-password').sort({ firstName: 1 });
+
+    console.log(`Found ${teamMembers.length} team members`);
+
+    res.json(teamMembers);
+  } catch (error) {
+    console.error('Error fetching team members:', error);
+    res.status(500).json({ message: 'Failed to fetch team members', error: error.message });
   }
 });
 
