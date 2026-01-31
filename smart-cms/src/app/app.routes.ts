@@ -55,6 +55,11 @@ export const routes: Routes = [
     canActivate: [adminGuard]
   },
   {
+    path: 'admin/attendance-settings',
+    loadComponent: () => import('./admin/attendance-settings/attendance-settings.component').then(m => m.AttendanceSettingsComponent),
+    canActivate: [adminGuard]
+  },
+  {
     path: 'dashboard/employees',
     loadComponent: () => import('./dashboard/employees/employees.component').then(m => m.HREmployeesComponent),
     canActivate: [managerHrGuard]
@@ -77,6 +82,15 @@ export const routes: Routes = [
   { path: 'dashboard/add-users', component: AddUserComponent },
   { path: 'dashboard/leave-approvals', component: LeaveApprovalsComponent },
   { path: 'dashboard/team-calendar', component: TeamCalendarComponent },
+    path: 'dashboard/attendance',
+    loadComponent: () => import('./dashboard/attendance/attendance.component').then(m => m.AttendanceComponent),
+    canActivate: [managerHrGuard]
+  },
+  {
+    path: 'dashboard/manager-approvals',
+    loadComponent: () => import('./dashboard/manager-approvals/manager-approvals.component').then(m => m.ManagerApprovalsComponent),
+    canActivate: [managerHrGuard]
+  },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },

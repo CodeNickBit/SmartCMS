@@ -70,28 +70,61 @@
         Attendance
       </h2>
 
+      <div *ngIf="attendanceMessage" class="mb-4 bg-emerald-900/30 border border-emerald-700 text-emerald-300 px-4 py-2 rounded-lg text-sm">
+        {{ attendanceMessage }}
+      </div>
+
+      <div *ngIf="attendanceError" class="mb-4 bg-red-900/30 border border-red-700 text-red-300 px-4 py-2 rounded-lg text-sm">
+        {{ attendanceError }}
+      </div>
+
       <div class="flex flex-col items-center justify-center py-4">
         <div class="text-4xl font-bold mb-2 tracking-wider font-mono">
           {{ attendance.totalHours }}
         </div>
         <p class="text-sm text-gray-400 mb-6">Total Hours Today</p>
 
-        <button (click)="toggleAttendance()"
-          class="w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2"
+        <button (click)="toggleAttendance()" [disabled]="isProcessingAttendance"
+          class="w-full py-4 rounded-xl font-bold text-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           [ngClass]="attendance.status === 'Clocked Out' ? 'bg-[#3083DC] hover:bg-[#2563EB]' : 'bg-[#EF4444] hover:bg-[#DC2626]'">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" [class.animate-spin]="isProcessingAttendance" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
           </svg>
-          {{ attendance.status === 'Clocked Out' ? 'Clock In' : 'Clock Out' }}
+          {{ isProcessingAttendance ? 'Processing...' : (attendance.status === 'Clocked Out' ? 'Clock In' : 'Clock Out') }}
         </button>
 
-        <p class="mt-4 text-sm flex items-center gap-2"
-          [ngClass]="attendance.status === 'Clocked Out' ? 'text-gray-400' : 'text-[#10B981]'">
-          <span class="w-2 h-2 rounded-full"
-            [ngClass]="attendance.status === 'Clocked Out' ? 'bg-gray-500' : 'bg-[#10B981] animate-pulse'"></span>
-          Currently {{ attendance.status }}
-        </p>
+        <div *ngIf="attendance.location && attendance.address" class="mt-4 text-xs text-gray-400 bg-[#1B264F] rounded-lg p-3 border border-gray-700/50">
+          <div class="flex items-start gap-2">
+            <svg class="h-4 w-4 mt-0.5 text-[#3083DC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <div>
+              <p class="font-bold text-white">{{ attendance.address }}</p>
+              <p class="text-emerald-400 font-bold mt-1">{{ attendance.distance }}m from office</p>
+            </div>
+          </div>
+        </div>
+
+          <p class="mt-4 text-sm flex items-center justify-center gap-4">
+            <span class="flex items-center gap-2" [ngClass]="attendance.status === 'Clocked Out' ? 'text-gray-400' : 'text-[#10B981]'">
+              <span class="w-2 h-2 rounded-full"
+                [ngClass]="attendance.status === 'Clocked Out' ? 'bg-gray-500' : 'bg-[#10B981] animate-pulse'"></span>
+              {{ attendance.status }}
+            </span>
+            
+            <span *ngIf="attendance.approvalStatus" 
+                  class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                  [ngClass]="{
+                    'bg-yellow-500/20 text-yellow-500 border border-yellow-500/50': attendance.approvalStatus === 'pending',
+                    'bg-emerald-500/20 text-emerald-500 border border-emerald-500/50': attendance.approvalStatus === 'approved',
+                    'bg-red-500/20 text-red-500 border border-red-500/50': attendance.approvalStatus === 'declined',
+                    'bg-orange-500/20 text-orange-500 border border-orange-500/50': attendance.approvalStatus === 'marked_late'
+                  }">
+              {{ attendance.approvalStatus.replace('_', ' ') }}
+            </span>
+          </p>
       </div>
     </div>
 
