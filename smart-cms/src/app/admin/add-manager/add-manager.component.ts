@@ -6,6 +6,7 @@ import { DepartmentService, Department } from '../../services/department.service
 import { DesignationService, Designation } from '../../services/designation.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
+import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-add-manager',
@@ -53,7 +54,8 @@ export class AddManagerComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object,
     private managerService: ManagerService,
     private departmentService: DepartmentService,
-    private designationService: DesignationService
+    private designationService: DesignationService,
+    private confirmationModal: ConfirmationModalService
   ) {
     afterNextRender(() => {
       this.loadManagers();
@@ -193,7 +195,14 @@ export class AddManagerComponent implements OnInit {
   }
 
   confirmDelete(manager: any) {
-    if (confirm(`Are you sure you want to delete manager ${manager.name}?`)) {
+    this.confirmationModal.confirm({
+      title: 'Delete Manager',
+      message: 'Are you sure you want to delete manager ' + manager.name + '?',
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      type: 'warning'
+    }).then(confirmed => {
+      if (!confirmed) return;
       const id = manager._id || manager.id;
       this.managerService.deleteManager(id).subscribe({
         next: () => {
@@ -206,7 +215,7 @@ export class AddManagerComponent implements OnInit {
           setTimeout(() => this.errorMessage = '', 3000);
         }
       });
-    }
+    });
   }
 
   submitManager() {

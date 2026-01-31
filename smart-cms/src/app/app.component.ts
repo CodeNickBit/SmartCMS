@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Router, RouterModule, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { LoaderComponent } from './components/loader/loader.component';
 import { LoaderService } from './services/loader.service';
+import { ConfirmationModalComponent } from './shared/confirmation-modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterModule, LoaderComponent],
+  imports: [RouterModule, LoaderComponent, ConfirmationModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

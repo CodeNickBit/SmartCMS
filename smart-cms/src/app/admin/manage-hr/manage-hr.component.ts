@@ -5,6 +5,7 @@ import { HRService, HRRequest } from '../../services/hr.service';
 import { DepartmentService, Department } from '../../services/department.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
+import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-manage-hr',
@@ -27,7 +28,7 @@ export class ManageHRComponent implements OnInit {
 
   hrs: any[] = [];
   departments: Department[] = [];
-  
+
   newHR: HRRequest = {
     name: '',
     email: '',
@@ -45,7 +46,8 @@ export class ManageHRComponent implements OnInit {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private hrService: HRService,
-    private departmentService: DepartmentService
+    private departmentService: DepartmentService,
+    private confirmationModal: ConfirmationModalService
   ) {
     afterNextRender(() => {
       this.loadHRs();
@@ -83,7 +85,7 @@ export class ManageHRComponent implements OnInit {
   }
 
   get filteredHRs() {
-    return this.hrs.filter(hr => 
+    return this.hrs.filter(hr =>
       hr.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
       hr.email.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
       hr.department.toLowerCase().includes(this.searchQuery.toLowerCase())
@@ -160,7 +162,14 @@ export class ManageHRComponent implements OnInit {
   }
 
   confirmDelete(hr: any) {
-    if (confirm(`Are you sure you want to deactivate HR ${hr.name}?`)) {
+    this.confirmationModal.confirm({
+      title: 'Deactivate HR',
+      message: 'Are you sure you want to deactivate HR ' + hr.name + '?',
+      confirmText: 'Yes, Deactivate',
+      cancelText: 'Cancel',
+      type: 'warning'
+    }).then((confirmed: boolean) => {
+      if (!confirmed) return;
       this.hrService.deleteHR(hr._id).subscribe({
         next: () => {
           this.successMessage = 'HR deactivated successfully';
@@ -171,6 +180,6 @@ export class ManageHRComponent implements OnInit {
           this.errorMessage = error.error?.message || 'Failed to deactivate HR';
         }
       });
-    }
+    });
   }
 }

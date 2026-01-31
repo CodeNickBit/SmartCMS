@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Admin = require('../models/Admin');
+const Manager = require('../models/Manager');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
@@ -181,9 +182,24 @@ router.post('/register', async (req, res) => {
       password
     });
 
-    // If employeeId wasn't provided, use the generated _id
     if (!user.employeeId) {
       user.employeeId = user._id;
+    }
+
+    if (reportingManager && String(reportingManager).trim()) {
+      const rm = String(reportingManager).trim();
+      let manager = null;
+      if (/^[0-9a-fA-F]{24}$/.test(rm)) {
+        manager = await Manager.findById(rm);
+      }
+      if (!manager) {
+        manager = await Manager.findOne({ email: new RegExp(`^${rm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
+      }
+      if (manager) {
+        user.reportingManager = String(manager._id);
+      } else {
+        return res.status(400).json({ message: 'Reporting manager not found. Please select a valid manager from the list (name and email).' });
+      }
     }
 
     await user.save();
@@ -602,8 +618,23 @@ router.put('/users/:id', async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-    // Don't allow password update through this route for safety
     delete updates.password;
+
+    if (updates.reportingManager !== undefined && updates.reportingManager !== null && String(updates.reportingManager).trim()) {
+      const rm = String(updates.reportingManager).trim();
+      let manager = null;
+      if (/^[0-9a-fA-F]{24}$/.test(rm)) {
+        manager = await Manager.findById(rm);
+      }
+      if (!manager) {
+        manager = await Manager.findOne({ email: new RegExp(`^${rm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
+      }
+      if (manager) {
+        updates.reportingManager = String(manager._id);
+      } else {
+        return res.status(400).json({ message: 'Reporting manager not found. Please select a valid manager from the list.' });
+      }
+    }
 
     const user = await User.findByIdAndUpdate(id, updates, { new: true }).select('-password');
     if (!user) {

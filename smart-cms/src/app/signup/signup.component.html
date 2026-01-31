@@ -288,9 +288,9 @@
             <div class="flex flex-col gap-2">
               <label for="reportingManager" class="text-sm font-medium text-gray-300">Reporting Manager</label>
               <select id="reportingManager" formControlName="reportingManager"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC] appearance-none">
-                <option value="">Select Manager (Optional)</option>
-                <option *ngFor="let manager of activeManagers" [value]="manager.name">{{ manager.name }}</option>
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="" disabled>Select Reporting Manager</option>
+                <option *ngFor="let m of dbManagers" [value]="m._id">{{ m.name }} ({{ m.email }})</option>
               </select>
             </div>
 
