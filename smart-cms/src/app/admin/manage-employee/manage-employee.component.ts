@@ -40,7 +40,7 @@ export class ManageEmployeeComponent implements OnInit {
     private router: Router,
     private departmentService: DepartmentService,
     private designationService: DesignationService,
-    private confirmationModal: ConfirmationModalService
+    private confirmationModal: ConfirmationModalService,
     private managerService: ManagerService
   ) {
     afterNextRender(() => {
