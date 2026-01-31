@@ -6,6 +6,7 @@ import { AuthService, RegisterRequest } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { DepartmentService, Department } from '../services/department.service';
 import { DesignationService, Designation } from '../services/designation.service';
+import { ManagerService } from '../services/manager.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
 
 @Component({
@@ -36,19 +37,22 @@ export class SignupComponent implements OnInit {
 
   dbDepartments: Department[] = [];
   dbDesignations: Designation[] = [];
+  dbManagers: { _id: string; name: string; email: string }[] = [];
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private fb: FormBuilder,
     private departmentService: DepartmentService,
-    private designationService: DesignationService
+    private designationService: DesignationService,
+    private managerService: ManagerService
   ) { }
 
   ngOnInit(): void {
     this.initializeForm();
     this.loadDepartments();
     this.loadDesignations();
+    this.loadManagers();
 
     // Watch for gender and marital status changes to show/hide conditional fields
     this.registrationForm.get('gender')?.valueChanges.subscribe(() => {
@@ -83,6 +87,21 @@ export class SignupComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching designations:', error);
+      }
+    });
+  }
+
+  loadManagers() {
+    this.managerService.getManagers().subscribe({
+      next: (data) => {
+        this.dbManagers = (data || []).map((m: any) => ({
+          _id: m._id || m.id,
+          name: m.name || '',
+          email: m.email || ''
+        }));
+      },
+      error: (error) => {
+        console.error('Error fetching managers:', error);
       }
     });
   }
@@ -314,7 +333,7 @@ export class SignupComponent implements OnInit {
       employeeId: formValue.employeeId.trim().toUpperCase(),
       department: formValue.department,
       designation: formValue.designation.trim(),
-      reportingManager: formValue.reportingManager?.trim() || undefined,
+      reportingManager: formValue.reportingManager ? String(formValue.reportingManager).trim() : undefined,
       joiningDate: formValue.joiningDate,
       employmentType: formValue.employmentType,
       workLocation: formValue.workLocation.trim(),

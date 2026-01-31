@@ -138,11 +138,11 @@ const userSchema = new mongoose.Schema({
     uppercase: true,
     trim: true
   },
-    department: {
-      type: String,
-      required: true,
-      trim: true
-    },
+  department: {
+    type: String,
+    required: true,
+    trim: true
+  },
   designation: {
     type: String,
     required: true,
@@ -258,7 +258,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['employee'],
+    enum: ['employee', 'manager', 'hr'],
     default: 'employee'
   },
 
