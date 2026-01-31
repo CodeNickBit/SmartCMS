@@ -1,8 +1,10 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, OnDestroy } from '@angular/core'; // Added OnDestroy
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SharedSidebarComponent } from './components/sidebar/sidebar.component';
 import { SharedHeaderComponent } from './components/header/header.component';
+import { LeavePolicyService } from '../services/leave-policy.service'; // Import Service
+import { AuthService } from '../services/auth.service'; // Import Auth
 
 @Component({
   selector: 'app-shared-dashboard',
@@ -15,7 +17,7 @@ import { SharedHeaderComponent } from './components/header/header.component';
 
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <!-- Header -->
-        <app-shared-header></app-shared-header>
+        <app-shared-header [notificationCount]="pendingCount"></app-shared-header> 
 
         <!-- Main Content -->
         <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar">
@@ -62,7 +64,7 @@ import { SharedHeaderComponent } from './components/header/header.component';
                     <p class="font-bold text-white text-sm">Manage Employees</p>
                     <p class="text-xs text-slate-400 mt-1">View & edit employees</p>
                   </button>
-                  <button class="p-4 rounded-xl bg-[#101935] border border-blue-900/30 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all group text-left">
+                  <button routerLink="/dashboard/leave-approvals" class="p-4 rounded-xl bg-[#101935] border border-blue-900/30 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all group text-left">
                     <div class="h-10 w-10 rounded-lg bg-[#1B264F] border border-blue-900/30 flex items-center justify-center mb-3 group-hover:text-emerald-400 shadow-sm">
                       <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
@@ -123,16 +125,18 @@ import { SharedHeaderComponent } from './components/header/header.component';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
       .custom-scrollbar::-webkit-scrollbar { width: 6px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
       .custom-scrollbar::-webkit-scrollbar-thumb { background: #1B264F; border-radius: 10px; }
       .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3083DC; }
     `]
 })
-export class SharedDashboardComponent implements OnInit {
+export class SharedDashboardComponent implements OnInit, OnDestroy {
   userName: string = 'User';
   userRole: string = '';
+  pendingCount: number = 0;
+  private pollingInterval: any;
 
   stats = [
     { label: 'Total Employees', value: '452', trend: '12%', trendUp: true, bgClass: 'bg-indigo-100', textClass: 'text-indigo-600', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
@@ -152,7 +156,11 @@ export class SharedDashboardComponent implements OnInit {
     { date: 'Jan 22, 2026', title: 'Quarterly Town Hall', content: 'Join us for the Q1 Town Hall meeting this Friday at 10:00 AM in the main auditorium or via Zoom.' },
   ];
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) { }
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private leaveService: LeavePolicyService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -162,10 +170,39 @@ export class SharedDashboardComponent implements OnInit {
           const user = JSON.parse(userStr);
           this.userName = user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : 'User');
           this.userRole = user.role || '';
+
+          if (this.userRole === 'manager' || this.userRole === 'hr') {
+            this.loadPendingLeaves();
+            this.pollingInterval = setInterval(() => {
+              this.loadPendingLeaves();
+            }, 30000);
+          }
+
         } catch (e) {
           console.error('Error parsing user data', e);
         }
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
+  }
+
+  loadPendingLeaves(): void {
+    const user = this.authService.getUser();
+    if (!user) return;
+    const userId = user._id || user.id;
+
+    if (this.userRole === 'manager') {
+      this.leaveService.getManagerLeaves(userId).subscribe({
+        next: (data) => {
+          this.pendingCount = (data || []).filter((l: any) => l.status === 'Pending').length;
+        }
+      });
+    }
+    // Logic for HR can be added here
   }
 }

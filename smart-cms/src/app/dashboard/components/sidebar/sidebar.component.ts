@@ -26,6 +26,34 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
           <span class="font-medium text-sm">Overview</span>
         </a>
 
+        <!-- Admin Specific Links -->
+        <ng-container *ngIf="userRole === 'admin'">
+          <div class="pt-4 pb-2 px-3">
+             <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Admin</p>
+          </div>
+          <a routerLink="/dashboard/add-users" routerLinkActive="bg-white/5 text-white"
+            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            <span class="font-medium text-sm">Add User</span>
+          </a>
+          <a routerLink="/admin/policy" routerLinkActive="bg-white/5 text-white"
+             class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+             <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+             </svg>
+             <span class="font-medium text-sm">Leave Policy</span>
+          </a>
+          <a routerLink="/admin/year-end" routerLinkActive="bg-white/5 text-white"
+             class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+             <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+             </svg>
+             <span class="font-medium text-sm">Year-End Processing</span>
+          </a>
+        </ng-container>
+
         <!-- HR Specific Links -->
         <ng-container *ngIf="userRole === 'hr'">
           <div class="pt-4 pb-2 px-3">
@@ -52,6 +80,22 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
           <div class="pt-4 pb-2 px-3">
             <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Team</p>
           </div>
+          <!-- Leave Approvals -->
+          <a routerLink="/dashboard/leave-approvals" routerLinkActive="bg-white/5 text-white"
+            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-medium text-sm">Approvals</span>
+          </a>
+          <!-- Team Calendar -->
+          <a routerLink="/dashboard/team-calendar" routerLinkActive="bg-white/5 text-white"
+            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
+            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span class="font-medium text-sm">Team Calendar</span>
+          </a>
           <a routerLink="/dashboard/my-team" routerLinkActive="bg-white/5 text-white"
             class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
             <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,13 +103,7 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
             </svg>
             <span class="font-medium text-sm">My Team</span>
           </a>
-          <a routerLink="/dashboard/leave-approvals" routerLinkActive="bg-white/5 text-white"
-            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-300 hover:bg-white/5 hover:text-white transition-all">
-            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span class="font-medium text-sm">Leave Approvals</span>
-          </a>
+
         </ng-container>
 
         <!-- Common Links -->
