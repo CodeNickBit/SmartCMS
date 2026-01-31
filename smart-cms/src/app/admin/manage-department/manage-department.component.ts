@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { DepartmentService, Department } from '../../services/department.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
+import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-manage-department',
@@ -36,7 +37,7 @@ export class ManageDepartmentComponent implements OnInit {
     description: ''
   };
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private departmentService: DepartmentService) {
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private departmentService: DepartmentService, private confirmationModal: ConfirmationModalService) {
     afterNextRender(() => {
       this.loadDepartments();
     });
@@ -127,19 +128,24 @@ export class ManageDepartmentComponent implements OnInit {
   }
 
   confirmDelete(dept: Department) {
-    if (confirm(`Are you sure you want to delete department ${dept.name}?`)) {
-      if (dept._id) {
-        this.departmentService.deleteDepartment(dept._id).subscribe({
-          next: () => {
-            this.successMessage = 'Department deleted successfully';
-            this.loadDepartments();
-            setTimeout(() => this.successMessage = '', 3000);
-          },
-          error: (error) => {
-            this.errorMessage = error.error?.message || 'Failed to delete department';
-          }
-        });
-      }
-    }
+    this.confirmationModal.confirm({
+      title: 'Delete Department',
+      message: 'Are you sure you want to delete department ' + dept.name + '?',
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      type: 'warning'
+    }).then(confirmed => {
+      if (!confirmed || !dept._id) return;
+      this.departmentService.deleteDepartment(dept._id).subscribe({
+        next: () => {
+          this.successMessage = 'Department deleted successfully';
+          this.loadDepartments();
+          setTimeout(() => this.successMessage = '', 3000);
+        },
+        error: (error) => {
+          this.errorMessage = error.error?.message || 'Failed to delete department';
+        }
+      });
+    });
   }
 }

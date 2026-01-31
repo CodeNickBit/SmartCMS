@@ -8,6 +8,7 @@ import { DepartmentService, Department } from '../services/department.service';
 import { DesignationService, Designation } from '../services/designation.service';
 import { ManagerService, Manager } from '../services/manager.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
+import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 
 @Component({
   selector: 'app-signup',
@@ -37,7 +38,7 @@ export class SignupComponent implements OnInit {
 
   dbDepartments: Department[] = [];
   dbDesignations: Designation[] = [];
-  activeManagers: Manager[] = [];
+  dbManagers: { _id: string; name: string; email: string }[] = [];
 
   constructor(
     private router: Router,
@@ -45,7 +46,8 @@ export class SignupComponent implements OnInit {
     private fb: FormBuilder,
     private departmentService: DepartmentService,
     private designationService: DesignationService,
-    private managerService: ManagerService
+    private managerService: ManagerService,
+    private confirmationModal: ConfirmationModalService
   ) { }
 
   ngOnInit(): void {
@@ -96,6 +98,16 @@ export class SignupComponent implements OnInit {
   }
 
   loadManagers() {
+    this.managerService.getManagers().subscribe({
+      next: (data) => {
+        this.dbManagers = (data || []).map((m: any) => ({
+          _id: m._id || m.id,
+          name: m.name || '',
+          email: m.email || ''
+        }));
+      },
+      error: (error) => {
+        console.error('Error fetching managers:', error);
     console.log('Signup: Loading all active managers...');
     this.managerService.getActiveManagers().subscribe({
       next: (data) => {
@@ -360,7 +372,7 @@ export class SignupComponent implements OnInit {
       employeeId: formValue.employeeId.trim().toUpperCase(),
       department: formValue.department,
       designation: formValue.designation.trim(),
-      reportingManager: formValue.reportingManager?.trim() || undefined,
+      reportingManager: formValue.reportingManager ? String(formValue.reportingManager).trim() : undefined,
       joiningDate: formValue.joiningDate,
       employmentType: formValue.employmentType,
       workLocation: formValue.workLocation.trim(),
@@ -430,14 +442,14 @@ export class SignupComponent implements OnInit {
         }
 
         // If admin was registering, redirect to admin dashboard
-        if (isAdminRegistering) {
-          alert(`Profile created successfully!\n\nMeaningful Employee ID: ${response.user.employeeId}`);
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          alert(`Profile created successfully!\n\nMeaningful Employee ID: ${response.user.employeeId}`);
-          // Otherwise redirect to login page
-          this.router.navigate(['/login']);
-        }
+        const msg = 'Profile created successfully! Employee ID: ' + response.user.employeeId;
+        this.confirmationModal.alert('Success', msg, 'success').then(() => {
+          if (isAdminRegistering) {
+            this.router.navigate(['/admin/dashboard']);
+          } else {
+            this.router.navigate(['/login']);
+          }
+        });
       },
       error: (error) => {
         this.isLoading = false;

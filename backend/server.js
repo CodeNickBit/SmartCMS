@@ -19,8 +19,8 @@ app.use((req, res, next) => {
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/smartcms';
 mongoose.connect(MONGODB_URI)
-.then(() => console.log('MongoDB connected successfully'))
-.catch(err => console.error('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
 app.get('/', (req, res) => {
@@ -41,6 +41,8 @@ app.use('/api/manager', managerRoutes);
 app.use('/api/hr', hrRoutes);
 app.use('/api/department', departmentRoutes);
 app.use('/api/designation', designationRoutes);
+app.use('/api/leave-policy', require('./routes/leavePolicy'));
+app.use('/api/leave', require('./routes/leaveRoutes'));
 app.use('/api/office-locations', officeLocationRoutes);
 app.use('/api/attendance', attendanceRoutes);
 
