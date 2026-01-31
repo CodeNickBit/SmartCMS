@@ -33,12 +33,16 @@ const managerRoutes = require('./routes/manager');
 const hrRoutes = require('./routes/hr');
 const departmentRoutes = require('./routes/department');
 const designationRoutes = require('./routes/designation');
+const officeLocationRoutes = require('./routes/officeLocation');
+const attendanceRoutes = require('./routes/attendance');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/manager', managerRoutes);
 app.use('/api/hr', hrRoutes);
 app.use('/api/department', departmentRoutes);
 app.use('/api/designation', designationRoutes);
+app.use('/api/office-locations', officeLocationRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 // Handle 404 routes with JSON response
 app.use((req, res, next) => {

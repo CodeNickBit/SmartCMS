@@ -6,6 +6,7 @@ import { AuthService, RegisterRequest } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { DepartmentService, Department } from '../services/department.service';
 import { DesignationService, Designation } from '../services/designation.service';
+import { ManagerService, Manager } from '../services/manager.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
 
 @Component({
@@ -36,19 +37,22 @@ export class SignupComponent implements OnInit {
 
   dbDepartments: Department[] = [];
   dbDesignations: Designation[] = [];
+  activeManagers: Manager[] = [];
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private fb: FormBuilder,
     private departmentService: DepartmentService,
-    private designationService: DesignationService
+    private designationService: DesignationService,
+    private managerService: ManagerService
   ) { }
 
   ngOnInit(): void {
     this.initializeForm();
     this.loadDepartments();
     this.loadDesignations();
+    this.loadManagers();
 
     // Watch for gender and marital status changes to show/hide conditional fields
     this.registrationForm.get('gender')?.valueChanges.subscribe(() => {
@@ -62,6 +66,10 @@ export class SignupComponent implements OnInit {
     // Watch for date of birth changes to calculate age
     this.registrationForm.get('dateOfBirth')?.valueChanges.subscribe(() => {
       this.calculateAge();
+    });
+
+    this.registrationForm.get('department')?.valueChanges.subscribe(() => {
+      this.onDepartmentChange();
     });
   }
 
@@ -83,6 +91,44 @@ export class SignupComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching designations:', error);
+      }
+    });
+  }
+
+  loadManagers() {
+    console.log('Signup: Loading all active managers...');
+    this.managerService.getActiveManagers().subscribe({
+      next: (data) => {
+        console.log('Signup: Managers loaded:', data);
+        this.activeManagers = data;
+      },
+      error: (error) => {
+        console.error('Signup: Error fetching managers:', error);
+      }
+    });
+  }
+
+  onDepartmentChange() {
+    const department = this.registrationForm.get('department')?.value;
+    console.log('Signup: Department changed to:', department);
+    if (department) {
+      this.loadManagersByDepartment(department);
+    }
+  }
+
+  loadManagersByDepartment(department: string) {
+    console.log('Signup: Loading managers for department:', department);
+    this.managerService.getActiveManagers(department).subscribe({
+      next: (data) => {
+        console.log('Signup: Filtered managers:', data);
+        this.activeManagers = data;
+        const currentManager = this.registrationForm.get('reportingManager')?.value;
+        if (currentManager && !data.find(m => m.name === currentManager)) {
+          this.registrationForm.patchValue({ reportingManager: '' });
+        }
+      },
+      error: (error) => {
+        console.error('Signup: Error fetching managers:', error);
       }
     });
   }
