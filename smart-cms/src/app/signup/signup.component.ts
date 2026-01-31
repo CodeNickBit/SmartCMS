@@ -6,7 +6,7 @@ import { AuthService, RegisterRequest } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { DepartmentService, Department } from '../services/department.service';
 import { DesignationService, Designation } from '../services/designation.service';
-import { ManagerService } from '../services/manager.service';
+import { ManagerService, Manager } from '../services/manager.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
 import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 
@@ -69,6 +69,10 @@ export class SignupComponent implements OnInit {
     this.registrationForm.get('dateOfBirth')?.valueChanges.subscribe(() => {
       this.calculateAge();
     });
+
+    this.registrationForm.get('department')?.valueChanges.subscribe(() => {
+      this.onDepartmentChange();
+    });
   }
 
   loadDepartments() {
@@ -104,6 +108,39 @@ export class SignupComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching managers:', error);
+    console.log('Signup: Loading all active managers...');
+    this.managerService.getActiveManagers().subscribe({
+      next: (data) => {
+        console.log('Signup: Managers loaded:', data);
+        this.activeManagers = data;
+      },
+      error: (error) => {
+        console.error('Signup: Error fetching managers:', error);
+      }
+    });
+  }
+
+  onDepartmentChange() {
+    const department = this.registrationForm.get('department')?.value;
+    console.log('Signup: Department changed to:', department);
+    if (department) {
+      this.loadManagersByDepartment(department);
+    }
+  }
+
+  loadManagersByDepartment(department: string) {
+    console.log('Signup: Loading managers for department:', department);
+    this.managerService.getActiveManagers(department).subscribe({
+      next: (data) => {
+        console.log('Signup: Filtered managers:', data);
+        this.activeManagers = data;
+        const currentManager = this.registrationForm.get('reportingManager')?.value;
+        if (currentManager && !data.find(m => m.name === currentManager)) {
+          this.registrationForm.patchValue({ reportingManager: '' });
+        }
+      },
+      error: (error) => {
+        console.error('Signup: Error fetching managers:', error);
       }
     });
   }

@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { DepartmentService, Department } from '../../services/department.service';
 import { DesignationService, Designation } from '../../services/designation.service';
+import { ManagerService, Manager } from '../../services/manager.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
 import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
@@ -31,6 +32,7 @@ export class ManageEmployeeComponent implements OnInit {
 
   dbDepartments: Department[] = [];
   dbDesignations: Designation[] = [];
+  activeManagers: Manager[] = [];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -39,11 +41,13 @@ export class ManageEmployeeComponent implements OnInit {
     private departmentService: DepartmentService,
     private designationService: DesignationService,
     private confirmationModal: ConfirmationModalService
+    private managerService: ManagerService
   ) {
     afterNextRender(() => {
       this.loadEmployees();
       this.loadDepartments();
       this.loadDesignations();
+      this.loadManagers();
     });
   }
 
@@ -52,6 +56,7 @@ export class ManageEmployeeComponent implements OnInit {
       this.loadEmployees();
       this.loadDepartments();
       this.loadDesignations();
+      this.loadManagers();
     }
   }
 
@@ -88,6 +93,42 @@ export class ManageEmployeeComponent implements OnInit {
     });
   }
 
+  loadManagers() {
+    console.log('Loading all active managers...');
+    this.managerService.getActiveManagers().subscribe({
+      next: (data) => {
+        console.log('Managers loaded:', data);
+        this.activeManagers = data;
+      },
+      error: (error) => {
+        console.error('Error fetching managers:', error);
+      }
+    });
+  }
+
+  onDepartmentChange() {
+    console.log('Department changed:', this.editingEmployee?.department);
+    if (this.editingEmployee && this.editingEmployee.department) {
+      this.loadManagersByDepartment(this.editingEmployee.department);
+    }
+  }
+
+  loadManagersByDepartment(department: string) {
+    console.log('Loading managers for department:', department);
+    this.managerService.getActiveManagers(department).subscribe({
+      next: (data) => {
+        console.log('Filtered managers:', data);
+        this.activeManagers = data;
+        if (this.editingEmployee && !data.find(m => m.name === this.editingEmployee.reportingManager)) {
+          this.editingEmployee.reportingManager = '';
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching managers:', error);
+      }
+    });
+  }
+
   get filteredEmployees() {
     return this.employees.filter(emp => {
       const name = emp.name || `${emp.firstName} ${emp.lastName}` || '';
@@ -120,6 +161,9 @@ export class ManageEmployeeComponent implements OnInit {
       }
     }
     this.isEditing = true;
+    if (this.editingEmployee.department) {
+      this.loadManagersByDepartment(this.editingEmployee.department);
+    }
   }
 
   cancelEdit() {
