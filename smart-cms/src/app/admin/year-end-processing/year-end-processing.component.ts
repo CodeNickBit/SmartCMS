@@ -15,7 +15,7 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
         <app-admin-sidebar class="flex-shrink-0"></app-admin-sidebar> 
         
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-            <app-admin-header></app-admin-header>
+            <app-admin-header title="Year-End Processing"></app-admin-header>
             
             <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar">
                 

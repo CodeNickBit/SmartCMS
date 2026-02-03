@@ -146,7 +146,7 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
           </div>
           <div class="flex justify-end gap-2">
             <button (click)="detailConfirmMode = 'view'" class="px-4 py-2 text-slate-300 hover:text-white rounded-lg text-sm font-medium">Cancel</button>
-            <button (click)="confirmReject()" [disabled]="!rejectReasonInModal?.trim()"
+            <button (click)="confirmReject()" [disabled]="!rejectReasonInModal.trim()"
               class="px-4 py-2 bg-rose-600 hover:bg-rose-500 disabled:opacity-50 disabled:pointer-events-none text-white rounded-lg text-sm font-bold">Confirm Reject</button>
           </div>
         </div>

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Admin = require('../models/Admin');
+const Manager = require('../models/Manager');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
@@ -181,9 +182,24 @@ router.post('/register', async (req, res) => {
       password
     });
 
-    // If employeeId wasn't provided, use the generated _id
     if (!user.employeeId) {
       user.employeeId = user._id;
+    }
+
+    if (reportingManager && String(reportingManager).trim()) {
+      const rm = String(reportingManager).trim();
+      let manager = null;
+      if (/^[0-9a-fA-F]{24}$/.test(rm)) {
+        manager = await Manager.findById(rm);
+      }
+      if (!manager) {
+        manager = await Manager.findOne({ email: new RegExp(`^${rm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
+      }
+      if (manager) {
+        user.reportingManager = String(manager._id);
+      } else {
+        return res.status(400).json({ message: 'Reporting manager not found. Please select a valid manager from the list (name and email).' });
+      }
     }
 
     await user.save();
@@ -271,69 +287,71 @@ router.post('/login', async (req, res) => {
     let role = null;
     let collectionName = '';
 
-    // 1. Check Admin
-    const admin = await Admin.findOne({ email: emailRegex });
-    console.log('Admin found:', !!admin);
-    if (admin) {
-      if (!admin.isActive) return res.status(401).json({ message: 'Account deactivated' });
-
-      let isValid = false;
-      const isHashed = admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$') || admin.password.startsWith('$2y$');
-      console.log('Admin password hashed:', isHashed);
-      if (isHashed) {
-        isValid = await admin.comparePassword(password);
-      } else if (admin.password === password) {
-        isValid = true;
-        // Auto-hash logic if needed, skipping for brevity/safety unless requested
-      }
-      console.log('Admin password valid:', isValid);
-
-      if (isValid) {
-        user = admin;
-        role = admin.role; // 'admin'
-        collectionName = 'Admin';
+    const emp = await User.findOne({ email: emailRegex });
+    console.log('Employee found:', !!emp);
+    if (emp) {
+      console.log('Employee email:', emp.email, 'Active:', emp.active_inactive);
+      if (emp.active_inactive === false) return res.status(401).json({ message: 'Account deactivated' });
+      const passwordMatch = await emp.comparePassword(password);
+      console.log('Employee password match:', passwordMatch);
+      if (passwordMatch) {
+        user = emp;
+        role = 'employee';
+        collectionName = 'User';
+        console.log('Logging in as EMPLOYEE');
       }
     }
 
-    // 2. Check HR (if not found yet)
     if (!user) {
-      const Hr = require('../models/Hr'); // Lazy load to ensure model is registered
-      const hr = await Hr.findOne({ email: emailRegex });
-      if (hr) {
-        if (!hr.isActive) return res.status(401).json({ message: 'Account deactivated' });
-        if (await hr.comparePassword(password)) {
-          user = hr;
-          role = hr.role; // 'hr'
-          collectionName = 'Hr';
+      const admin = await Admin.findOne({ email: emailRegex });
+      console.log('Admin found:', !!admin);
+      if (admin) {
+        if (!admin.isActive) return res.status(401).json({ message: 'Account deactivated' });
+
+        let isValid = false;
+        const isHashed = admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$') || admin.password.startsWith('$2y$');
+        console.log('Admin password hashed:', isHashed);
+        if (isHashed) {
+          isValid = await admin.comparePassword(password);
+        } else if (admin.password === password) {
+          isValid = true;
+        }
+        console.log('Admin password valid:', isValid);
+
+        if (isValid) {
+          user = admin;
+          role = admin.role;
+          collectionName = 'Admin';
         }
       }
     }
 
-    // 3. Check Manager (if not found yet)
+    if (!user) {
+      const Hr = require('../models/Hr');
+      const hr = await Hr.findOne({ email: emailRegex });
+      console.log('HR found:', !!hr);
+      if (hr) {
+        if (!hr.isActive) return res.status(401).json({ message: 'Account deactivated' });
+        const passwordMatch = await hr.comparePassword(password);
+        console.log('HR password match:', passwordMatch);
+        if (passwordMatch) {
+          user = hr;
+          role = 'hr';
+          collectionName = 'Hr';
+          console.log('Logging in as HR');
+        }
+      }
+    }
+
     if (!user) {
       const Manager = require('../models/Manager');
       const manager = await Manager.findOne({ email: emailRegex });
       if (manager) {
         if (!manager.isActive) return res.status(401).json({ message: 'Account deactivated' });
-        // Manager uses temporaryPassword hash comparison
         if (await manager.comparePassword(password)) {
           user = manager;
-          role = manager.role; // 'manager'
+          role = 'manager';
           collectionName = 'Manager';
-        }
-      }
-    }
-
-    // 4. Check User/Employee (if not found yet)
-    if (!user) {
-      const emp = await User.findOne({ email: emailRegex });
-      if (emp) {
-        // Check active_inactive instead of isActive for User model
-        if (emp.active_inactive === false) return res.status(401).json({ message: 'Account deactivated' });
-        if (await emp.comparePassword(password)) {
-          user = emp;
-          role = emp.role; // 'employee'
-          collectionName = 'User';
         }
       }
     }
@@ -359,7 +377,7 @@ router.post('/login', async (req, res) => {
 
     // Generate JWT
     const token = jwt.sign(
-      { id: user._id, email: user.email, role: role },
+      { id: user._id, email: user.email, role: role, name: user.name || user.firstName + ' ' + user.lastName },
       process.env.JWT_SECRET || 'secret_key_change_this_in_production',
       { expiresIn: '24h' }
     );
@@ -600,8 +618,23 @@ router.put('/users/:id', async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-    // Don't allow password update through this route for safety
     delete updates.password;
+
+    if (updates.reportingManager !== undefined && updates.reportingManager !== null && String(updates.reportingManager).trim()) {
+      const rm = String(updates.reportingManager).trim();
+      let manager = null;
+      if (/^[0-9a-fA-F]{24}$/.test(rm)) {
+        manager = await Manager.findById(rm);
+      }
+      if (!manager) {
+        manager = await Manager.findOne({ email: new RegExp(`^${rm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
+      }
+      if (manager) {
+        updates.reportingManager = String(manager._id);
+      } else {
+        return res.status(400).json({ message: 'Reporting manager not found. Please select a valid manager from the list.' });
+      }
+    }
 
     const user = await User.findByIdAndUpdate(id, updates, { new: true }).select('-password');
     if (!user) {
