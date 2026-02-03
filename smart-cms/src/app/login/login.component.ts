@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, MatSnackBarModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   email: string = '';
@@ -16,13 +18,27 @@ export class LoginComponent {
   isLoading: boolean = false;
   errors: { [key: string]: string } = {};
 
+  // Forgot Password State
+  showForgotModal: boolean = false;
+  resetStep: number = 1; // 1: Email, 2: OTP, 3: New Password
+  resetEmail: string = '';
+  resetOtp: string = '';
+  newPassword: string = '';
+  confirmPassword: string = '';
+  resetToken: string = '';
+  resetLoading: boolean = false;
+  resetError: string = '';
+
+  showPassword: boolean = false;
+
+  constructor(private authService: AuthService, private router: Router, private snackBar: MatSnackBar) { }
   // Validate Email
   validateEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email.trim());
   }
 
-  // Validate single field
+  // .. (validateField and validateForm are unchanged) ..
   validateField(fieldName: string): void {
     switch (fieldName) {
       case 'email':
@@ -57,32 +73,130 @@ export class LoginComponent {
 
   onSubmit() {
     if (this.isLoading) return;
-    
+
     if (!this.validateForm()) {
-      // Scroll to first error
-      const firstError = Object.keys(this.errors)[0];
-      if (firstError) {
-        const element = document.querySelector(`[name="${firstError}"]`);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
       return;
     }
-    
+
     this.isLoading = true;
-    console.log('Login attempt:', { 
-      email: this.email, 
-      password: this.password,
-      rememberMe: this.rememberMe,
-      timestamp: new Date().toISOString()
+    this.authService.login({ email: this.email, password: this.password })
+      .subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          this.snackBar.open(response.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['success-snackbar'] });
+
+          // Store session
+          // Backend returns token at top level
+          const token = response.token || '';
+          const user = response.user;
+
+          if (token) {
+            localStorage.setItem('token', token);
+          }
+          if (user) {
+            localStorage.setItem('user', JSON.stringify(user));
+          }
+
+            // Navigate based on role
+            if (response.role === 'admin') {
+              this.router.navigate(['/admin/dashboard']);
+            } else if (response.role === 'hr' || response.role === 'manager') {
+              this.router.navigate(['/dashboard']);
+            } else {
+              // Navigate to user home page
+              this.router.navigate(['/home']);
+            }
+
+        },
+        error: (error) => {
+          this.isLoading = false;
+          console.error('Login Error:', error);
+          if (error.error && error.error.message) {
+            this.snackBar.open(error.error.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['error-snackbar'] });
+            this.errors['general'] = error.error.message;
+          } else {
+            this.snackBar.open('Login failed: ' + error.message, 'Close', { duration: 3000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['error-snackbar'] });
+            this.errors['general'] = 'Login failed: ' + error.message;
+          }
+        }
+      });
+  }
+
+  // Forgot Password Methods
+  openForgotModal() {
+    this.showForgotModal = true;
+    this.resetStep = 1;
+    this.resetEmail = '';
+    this.resetOtp = '';
+    this.newPassword = '';
+    this.confirmPassword = '';
+    this.resetError = '';
+  }
+
+  closeForgotModal() {
+    this.showForgotModal = false;
+  }
+
+  sendResetOtp() {
+    if (!this.validateEmail(this.resetEmail)) {
+      this.resetError = 'Please enter a valid email address';
+      return;
+    }
+    this.resetLoading = true;
+    this.resetError = '';
+    this.authService.sendOTP(this.resetEmail).subscribe({
+      next: (res) => {
+        this.resetLoading = false;
+        this.resetStep = 2;
+      },
+      error: (err) => {
+        this.resetLoading = false;
+        console.error('Send OTP Error:', err);
+        this.resetError = err.error?.message || 'Failed to send OTP';
+      }
     });
-    
-    // Simulate API call
-    setTimeout(() => {
-      this.isLoading = false;
-      // Add your authentication logic here
-      console.log('Authentication completed');
-    }, 2000);
+  }
+
+  verifyResetOtp() {
+    this.resetLoading = true;
+    this.resetError = '';
+    this.authService.verifyOTP(this.resetEmail, this.resetOtp, true).subscribe({
+      next: (res) => {
+        this.resetLoading = false;
+        this.resetToken = res.resetToken || '';
+        this.resetStep = 3;
+      },
+      error: (err) => {
+        this.resetLoading = false;
+        console.error('Verify OTP Error:', err);
+        this.resetError = err.error?.message || 'Invalid OTP';
+      }
+    });
+  }
+
+  submitResetPassword() {
+    if (this.newPassword.length < 8) {
+      this.resetError = 'Password must be at least 8 characters';
+      return;
+    }
+    if (this.newPassword !== this.confirmPassword) {
+      this.resetError = 'Passwords do not match';
+      return;
+    }
+
+    this.resetLoading = true;
+    this.resetError = '';
+    this.authService.resetPassword(this.resetEmail, this.newPassword, this.resetToken).subscribe({
+      next: (res) => {
+        this.resetLoading = false;
+        this.snackBar.open('Password reset successfully! You can now login with your new password.', 'Close', { duration: 5000, horizontalPosition: 'right', verticalPosition: 'top', panelClass: ['success-snackbar'] });
+        this.closeForgotModal();
+      },
+      error: (err) => {
+        this.resetLoading = false;
+        console.error('Reset Password Error:', err);
+        this.resetError = err.error?.message || 'Failed to reset password';
+      }
+    });
   }
 }

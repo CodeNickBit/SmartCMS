@@ -1,0 +1,49 @@
+<!-- Top Bar (Matching Add Users) -->
+<header class="h-16 bg-[#1B264F] border-b border-blue-900/30 flex items-center justify-between px-6 shrink-0 z-10">
+  <div class="flex items-center gap-4">
+    <button class="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-700/50">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <h1 class="text-xl font-bold text-white tracking-tight hidden sm:block">{{ title }}</h1>
+  </div>
+
+  <div class="flex items-center gap-6">
+    <div class="relative hidden lg:block group">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <svg class="h-4 w-4 text-slate-400 group-focus-within:text-[#3083DC] transition-colors" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+      <input type="text" [ngModel]="searchQuery" (ngModelChange)="onSearchChange($event)"
+        class="bg-[#101935] border border-slate-600 text-slate-300 text-sm rounded-full focus:ring-2 focus:ring-[#3083DC]/50 focus:border-[#3083DC] block w-80 pl-10 p-2.5 placeholder-slate-500 transition-all outline-none"
+        placeholder="Search...">
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        class="group relative p-2.5 rounded-full text-slate-400 hover:text-white hover:bg-[#3083DC]/20 transition-all">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.21 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        <span class="absolute top-2 right-2.5 h-2 w-2 rounded-full bg-red-500 border border-[#1B264F]"></span>
+        <span
+          class="absolute top-10 right-0 px-2 py-1 bg-slate-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-slate-700">Notifications</span>
+      </button>
+
+      <button
+        class="group relative p-2.5 rounded-full text-slate-400 hover:text-white hover:bg-[#3083DC]/20 transition-all">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        <span
+          class="absolute top-10 right-0 px-2 py-1 bg-slate-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50 border border-slate-700">Messages</span>
+      </button>
+    </div>
+  </div>
+</header>

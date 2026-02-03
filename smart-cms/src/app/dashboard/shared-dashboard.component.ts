@@ -1,0 +1,208 @@
+import { Component, OnInit, PLATFORM_ID, Inject, OnDestroy } from '@angular/core'; // Added OnDestroy
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { SharedSidebarComponent } from './components/sidebar/sidebar.component';
+import { SharedHeaderComponent } from './components/header/header.component';
+import { LeavePolicyService } from '../services/leave-policy.service'; // Import Service
+import { AuthService } from '../services/auth.service'; // Import Auth
+
+@Component({
+  selector: 'app-shared-dashboard',
+  standalone: true,
+  imports: [CommonModule, RouterModule, SharedSidebarComponent, SharedHeaderComponent],
+  template: `
+    <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+      <!-- Sidebar -->
+      <app-shared-sidebar class="flex-shrink-0"></app-shared-sidebar>
+
+      <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <!-- Header -->
+        <app-shared-header [notificationCount]="pendingCount"></app-shared-header> 
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar">
+          <div class="max-w-7xl mx-auto">
+            <!-- Welcome Section -->
+            <div class="mb-8">
+              <h1 class="text-3xl font-bold text-white tracking-tight">Dashboard Overview</h1>
+              <p class="text-slate-400 mt-2 font-medium">Welcome back, {{ userName }}! Here's what's happening today.</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+              <div *ngFor="let stat of stats" class="bg-[#1B264F] border border-blue-900/30 rounded-xl p-6 shadow-lg relative overflow-hidden group hover:border-[#3083DC]/50 transition-all">
+                <div class="flex items-center justify-between mb-4">
+                  <div [class]="'p-3 rounded-xl bg-opacity-20 ' + stat.bgClass + ' ' + stat.textClass">
+                    <span [innerHTML]="stat.icon"></span>
+                  </div>
+                  <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">{{ stat.label }}</span>
+                </div>
+                <div class="flex items-baseline space-x-2">
+                  <h3 class="text-2xl font-bold text-white">{{ stat.value }}</h3>
+                  <span [class]="'text-xs font-bold ' + (stat.trendUp ? 'text-emerald-400' : 'text-rose-400')">
+                    {{ stat.trendUp ? '↑' : '↓' }} {{ stat.trend }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Role Based Features -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <!-- HR Section -->
+              <div *ngIf="userRole === 'hr'" class="bg-[#1B264F] border border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
+                  <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <span class="h-2 w-2 bg-[#3083DC] rounded-full"></span>
+                    <span>HR Management Quick Actions</span>
+                  </h2>
+                </div>
+                <div class="p-8 grid grid-cols-2 gap-4">
+                  <button routerLink="/dashboard/employees" class="p-4 rounded-xl bg-[#101935] border border-blue-900/30 hover:border-[#3083DC]/50 hover:bg-[#3083DC]/10 transition-all group text-left">
+                    <div class="h-10 w-10 rounded-lg bg-[#1B264F] border border-blue-900/30 flex items-center justify-center mb-3 group-hover:text-[#3083DC] shadow-sm">
+                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                    </div>
+                    <p class="font-bold text-white text-sm">Manage Employees</p>
+                    <p class="text-xs text-slate-400 mt-1">View & edit employees</p>
+                  </button>
+                  <button routerLink="/dashboard/leave-approvals" class="p-4 rounded-xl bg-[#101935] border border-blue-900/30 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all group text-left">
+                    <div class="h-10 w-10 rounded-lg bg-[#1B264F] border border-blue-900/30 flex items-center justify-center mb-3 group-hover:text-emerald-400 shadow-sm">
+                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <p class="font-bold text-white text-sm">Approvals</p>
+                    <p class="text-xs text-slate-400 mt-1">Review pending requests</p>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Manager Section -->
+              <div *ngIf="userRole === 'manager'" class="bg-[#1B264F] border border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
+                  <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <span class="h-2 w-2 bg-emerald-500 rounded-full"></span>
+                    <span>Team Overview</span>
+                  </h2>
+                </div>
+                <div class="p-8">
+                  <div class="space-y-4">
+                    <div *ngFor="let member of team" class="flex items-center justify-between p-4 rounded-xl bg-[#101935] border border-blue-900/20">
+                      <div class="flex items-center space-x-4">
+                        <div class="h-10 w-10 rounded-lg bg-[#3083DC]/20 flex items-center justify-center text-[#3083DC] font-bold text-xs">
+                          {{ member.name.charAt(0) }}
+                        </div>
+                        <div>
+                          <p class="font-bold text-white text-sm">{{ member.name }}</p>
+                          <p class="text-xs text-slate-400">{{ member.role }}</p>
+                        </div>
+                      </div>
+                      <span [class]="'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ' + (member.status === 'Active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400')">
+                        {{ member.status }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Announcements -->
+              <div class="bg-[#1B264F] border border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
+                  <h2 class="text-lg font-bold text-white flex items-center space-x-2">
+                    <span class="h-2 w-2 bg-rose-500 rounded-full"></span>
+                    <span>Recent Announcements</span>
+                  </h2>
+                </div>
+                <div class="p-8 space-y-6">
+                  <div *ngFor="let item of announcements" class="relative pl-6 border-l-2 border-blue-900/20 group">
+                    <div class="absolute -left-[5px] top-0 h-2 w-2 rounded-full bg-slate-600 group-hover:bg-[#3083DC] transition-colors"></div>
+                    <p class="text-xs font-bold text-[#3083DC] mb-1 uppercase tracking-widest">{{ item.date }}</p>
+                    <h4 class="font-bold text-white text-sm mb-1">{{ item.title }}</h4>
+                    <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">{{ item.content }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  `,
+  styles: [`
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: #1B264F; border-radius: 10px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3083DC; }
+    `]
+})
+export class SharedDashboardComponent implements OnInit, OnDestroy {
+  userName: string = 'User';
+  userRole: string = '';
+  pendingCount: number = 0;
+  private pollingInterval: any;
+
+  stats = [
+    { label: 'Total Employees', value: '452', trend: '12%', trendUp: true, bgClass: 'bg-indigo-100', textClass: 'text-indigo-600', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
+    { label: 'On Leave', value: '18', trend: '2%', trendUp: false, bgClass: 'bg-rose-100', textClass: 'text-rose-600', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>' },
+    { label: 'Open Positions', value: '12', trend: '5%', trendUp: true, bgClass: 'bg-emerald-100', textClass: 'text-emerald-600', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>' },
+    { label: 'Pending Approvals', value: '24', trend: '8%', trendUp: true, bgClass: 'bg-amber-100', textClass: 'text-amber-600', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' },
+  ];
+
+  team = [
+    { name: 'Alex Johnson', role: 'UI Developer', status: 'Active' },
+    { name: 'Sarah Williams', role: 'UX Designer', status: 'In Meeting' },
+    { name: 'Mike Brown', role: 'Backend Engineer', status: 'Active' },
+  ];
+
+  announcements = [
+    { date: 'Jan 25, 2026', title: 'New Remote Work Policy', content: 'Updated guidelines for remote work and flexible hours have been posted to the employee handbook.' },
+    { date: 'Jan 22, 2026', title: 'Quarterly Town Hall', content: 'Join us for the Q1 Town Hall meeting this Friday at 10:00 AM in the main auditorium or via Zoom.' },
+  ];
+
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private leaveService: LeavePolicyService,
+    private authService: AuthService
+  ) { }
+
+  ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          this.userName = user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : 'User');
+          this.userRole = user.role || '';
+
+          if (this.userRole === 'manager' || this.userRole === 'hr') {
+            this.loadPendingLeaves();
+            this.pollingInterval = setInterval(() => {
+              this.loadPendingLeaves();
+            }, 30000);
+          }
+
+        } catch (e) {
+          console.error('Error parsing user data', e);
+        }
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+    }
+  }
+
+  loadPendingLeaves(): void {
+    const user = this.authService.getUser();
+    if (!user) return;
+    const userId = user._id || user.id;
+
+    if (this.userRole === 'manager') {
+      this.leaveService.getManagerLeaves(userId).subscribe({
+        next: (data) => {
+          this.pendingCount = (data || []).filter((l: any) => l.status === 'Pending').length;
+        }
+      });
+    }
+    // Logic for HR can be added here
+  }
+}
