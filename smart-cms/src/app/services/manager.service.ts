@@ -4,6 +4,15 @@ import { Observable } from 'rxjs';
 
 const API_URL = 'http://localhost:3000/api/manager';
 
+export interface Manager {
+  _id: string;
+  name: string;
+  email: string;
+  department: string;
+  designation: string;
+  isActive: boolean;
+}
+
 export interface ManagerRegistrationRequest {
   name: string;
   email: string;
@@ -13,22 +22,40 @@ export interface ManagerRegistrationRequest {
   joiningDate?: string;
 }
 
+export interface ManagerUpdateRequest {
+  email?: string;
+  department?: string;
+  designation?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ManagerService {
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  registerManager(data: ManagerRegistrationRequest): Observable<any> {
-    return this.http.post(`${API_URL}/register`, data);
+  getActiveManagers(department?: string): Observable<Manager[]> {
+    let url = `${API_URL}/active`;
+    if (department) {
+      url += `?department=${encodeURIComponent(department)}`;
+    }
+    return this.http.get<Manager[]>(url);
   }
 
-  getManagers(): Observable<any[]> {
-    return this.http.get<any[]>(`${API_URL}/`);
+  getAllManagers(): Observable<Manager[]> {
+    return this.http.get<Manager[]>(API_URL);
   }
 
-  updateManager(id: string, data: any): Observable<any> {
-    return this.http.put(`${API_URL}/${id}`, data);
+  getManagers(): Observable<Manager[]> {
+    return this.getAllManagers();
+  }
+
+  registerManager(manager: ManagerRegistrationRequest): Observable<any> {
+    return this.http.post(`${API_URL}/register`, manager);
+  }
+
+  updateManager(id: string, updates: ManagerUpdateRequest): Observable<any> {
+    return this.http.put(`${API_URL}/${id}`, updates);
   }
 
   deleteManager(id: string): Observable<any> {

@@ -53,7 +53,7 @@ const leaveRequestSchema = new mongoose.Schema({
     },
     managerId: {
         type: String,
-        ref: 'User'  // Fixed: was 'Manager', should be 'User'
+        ref: 'Manager'
     },
     rejectionReason: {
         type: String,

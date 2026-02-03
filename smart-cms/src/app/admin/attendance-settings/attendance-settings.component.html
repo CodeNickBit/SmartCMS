@@ -1,0 +1,304 @@
+<div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <div class="flex-1 flex flex-col h-full relative min-w-0">
+    <app-admin-header title="Attendance Settings" [(searchQuery)]="searchQuery"></app-admin-header>
+
+    <main class="flex-1 overflow-y-auto bg-[#101935] scroll-smooth">
+      <div class="max-w-full mx-auto p-6 lg:p-8 space-y-8">
+        
+        <div *ngIf="successMessage" class="bg-emerald-900/30 border border-emerald-700 text-emerald-300 px-6 py-4 rounded-xl animate-fade-in">
+          <div class="flex items-center gap-3">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-bold">{{ successMessage }}</span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-3xl font-bold text-white tracking-tight">Office Locations</h1>
+            <p class="text-slate-400 mt-2 font-medium">Configure geofence locations for attendance tracking</p>
+          </div>
+          <button (click)="openAddModal()"
+            class="bg-[#3083DC] hover:bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-lg flex items-center gap-2 transition-all shadow-lg shadow-blue-500/20">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Location
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div *ngFor="let location of filteredLocations" 
+            class="bg-[#1B264F] border border-blue-900/30 rounded-2xl p-6 shadow-xl hover:border-[#3083DC]/50 transition-all group">
+            
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1">
+                <h3 class="text-xl font-bold text-white mb-1">{{ location.name }}</h3>
+                <p class="text-sm text-slate-400 flex items-center gap-2">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {{ location.address }}
+                </p>
+              </div>
+              <span [class]="location.isActive ? 'bg-emerald-900/30 text-emerald-300 border-emerald-700' : 'bg-orange-900/30 text-orange-300 border-orange-700'"
+                class="px-3 py-1 rounded-full text-xs font-bold border">
+                {{ location.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+
+            <div class="space-y-3 mb-6">
+              <div class="flex items-center justify-between p-3 bg-[#101935] rounded-lg border border-slate-700">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Latitude</span>
+                <span class="text-sm font-bold text-white">{{ location.latitude }}</span>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-[#101935] rounded-lg border border-slate-700">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Longitude</span>
+                <span class="text-sm font-bold text-white">{{ location.longitude }}</span>
+              </div>
+              <div class="flex items-center justify-between p-3 bg-[#101935] rounded-lg border border-slate-700">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Radius</span>
+                <span class="text-sm font-bold text-[#3083DC]">{{ location.radius }}m</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button (click)="openInMaps(location.latitude, location.longitude)"
+                class="flex-1 px-4 py-2 bg-[#101935] border border-slate-600 text-slate-300 text-sm font-bold rounded-lg hover:bg-slate-700 hover:text-white transition-all flex items-center justify-center gap-2">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                </svg>
+                View Map
+              </button>
+              <button (click)="editLocation(location)"
+                class="p-2 bg-[#101935] border border-slate-600 text-slate-300 rounded-lg hover:text-[#3083DC] hover:border-[#3083DC] transition-all">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button (click)="toggleStatus(location)"
+                class="p-2 bg-[#101935] border border-slate-600 text-slate-300 rounded-lg hover:text-emerald-400 hover:border-emerald-400 transition-all">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              <button (click)="deleteLocation(location)"
+                class="p-2 bg-[#101935] border border-slate-600 text-slate-300 rounded-lg hover:text-red-400 hover:border-red-400 transition-all">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="filteredLocations.length === 0" class="col-span-full">
+            <div class="bg-[#1B264F] border border-blue-900/30 rounded-2xl p-12 text-center">
+              <svg class="h-16 w-16 mx-auto text-slate-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <h3 class="text-xl font-bold text-slate-400 mb-2">No office locations found</h3>
+              <p class="text-slate-500 mb-6">Add your first office location to start tracking attendance</p>
+              <button (click)="openAddModal()"
+                class="bg-[#3083DC] hover:bg-blue-600 text-white text-sm font-bold px-6 py-3 rounded-lg inline-flex items-center gap-2 transition-all">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Location
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<div *ngIf="showAddModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div class="bg-[#1B264F] rounded-2xl shadow-2xl w-full max-w-2xl border border-blue-900/30 animate-fade-in">
+    <div class="flex items-center justify-between p-6 border-b border-blue-900/30">
+      <h2 class="text-2xl font-bold text-white">Add Office Location</h2>
+      <button (click)="closeAddModal()" class="text-slate-400 hover:text-white transition-colors">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-6">
+      <div *ngIf="errorMessage" class="bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-sm font-bold">
+        {{ errorMessage }}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Office Name *</label>
+          <input type="text" [(ngModel)]="newLocation.name" placeholder="e.g., Head Office"
+            class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Geofence Radius (meters) *</label>
+          <input type="number" [(ngModel)]="newLocation.radius" min="50" max="1000" placeholder="100"
+            class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Address *</label>
+          <button (click)="fetchAddressManually(false)" type="button"
+            class="text-xs font-bold text-[#3083DC] hover:text-blue-400 transition-colors flex items-center gap-1">
+            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Fetch from Coordinates
+          </button>
+        </div>
+        <input type="text" [(ngModel)]="newLocation.address" placeholder="e.g., Connaught Place, New Delhi"
+          class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+      </div>
+
+      <div class="bg-[#101935] border border-slate-700 rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider">GPS Coordinates</h3>
+          <button (click)="getCurrentLocation(false)" [disabled]="isGettingLocation"
+            class="bg-[#3083DC] hover:bg-blue-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+            <svg class="h-4 w-4" [class.animate-spin]="isGettingLocation" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            {{ isGettingLocation ? 'Getting Location...' : 'Use Current Location' }}
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Latitude *</label>
+            <input type="number" [(ngModel)]="newLocation.latitude" step="0.000001" placeholder="28.6139"
+              class="w-full bg-[#1B264F] border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Longitude *</label>
+            <input type="number" [(ngModel)]="newLocation.longitude" step="0.000001" placeholder="77.2090"
+              class="w-full bg-[#1B264F] border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <input type="checkbox" [(ngModel)]="newLocation.isActive" id="newActive"
+          class="w-4 h-4 bg-[#101935] border border-slate-600 rounded text-[#3083DC] focus:ring-[#3083DC]/20 transition-all">
+        <label for="newActive" class="text-sm font-bold text-slate-300">Active (Enable attendance tracking for this location)</label>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 p-6 border-t border-blue-900/30">
+      <button (click)="closeAddModal()"
+        class="px-6 py-2.5 border border-slate-600 text-slate-300 text-sm font-bold rounded-lg hover:bg-[#101935] transition-all">
+        Cancel
+      </button>
+      <button (click)="submitLocation()"
+        class="px-6 py-2.5 bg-[#3083DC] hover:bg-blue-600 text-white text-sm font-bold rounded-lg shadow-lg shadow-blue-500/20 transition-all">
+        Add Location
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="showEditModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div class="bg-[#1B264F] rounded-2xl shadow-2xl w-full max-w-2xl border border-blue-900/30 animate-fade-in">
+    <div class="flex items-center justify-between p-6 border-b border-blue-900/30">
+      <h2 class="text-2xl font-bold text-white">Edit Office Location</h2>
+      <button (click)="closeEditModal()" class="text-slate-400 hover:text-white transition-colors">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 space-y-6">
+      <div *ngIf="errorMessage" class="bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-sm font-bold">
+        {{ errorMessage }}
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Office Name *</label>
+          <input type="text" [(ngModel)]="editingLocation.name" placeholder="e.g., Head Office"
+            class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Geofence Radius (meters) *</label>
+          <input type="number" [(ngModel)]="editingLocation.radius" min="50" max="1000" placeholder="100"
+            class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Address *</label>
+          <button (click)="fetchAddressManually(true)" type="button"
+            class="text-xs font-bold text-[#3083DC] hover:text-blue-400 transition-colors flex items-center gap-1">
+            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Fetch from Coordinates
+          </button>
+        </div>
+        <input type="text" [(ngModel)]="editingLocation.address" placeholder="e.g., Connaught Place, New Delhi"
+          class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+      </div>
+
+      <div class="bg-[#101935] border border-slate-700 rounded-xl p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-bold text-white uppercase tracking-wider">GPS Coordinates</h3>
+          <button (click)="getCurrentLocation(true)" [disabled]="isGettingLocation"
+            class="bg-[#3083DC] hover:bg-blue-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white text-xs font-bold px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+            <svg class="h-4 w-4" [class.animate-spin]="isGettingLocation" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            {{ isGettingLocation ? 'Getting Location...' : 'Use Current Location' }}
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Latitude *</label>
+            <input type="number" [(ngModel)]="editingLocation.latitude" step="0.000001" placeholder="28.6139"
+              class="w-full bg-[#1B264F] border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+          </div>
+          <div class="space-y-2">
+            <label class="text-xs font-bold text-slate-400 uppercase tracking-wider">Longitude *</label>
+            <input type="number" [(ngModel)]="editingLocation.longitude" step="0.000001" placeholder="77.2090"
+              class="w-full bg-[#1B264F] border border-slate-600 text-white rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <input type="checkbox" [(ngModel)]="editingLocation.isActive" id="editActive"
+          class="w-4 h-4 bg-[#101935] border border-slate-600 rounded text-[#3083DC] focus:ring-[#3083DC]/20 transition-all">
+        <label for="editActive" class="text-sm font-bold text-slate-300">Active (Enable attendance tracking for this location)</label>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 p-6 border-t border-blue-900/30">
+      <button (click)="closeEditModal()"
+        class="px-6 py-2.5 border border-slate-600 text-slate-300 text-sm font-bold rounded-lg hover:bg-[#101935] transition-all">
+        Cancel
+      </button>
+      <button (click)="updateLocation()"
+        class="px-6 py-2.5 bg-[#3083DC] hover:bg-blue-600 text-white text-sm font-bold rounded-lg shadow-lg shadow-blue-500/20 transition-all">
+        Update Location
+      </button>
+    </div>
+  </div>
+</div>
