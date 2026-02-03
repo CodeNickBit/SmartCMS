@@ -1,3 +1,6 @@
+1. Project Overview
+The Smart Corporate Management System is a full-stack web application designed to streamline internal corporate operations including employee management, departments, attendance tracking, payroll, communication, reporting, and task delegation.
+
 2. Objectives
 Centralize corporate data and operations
 Reduce manual paperwork and human errors
