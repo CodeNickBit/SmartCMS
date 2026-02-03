@@ -92,6 +92,11 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboard/manager-approvals/manager-approvals.component').then(m => m.ManagerApprovalsComponent),
     canActivate: [managerHrGuard]
   },
+  {
+    path: 'dashboard/my-team',
+    loadComponent: () => import('./dashboard/my-team/my-team.component').then(m => m.MyTeamComponent),
+    canActivate: [managerHrGuard]
+  },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
   { path: '', redirectTo: 'login', pathMatch: 'full' },
