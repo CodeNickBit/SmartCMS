@@ -7,6 +7,7 @@ import { LeavePolicyService, LeavePolicy } from '../services/leave-policy.servic
 import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 import { OfficeLocationService } from '../services/office-location.service';
 import { AttendanceService, AttendanceRecord } from '../services/attendance.service';
+import { ProfileModalComponent } from '../dashboard/components/profile-modal/profile-modal.component';
 
 export interface Task {
   id: number;
@@ -66,7 +67,7 @@ interface OfficeLocation {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProfileModalComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -111,6 +112,9 @@ export class HomeComponent implements OnInit {
   isPolicyAcknowledged = false; // User must read policy first
   generalRules: string[] = [];
   policies: LeavePolicy[] = [];
+
+  // Profile Modal
+  showProfileModal = false;
 
   // Notifications
   showNotifications = false;
@@ -257,6 +261,14 @@ export class HomeComponent implements OnInit {
   }
 
   // Modal Methods
+  openProfileModal(): void {
+    this.showProfileModal = true;
+  }
+
+  closeProfileModal(): void {
+    this.showProfileModal = false;
+  }
+
   openPolicyModal(): void {
     this.showPolicyModal = true;
   }
