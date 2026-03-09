@@ -59,49 +59,195 @@ import { EmailVerificationModalComponent } from '../../../components/email-verif
           </div>
 
           <!-- Details Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Personal Information -->
-            <div class="col-span-1 md:col-span-2 space-y-4">
-              <h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest border-b border-blue-900/30 pb-2 mb-4">Personal Information</h4>
-            </div>
-
-            <div class="space-y-1">
-              <label class="text-xs font-semibold text-slate-400 uppercase">Department <span *ngIf="isEditing" class="text-rose-400">*</span></label>
-              <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">
-                {{ user?.department || 'N/A' }}
+          <div class="space-y-8">
+            
+            <!-- Employee View -->
+            <ng-container *ngIf="['employee'].includes(user?.role?.toLowerCase()) || !user?.role">
+              <!-- Personal Information -->
+              <div>
+                <h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest border-b border-blue-900/30 pb-2 mb-4">Personal Information</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">First Name <span *ngIf="isEditing" class="text-rose-400">*</span></label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.firstName || 'N/A' }}</div>
+                    <input *ngIf="isEditing" type="text" [(ngModel)]="editData.firstName" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all" placeholder="First Name">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Last Name <span *ngIf="isEditing" class="text-rose-400">*</span></label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.lastName || 'N/A' }}</div>
+                    <input *ngIf="isEditing" type="text" [(ngModel)]="editData.lastName" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all" placeholder="Last Name">
+                  </div>
+                  <!-- Email is editable for some roles so we embed the edit logic here or below -->
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Email Address <span *ngIf="isEditing" class="text-rose-400">*</span></label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium font-mono">{{ user?.email || 'N/A' }}</div>
+                    <input *ngIf="isEditing" type="email" [(ngModel)]="editData.email" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all" placeholder="Enter Email">
+                    <p *ngIf="isEditing" class="text-xs text-[#3083DC] mt-1 pl-1">Changing email requires OTP verification.</p>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Phone Number</label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.phone || 'N/A' }}</div>
+                    <input *ngIf="isEditing" type="tel" [(ngModel)]="editData.phone" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all" placeholder="Phone Number">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Gender <span *ngIf="!isEditing && user?.age">/ Age</span></label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.gender || 'N/A' }} <span *ngIf="user?.age">({{ user?.age }}y)</span></div>
+                    <select *ngIf="isEditing" [(ngModel)]="editData.gender" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white focus:outline-none focus:border-[#3083DC] transition-all">
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Date of Birth</label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.dateOfBirth ? (user.dateOfBirth | date:'mediumDate') : 'N/A' }}</div>
+                    <input *ngIf="isEditing" type="date" [(ngModel)]="editData.dateOfBirth" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all filter-none">
+                  </div>
+                  <div class="space-y-1 md:col-span-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Current Address</label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium text-sm">{{ user?.currentAddress || 'N/A' }}</div>
+                    <textarea *ngIf="isEditing" [(ngModel)]="editData.currentAddress" rows="2" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all" placeholder="Enter Current Address"></textarea>
+                  </div>
+                  <div class="space-y-1 md:col-span-2">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Permanent Address</label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium text-sm">{{ user?.permanentAddress || 'N/A' }}</div>
+                    <textarea *ngIf="isEditing" [(ngModel)]="editData.permanentAddress" rows="2" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all" placeholder="Enter Permanent Address"></textarea>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Emergency Contact Name</label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.emergencyContactName || 'N/A' }}</div>
+                    <input *ngIf="isEditing" type="text" [(ngModel)]="editData.emergencyContactName" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all" placeholder="Emergency Contact Name">
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Emergency Number</label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.emergencyContactNumber || 'N/A' }}</div>
+                    <input *ngIf="isEditing" type="tel" [(ngModel)]="editData.emergencyContactNumber" class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all" placeholder="Emergency Number">
+                  </div>
+                </div>
               </div>
-              <input *ngIf="isEditing" type="text" [(ngModel)]="editData.department" 
-                class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] focus:ring-1 focus:ring-[#3083DC] transition-all"
-                placeholder="Enter Department">
-            </div>
 
-             <div class="space-y-1" *ngIf="user?.role !== 'hr'">
-              <label class="text-xs font-semibold text-slate-400 uppercase">Designation <span *ngIf="isEditing" class="text-rose-400">*</span></label>
-              <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">
-                 {{ user?.designation || 'N/A' }}
-              </div>
-               <input *ngIf="isEditing" type="text" [(ngModel)]="editData.designation" 
-                class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] focus:ring-1 focus:ring-[#3083DC] transition-all"
-                placeholder="Enter Designation">
-            </div>
+              <!-- Employment Information -->
+              <div>
+                <h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest border-b border-blue-900/30 pb-2 mb-4 mt-6">Employment Details</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Employee ID</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium font-mono">{{ user?.employeeId || 'N/A' }}</div>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Reporting Manager</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.reportingManager || 'N/A' }}</div>
+                  </div>
+                  
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Department</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.department || 'N/A' }}</div>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Designation</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.designation || 'N/A' }}</div>
+                  </div>
 
-             <div class="space-y-1">
-              <label class="text-xs font-semibold text-slate-400 uppercase">Email Address <span *ngIf="isEditing" class="text-rose-400">*</span></label>
-               <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium font-mono">
-                 {{ user?.email || 'N/A' }}
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Date of Joining</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.joiningDate ? (user.joiningDate | date:'mediumDate') : 'N/A' }}</div>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Employment Type</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.employmentType || 'N/A' }}</div>
+                  </div>
+                  
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Work Location</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">{{ user?.workLocation || 'N/A' }}</div>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Shift / Working Days</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium text-sm">
+                      {{ user?.shiftType || 'N/A' }} <span *ngIf="user?.weeklyWorkingDays" class="text-slate-400">(- {{ user.weeklyWorkingDays }} Days)</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <input *ngIf="isEditing" type="email" [(ngModel)]="editData.email" 
-                class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] focus:ring-1 focus:ring-[#3083DC] transition-all"
-                placeholder="Enter Email">
-              <p *ngIf="isEditing" class="text-xs text-[#3083DC] mt-1 pl-1">Changing email requires OTP verification.</p>
-            </div>
 
-             <div class="space-y-1" *ngIf="user?.joiningDate">
-              <label class="text-xs font-semibold text-slate-400 uppercase">Date of Joining</label>
-              <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium opacity-60 cursor-not-allowed">
-                {{ user?.joiningDate | date:'mediumDate' }}
+              <!-- Financial & Benefits -->
+              <div>
+                <h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest border-b border-blue-900/30 pb-2 mb-4 mt-6">Financial & Benefits</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Bank Name & IFSC</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">
+                      {{ user?.bankName || 'N/A' }} <span *ngIf="user?.bankIFSC" class="text-slate-400">({{ user.bankIFSC }})</span>
+                    </div>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Account Number</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium font-mono text-sm tracking-wider">{{ user?.bankAccountNumber || 'N/A' }}</div>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">PF Applicable</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">
+                      <span [class]="user?.pfApplicable ? 'text-emerald-400' : 'text-slate-400'">{{ user?.pfApplicable ? 'Yes' : 'No' }}</span>
+                    </div>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">ESIC Applicable</label>
+                     <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">
+                      <span [class]="user?.esicApplicable ? 'text-emerald-400' : 'text-slate-400'">{{ user?.esicApplicable ? 'Yes' : 'No' }}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </ng-container>
+
+            <!-- Manager / HR View -->
+            <ng-container *ngIf="['manager', 'hr'].includes(user?.role?.toLowerCase())">
+              <div>
+                <h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest border-b border-blue-900/30 pb-2 mb-4">Profile Information</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Department <span *ngIf="isEditing" class="text-rose-400">*</span></label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">
+                      {{ user?.department || 'N/A' }}
+                    </div>
+                    <input *ngIf="isEditing" type="text" [(ngModel)]="editData.department" 
+                      class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all"
+                      placeholder="Enter Department">
+                  </div>
+
+                  <div class="space-y-1" *ngIf="user?.role !== 'hr'">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Designation <span *ngIf="isEditing" class="text-rose-400">*</span></label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium">
+                      {{ user?.designation || 'N/A' }}
+                    </div>
+                    <input *ngIf="isEditing" type="text" [(ngModel)]="editData.designation" 
+                      class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all"
+                      placeholder="Enter Designation">
+                  </div>
+
+                  <div class="space-y-1">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Email Address <span *ngIf="isEditing" class="text-rose-400">*</span></label>
+                    <div *ngIf="!isEditing" class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium font-mono">
+                      {{ user?.email || 'N/A' }}
+                    </div>
+                    <input *ngIf="isEditing" type="email" [(ngModel)]="editData.email" 
+                      class="w-full p-3 rounded-lg bg-[#101935] border border-blue-900/30 text-white placeholder-slate-500 focus:outline-none focus:border-[#3083DC] transition-all"
+                      placeholder="Enter Email">
+                    <p *ngIf="isEditing" class="text-xs text-[#3083DC] mt-1 pl-1">Changing email requires OTP verification.</p>
+                  </div>
+
+                  <div class="space-y-1" *ngIf="user?.joiningDate">
+                    <label class="text-xs font-semibold text-slate-400 uppercase">Date of Joining</label>
+                    <div class="p-3 rounded-lg bg-[#101935] border border-blue-900/20 text-white font-medium opacity-60 cursor-not-allowed">
+                      {{ user?.joiningDate | date:'mediumDate' }}
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            </ng-container>
+
           </div>
         </div>
 
@@ -198,7 +344,16 @@ export class ProfileModalComponent {
     this.editData = {
       department: this.user.department,
       designation: this.user.designation,
-      email: this.user.email
+      email: this.user.email,
+      firstName: this.user.firstName,
+      lastName: this.user.lastName,
+      phone: this.user.phone,
+      gender: this.user.gender,
+      dateOfBirth: this.user.dateOfBirth,
+      currentAddress: this.user.currentAddress,
+      permanentAddress: this.user.permanentAddress,
+      emergencyContactName: this.user.emergencyContactName,
+      emergencyContactNumber: this.user.emergencyContactNumber
     };
   }
 
@@ -209,14 +364,22 @@ export class ProfileModalComponent {
   }
 
   checkEmailAndSave() {
-    // For HR, Designation might not be present or editable
-    if (this.user.role !== 'hr') {
+    const role = this.user?.role?.toLowerCase();
+
+    // Field Validation based on Role
+    if (role === 'employee' || !role) {
+      if (!this.editData.firstName || !this.editData.lastName || !this.editData.email) {
+        this.message = 'First Name, Last Name and Email are required.';
+        this.isSuccess = false;
+        return;
+      }
+    } else if (role !== 'hr') { // Manager
       if (!this.editData.department || !this.editData.designation || !this.editData.email) {
         this.message = 'All fields are required.';
         this.isSuccess = false;
         return;
       }
-    } else {
+    } else { // HR
       if (!this.editData.department || !this.editData.email) {
         this.message = 'Department and Email are required.';
         this.isSuccess = false;
@@ -273,6 +436,20 @@ export class ProfileModalComponent {
           this.user.designation = this.editData.designation;
         }
         this.user.email = this.editData.email;
+
+        // Map personal fields back if employee
+        const role = this.user?.role?.toLowerCase();
+        if (role === 'employee' || !role) {
+          this.user.firstName = this.editData.firstName;
+          this.user.lastName = this.editData.lastName;
+          this.user.phone = this.editData.phone;
+          this.user.gender = this.editData.gender;
+          this.user.dateOfBirth = this.editData.dateOfBirth;
+          this.user.currentAddress = this.editData.currentAddress;
+          this.user.permanentAddress = this.editData.permanentAddress;
+          this.user.emergencyContactName = this.editData.emergencyContactName;
+          this.user.emergencyContactNumber = this.editData.emergencyContactNumber;
+        }
 
         // Update local storage
         this.authService.setUser(this.user);

@@ -65,6 +65,11 @@ export const routes: Routes = [
     canActivate: [managerHrGuard]
   },
   {
+    path: 'dashboard/manage-managers',
+    loadComponent: () => import('./dashboard/manage-managers/manage-managers.component').then(m => m.HRManageManagersComponent),
+    canActivate: [managerHrGuard]
+  },
+  {
     path: 'dashboard/leave-approvals',
     loadComponent: () => import('./dashboard/leave-approvals/leave-approvals.component').then(m => m.LeaveApprovalsComponent),
     canActivate: [managerHrGuard]
