@@ -1,0 +1,90 @@
+﻿
+> smart-cms@0.0.0 build
+> ng build
+
+[33mΓ¥»[39m Building...
+Signup: Loading all active managers...
+[32mΓ£ö[39m Building...
+[35mBrowser bundles[39m      
+[1mInitial chunk files[22m  [2m | [22m[1mNames[22m                        [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-QKW43EMU.js[39m    [2m | [22m[2m-[22m                            [2m | [22m[36m378.84 kB[39m[2m | [22m               [36m99.59 kB[39m
+[32mmain-5QZMHV46.js[39m     [2m | [22m[2mmain[22m                         [2m | [22m[36m346.73 kB[39m[2m | [22m               [36m68.61 kB[39m
+[32mstyles-3CSDJOM2.css[39m  [2m | [22m[2mstyles[22m                       [2m | [22m [36m86.00 kB[39m[2m | [22m               [36m10.64 kB[39m
+[32mchunk-MJRPBWKH.js[39m    [2m | [22m[2m-[22m                            [2m | [22m [36m49.14 kB[39m[2m | [22m                [36m8.77 kB[39m
+[32mpolyfills-B6TNHZQ6.js[39m[2m | [22m[2mpolyfills[22m                    [2m | [22m [36m34.58 kB[39m[2m | [22m               [36m11.32 kB[39m
+[32mchunk-SVZXY62H.js[39m    [2m | [22m[2m-[22m                            [2m | [22m [36m18.76 kB[39m[2m | [22m                [36m4.44 kB[39m
+[32mchunk-FEAMJOFQ.js[39m    [2m | [22m[2m-[22m                            [2m | [22m [36m15.13 kB[39m[2m | [22m                [36m3.57 kB[39m
+[32mchunk-A3ZS3V73.js[39m    [2m | [22m[2m-[22m                            [2m | [22m [36m14.77 kB[39m[2m | [22m                [36m4.11 kB[39m
+[32mchunk-UCEX7Y3T.js[39m    [2m | [22m[2m-[22m                            [2m | [22m  [36m1.58 kB[39m[2m | [22m              [36m558 bytes[39m
+[32mchunk-BQMGUXNK.js[39m    [2m | [22m[2m-[22m                            [2m | [22m  [36m1.42 kB[39m[2m | [22m              [36m465 bytes[39m
+[32mchunk-4LXZGFPX.js[39m    [2m | [22m[2m-[22m                            [2m | [22m  [36m1.07 kB[39m[2m | [22m              [36m420 bytes[39m
+[32mchunk-UBUNRP3A.js[39m    [2m | [22m[2m-[22m                            [2m | [22m[36m878 bytes[39m[2m | [22m              [36m878 bytes[39m
+[32mchunk-23NAMEHF.js[39m    [2m | [22m[2m-[22m                            [2m | [22m[36m638 bytes[39m[2m | [22m              [36m638 bytes[39m
+[32mchunk-UT6ANNPY.js[39m    [2m | [22m[2m-[22m                            [2m | [22m[36m540 bytes[39m[2m | [22m              [36m540 bytes[39m
+[32mchunk-XDAYBKLZ.js[39m    [2m | [22m[2m-[22m                            [2m | [22m[36m476 bytes[39m[2m | [22m              [36m476 bytes[39m
+[32mchunk-7YOBEQ3W.js[39m    [2m | [22m[2m-[22m                            [2m | [22m[36m476 bytes[39m[2m | [22m              [36m476 bytes[39m
+[32mchunk-YP5RFWLW.js[39m    [2m | [22m[2m-[22m                            [2m | [22m[36m451 bytes[39m[2m | [22m              [36m451 bytes[39m
+
+[1m [22m                    [2m | [22m[1mInitial total[22m                [2m | [22m[1m[93m951.48 kB[39m[22m[2m | [22m              [1m215.95 kB[22m
+
+[1mLazy chunk files[22m     [2m | [22m[1mNames[22m                        [2m | [22m [1mRaw size[22m[2m | [22m[1mEstimated transfer size[22m
+[32mchunk-6OGYG5T2.js[39m    [2m | [22m[2madd-manager-component[22m        [2m | [22m [36m27.01 kB[39m[2m | [22m                [36m5.99 kB[39m
+[32mchunk-7J54UXFU.js[39m    [2m | [22m[2mattendance-settings-component[22m[2m | [22m [36m24.19 kB[39m[2m | [22m                [36m5.14 kB[39m
+[32mchunk-AN35ZL2T.js[39m    [2m | [22m[2mleave-policy-component[22m       [2m | [22m [36m24.16 kB[39m[2m | [22m                [36m5.82 kB[39m
+[32mchunk-JH6IYWGC.js[39m    [2m | [22m[2mmanager-approvals-component[22m  [2m | [22m [36m22.58 kB[39m[2m | [22m                [36m5.76 kB[39m
+[32mchunk-K3R3UQB2.js[39m    [2m | [22m[2mattendance-component[22m         [2m | [22m [36m21.40 kB[39m[2m | [22m                [36m5.03 kB[39m
+[32mchunk-3GQZRJJJ.js[39m    [2m | [22m[2mmanage-managers-component[22m    [2m | [22m [36m20.58 kB[39m[2m | [22m                [36m4.79 kB[39m
+[32mchunk-CONL24TR.js[39m    [2m | [22m[2mmanage-employee-component[22m    [2m | [22m [36m20.43 kB[39m[2m | [22m                [36m4.63 kB[39m
+[32mchunk-4WGZR62I.js[39m    [2m | [22m[2memployees-component[22m          [2m | [22m [36m20.28 kB[39m[2m | [22m                [36m4.67 kB[39m
+[32mchunk-HPMYF5KO.js[39m    [2m | [22m[2mmanage-hr-component[22m          [2m | [22m [36m16.96 kB[39m[2m | [22m                [36m3.83 kB[39m
+[32mchunk-UI72IETZ.js[39m    [2m | [22m[2mmy-team-component[22m            [2m | [22m [36m12.92 kB[39m[2m | [22m                [36m3.60 kB[39m
+[32mchunk-XGANFIGX.js[39m    [2m | [22m[2mmanage-designation-component[22m [2m | [22m [36m11.46 kB[39m[2m | [22m                [36m2.94 kB[39m
+[32mchunk-PTLOYWRE.js[39m    [2m | [22m[2mmanage-department-component[22m  [2m | [22m [36m11.35 kB[39m[2m | [22m                [36m2.94 kB[39m
+[32mchunk-GB57VU3Y.js[39m    [2m | [22m[2myear-end-processing-component[22m[2m | [22m  [36m7.61 kB[39m[2m | [22m                [36m2.35 kB[39m
+[32mchunk-RPI3SIPI.js[39m    [2m | [22m[2mleave-approvals-component[22m    [2m | [22m[36m269 bytes[39m[2m | [22m              [36m269 bytes[39m
+[32mchunk-FB6IMC33.js[39m    [2m | [22m[2madd-user-component[22m           [2m | [22m[36m178 bytes[39m[2m | [22m              [36m178 bytes[39m
+
+
+[35mServer bundles[39m       
+[1mInitial chunk files[22m  [2m | [22m[1mNames[22m                        [2m | [22m [1mRaw size[22m
+[32mserver.mjs[39m           [2m | [22m[2mserver[22m                       [2m | [22m  [36m1.34 MB[39m[2m | [22m                       
+[32mmain.server.mjs[39m      [2m | [22m[2mmain.server[22m                  [2m | [22m[36m790.46 kB[39m[2m | [22m                       
+[32mchunk-JY56W3UW.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m[36m376.83 kB[39m[2m | [22m                       
+[32mpolyfills.server.mjs[39m [2m | [22m[2mpolyfills.server[22m             [2m | [22m[36m266.08 kB[39m[2m | [22m                       
+[32mchunk-VUWGO3XL.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m [36m49.17 kB[39m[2m | [22m                       
+[32mchunk-ZZPFRU22.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m [36m18.83 kB[39m[2m | [22m                       
+[32mchunk-76RTOUTQ.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m [36m15.17 kB[39m[2m | [22m                       
+[32mchunk-XJNSOGB7.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m [36m14.81 kB[39m[2m | [22m                       
+[32mchunk-X2SEQXRR.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m  [36m2.41 kB[39m[2m | [22m                       
+[32mchunk-A2F37QIL.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m  [36m1.62 kB[39m[2m | [22m                       
+[32mchunk-XYPQ6TLP.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m  [36m1.45 kB[39m[2m | [22m                       
+[32mchunk-GFUZYSQG.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m  [36m1.24 kB[39m[2m | [22m                       
+[32mchunk-7JQPWJZS.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m  [36m1.14 kB[39m[2m | [22m                       
+[32mchunk-UTXOPEAI.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m[36m946 bytes[39m[2m | [22m                       
+[32mchunk-34C2WWCQ.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m[36m672 bytes[39m[2m | [22m                       
+[32mchunk-BJUWRJQZ.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m[36m574 bytes[39m[2m | [22m                       
+[32mchunk-4B4K2HRA.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m[36m510 bytes[39m[2m | [22m                       
+[32mchunk-FLTLA3VF.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m[36m510 bytes[39m[2m | [22m                       
+[32mchunk-FKATW4W2.mjs[39m   [2m | [22m[2m-[22m                            [2m | [22m[36m485 bytes[39m[2m | [22m                       
+
+[1mLazy chunk files[22m     [2m | [22m[1mNames[22m                        [2m | [22m [1mRaw size[22m
+[32mchunk-AMOAEH5L.mjs[39m   [2m | [22m[2madd-manager-component[22m        [2m | [22m [36m27.07 kB[39m[2m | [22m                       
+[32mchunk-MWPT574J.mjs[39m   [2m | [22m[2mattendance-settings-component[22m[2m | [22m [36m24.26 kB[39m[2m | [22m                       
+[32mchunk-XSUSZVIB.mjs[39m   [2m | [22m[2mleave-policy-component[22m       [2m | [22m [36m24.22 kB[39m[2m | [22m                       
+[32mchunk-7KYSNPAH.mjs[39m   [2m | [22m[2mmanager-approvals-component[22m  [2m | [22m [36m22.65 kB[39m[2m | [22m                       
+[32mchunk-JIAVMBZX.mjs[39m   [2m | [22m[2mattendance-component[22m         [2m | [22m [36m21.47 kB[39m[2m | [22m                       
+[32mchunk-DGBY4ZN7.mjs[39m   [2m | [22m[2mmanage-managers-component[22m    [2m | [22m [36m20.65 kB[39m[2m | [22m                       
+[32mchunk-S3K75JE5.mjs[39m   [2m | [22m[2mmanage-employee-component[22m    [2m | [22m [36m20.51 kB[39m[2m | [22m                       
+[32mchunk-VK3QN3OX.mjs[39m   [2m | [22m[2memployees-component[22m          [2m | [22m [36m20.36 kB[39m[2m | [22m                       
+[32mchunk-GGTVILX5.mjs[39m   [2m | [22m[2mmanage-hr-component[22m          [2m | [22m [36m17.04 kB[39m[2m | [22m                       
+[32mchunk-AQOVKGH4.mjs[39m   [2m | [22m[2mmy-team-component[22m            [2m | [22m [36m12.99 kB[39m[2m | [22m                       
+[32mchunk-EJSJJTUO.mjs[39m   [2m | [22m[2mxhr2[22m                         [2m | [22m [36m12.14 kB[39m[2m | [22m                       
+[32mchunk-TNO4MGIL.mjs[39m   [2m | [22m[2mxhr2[22m                         [2m | [22m [36m12.07 kB[39m[2m | [22m                       
+[32mchunk-WNDCG5MV.mjs[39m   [2m | [22m[2mmanage-designation-component[22m [2m | [22m [36m11.53 kB[39m[2m | [22m                       
+[32mchunk-RLI6ALFS.mjs[39m   [2m | [22m[2mmanage-department-component[22m  [2m | [22m [36m11.43 kB[39m[2m | [22m                       
+[32mchunk-KQNBUQFJ.mjs[39m   [2m | [22m[2myear-end-processing-component[22m[2m | [22m  [36m7.67 kB[39m[2m | [22m                       
+[2m...and 2 more lazy chunks files. Use "--verbose" to show all the files.[22m
+
+[35mPrerendered 23 static routes.[39m
+Application bundle generation failed. [77.998 seconds]
+
