@@ -104,6 +104,10 @@ export const routes: Routes = [
   },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
+  {
+    path: 'unauthorized',
+    loadComponent: () => import('./unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
+  },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login' }
+  { path: '**', loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];

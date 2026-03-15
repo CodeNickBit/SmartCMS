@@ -4,6 +4,11 @@ import { CanActivateFn, Router } from '@angular/router';
 export const authGuard: CanActivateFn = (route, state) => {
     const router = inject(Router);
 
+    // Prevent redirecting to login on the server where localStorage is not available
+    if (typeof window === 'undefined') {
+        return false;
+    }
+
     // Check for window/localStorage availability (SSR safety)
     if (typeof window !== 'undefined' && window.localStorage) {
         const token = localStorage.getItem('token');

@@ -4,6 +4,11 @@ import { CanActivateFn, Router } from '@angular/router';
 export const managerHrGuard: CanActivateFn = (route, state) => {
     const router = inject(Router);
 
+    // Prevent redirecting to login on the server where localStorage is not available
+    if (typeof window === 'undefined') {
+        return false;
+    }
+
     if (typeof window !== 'undefined' && window.localStorage) {
         const token = localStorage.getItem('token');
         const userStr = localStorage.getItem('user');
@@ -15,6 +20,10 @@ export const managerHrGuard: CanActivateFn = (route, state) => {
                 if (role === 'manager' || role === 'hr') {
                     return true;
                 }
+
+                // Authenticated but not manager or hr
+                router.navigate(['/unauthorized']);
+                return false;
             } catch (e) {
                 console.error('Error parsing user data in guard', e);
             }
