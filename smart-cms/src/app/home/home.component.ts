@@ -135,6 +135,31 @@ export class HomeComponent implements OnInit {
 
   myLeaves: any[] = [];
 
+  isDarkMode = true;
+
+  toggleTheme(): void {
+    this.isDarkMode = !this.isDarkMode;
+    if (isPlatformBrowser(this.platformId)) {
+      this.applyTheme();
+    }
+  }
+
+  private applyTheme(): void {
+    const body = document.body;
+    const html = document.documentElement;
+    if (this.isDarkMode) {
+      body.classList.add('theme-dark', 'dark');
+      html.classList.add('dark');
+      body.classList.remove('theme-light');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      body.classList.add('theme-light');
+      body.classList.remove('theme-dark', 'dark');
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private router: Router,
@@ -147,6 +172,13 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.userProfile = this.authService.getUser();
+
+    // Check saved theme
+    if (isPlatformBrowser(this.platformId)) {
+      const savedTheme = localStorage.getItem('theme');
+      this.isDarkMode = savedTheme !== 'light'; // Default to dark if not set
+      this.applyTheme();
+    }
 
     // Fallback if no user is logged in
     if (!this.userProfile) {

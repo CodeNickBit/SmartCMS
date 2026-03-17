@@ -1,8 +1,10 @@
-<div class="min-h-screen bg-[#101935] text-white p-6 md:p-10 font-sans">
+<div
+  class="min-h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white p-6 md:p-10 font-sans">
   <!-- Header Section -->
   <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 animate-fade-in-up">
     <div>
-      <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+      <h1
+        class="text-[#246bb6] light:text-[#1A6DC2] dark:text-[#3083DC]xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
         Hello, {{ userProfile?.firstName || 'User' }}
       </h1>
       <p class="text-gray-400 mt-1 flex items-center gap-2">
@@ -23,15 +25,44 @@
         View Profile
       </button>
 
+      <!-- Theme Toggle Switch -->
+      <button (click)="toggleTheme()" type="button"
+        class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:ring-offset-2 focus:ring-offset-white light:focus:ring-offset-[#DDEAF8] dark:focus:ring-offset-[#1B264F] theme-toggle-btn"
+        [ngClass]="{'bg-[#3083DC]': isDarkMode, 'bg-[#1A6DC2]': !isDarkMode, 'is-dark': isDarkMode, 'is-light': !isDarkMode}"
+        role="switch" [attr.aria-label]="isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+        [attr.aria-checked]="isDarkMode">
+        <span
+          class="pointer-events-none relative inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+          [ngClass]="{'translate-x-5': isDarkMode, 'translate-x-0': !isDarkMode}">
+          <!-- Moon icon — visible in dark mode -->
+          <svg *ngIf="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 m-auto text-[#3083DC]"
+            width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+          <!-- Sun icon — visible in light mode -->
+          <svg *ngIf="!isDarkMode" xmlns="http://www.w3.org/2000/svg" class="absolute inset-0 m-auto text-[#C96A1A]"
+            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+          </svg>
+        </span>
+      </button>
+
       <!-- Notifications -->
       <button (click)="toggleNotifications()"
-        class="relative p-2 text-gray-400 hover:text-white transition-colors bg-[#1B264F] hover:bg-[#3083DC]/20 rounded-lg">
+        class="relative p-2 text-gray-400 hover:text-white transition-colors bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] hover:bg-[#3083DC]/20 rounded-lg">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
         </svg>
         <span *ngIf="unreadNotificationCount > 0"
-          class="absolute -top-1 -right-1 bg-[#EF4444] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-[#101935] min-w-[1.25rem] text-center flex items-center justify-center">
+          class="absolute -top-1 -right-1 bg-[#EF4444] text-slate-800 light:text-[#0D1B35] dark:text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-[#101935] min-w-[1.25rem] text-center flex items-center justify-center">
           {{ unreadNotificationCount > 9 ? '9+' : unreadNotificationCount }}
         </span>
       </button>
@@ -81,7 +112,7 @@
       </div>
 
       <div class="flex flex-col items-center justify-center py-4">
-        <div class="text-4xl font-bold mb-2 tracking-wider font-mono">
+        <div class="text-[#d67b36] light:text-[#C96A1A] dark:text-[#EE964B]xl font-bold mb-2 tracking-wider font-mono">
           {{ attendance.totalHours }}
         </div>
         <p class="text-sm text-gray-400 mb-6">Total Hours Today</p>
@@ -99,7 +130,7 @@
         </button>
 
         <div *ngIf="attendance.location && attendance.address"
-          class="mt-4 text-xs text-gray-400 bg-[#1B264F] rounded-lg p-3 border border-gray-700/50">
+          class="mt-4 text-xs text-gray-400 bg-slate-50/80 light:bg-[#EEF3FA]/50 dark:bg-[#101935]/50 rounded-lg p-3 border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
           <div class="flex items-start gap-2">
             <svg class="h-4 w-4 mt-0.5 text-[#3083DC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -108,7 +139,7 @@
                 d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             <div>
-              <p class="font-bold text-white">{{ attendance.address }}</p>
+              <p class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ attendance.address }}</p>
               <p class="text-emerald-400 font-bold mt-1">{{ attendance.distance }}m from office</p>
             </div>
           </div>
@@ -147,7 +178,8 @@
         Leave Balance
       </h2>
       <button (click)="openPolicyModal()"
-        class="absolute top-6 right-6 text-slate-400 hover:text-[#3083DC] transition-colors" title="View Leave Policy">
+        class="absolute top-6 right-6 text-slate-500 light:text-[#7A96B2] dark:text-slate-400 hover:text-[#3083DC] transition-colors"
+        title="View Leave Policy">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -155,18 +187,21 @@
       </button>
 
       <div class="space-y-4">
-        <div *ngFor="let leave of leaveBalances" class="bg-[#1B264F] rounded-lg p-3 border border-gray-700/50">
+        <div *ngFor="let leave of leaveBalances"
+          class="bg-slate-50/80 light:bg-[#EEF3FA]/50 dark:bg-[#101935]/50 rounded-lg p-3 border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
           <div class="flex justify-between items-center mb-2">
-            <span class="text-sm font-medium text-gray-200">{{ leave.type }}</span>
+            <span class="text-sm font-medium text-slate-800 light:text-[#0D1B35] dark:text-gray-200">{{ leave.type
+              }}</span>
             <span class="text-xs font-bold bg-[#3083DC]/20 text-[#3083DC] px-2 py-1 rounded">{{ leave.available }}
               Available</span>
           </div>
-          <div class="w-full bg-gray-700 rounded-full h-1.5">
+          <div class="w-full bg-slate-200 light:bg-[#DDEAF8] dark:bg-gray-700 rounded-full h-1.5">
             <div class="bg-gradient-to-r from-[#3083DC] to-[#60A5FA] h-1.5 rounded-full"
               [style.width.%]="(leave.available / leave.total) * 100"></div>
           </div>
           <div class="flex justify-between items-center mt-2 px-1">
-            <span class="text-[10px] text-gray-500 font-medium">Notice needed: <span class="text-gray-300">{{
+            <span class="text-[10px] text-slate-500 light:text-[#7A96B2] dark:text-gray-500 font-medium">Notice needed:
+              <span class="text-slate-700 light:text-[#2E4A6B] dark:text-gray-300">{{
                 leave.minNotice || 0 }}h</span></span>
           </div>
         </div>
@@ -200,9 +235,14 @@
         </h2>
 
         <div
-          class="text-center py-6 bg-gradient-to-b from-[#1B264F] to-transparent rounded-xl border border-dashed border-gray-600 mb-4">
-          <p class="text-gray-400 text-sm mb-1">{{ recentPayslip.month }} {{ recentPayslip.year }}</p>
-          <h3 class="text-3xl font-bold text-white mb-2">{{ recentPayslip.netPay | currency:'INR' }}</h3>
+          class="text-center py-6 bg-gradient-to-b from-slate-100 to-transparent dark:from-[#1B264F] dark:to-transparent rounded-xl border border-dashed border-slate-300 light:border-[#A8C4DF] dark:border-gray-600 mb-4">
+          <p class="text-slate-500 light:text-[#7A96B2] dark:text-gray-400 text-sm mb-1">{{ recentPayslip.month }} {{
+            recentPayslip.year }}
+          </p>
+          <h3
+            class="text-[#246bb6] light:text-[#1A6DC2] dark:text-[#3083DC]xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white mb-2">
+            {{
+            recentPayslip.netPay | currency:'INR' }}</h3>
           <span
             class="inline-block px-3 py-1 bg-[#10B981]/20 text-[#10B981] text-xs rounded-full font-medium">Credited</span>
         </div>
@@ -210,7 +250,7 @@
 
       <div class="space-y-3">
         <button (click)="downloadPayslip(recentPayslip.id)"
-          class="w-full py-3 bg-[#1B264F] hover:bg-[#233060] text-gray-300 rounded-xl transition-colors flex items-center justify-center gap-2">
+          class="w-full py-3 bg-slate-50 light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 dark:border-transparent hover:bg-slate-100 dark:hover:bg-[#233060] text-slate-700 light:text-[#2E4A6B] dark:text-gray-300 rounded-xl transition-colors flex items-center justify-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -240,7 +280,8 @@
     <div class="overflow-x-auto">
       <table class="w-full text-left">
         <thead>
-          <tr class="text-gray-400 text-sm border-b border-gray-700/50">
+          <tr
+            class="text-slate-700 light:text-[#2E4A6B] dark:text-gray-400 text-sm border-b border-slate-200 light:border-[#A8C4DF] dark:border-gray-700/50">
             <th class="pb-3 pl-2 font-medium">Task Name</th>
             <th class="pb-3 font-medium">Due Date</th>
             <th class="pb-3 font-medium">Priority</th>
@@ -249,9 +290,11 @@
           </tr>
         </thead>
         <tbody class="text-sm">
-          <tr *ngFor="let task of tasks" class="group border-b border-gray-700/30 hover:bg-white/5 transition-colors">
-            <td class="py-4 pl-2 font-medium text-white">{{ task.title }}</td>
-            <td class="py-4 text-gray-300">{{ task.dueDate | date:'mediumDate' }}</td>
+          <tr *ngFor="let task of tasks"
+            class="group border-b border-slate-200 light:border-[#A8C4DF] dark:border-gray-700/30 hover:bg-slate-50 light:hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+            <td class="py-4 pl-2 font-medium text-slate-800 light:text-[#0D1B35] dark:text-white">{{ task.title }}</td>
+            <td class="py-4 text-slate-600 light:text-[#2E4A6B] dark:text-gray-300">{{ task.dueDate | date:'mediumDate'
+              }}</td>
             <td class="py-4">
               <span class="px-2 py-1 rounded text-xs font-semibold"
                 [style.background-color]="getPriorityColor(task.priority) + '20'"
@@ -298,7 +341,8 @@
     <div class="overflow-x-auto">
       <table class="w-full text-left text-sm">
         <thead>
-          <tr class="text-gray-400 border-b border-gray-700/50">
+          <tr
+            class="text-slate-700 light:text-[#2E4A6B] dark:text-gray-400 border-b border-slate-200 light:border-[#A8C4DF] dark:border-gray-700/50">
             <th class="pb-3 pl-2 font-medium">Leave Type</th>
             <th class="pb-3 font-medium">Start Date</th>
             <th class="pb-3 font-medium">End Date</th>
@@ -309,11 +353,17 @@
           </tr>
         </thead>
         <tbody class="text-sm">
-          <tr *ngFor="let leave of myLeaves" class="border-b border-gray-700/30 hover:bg-white/5 transition-colors">
-            <td class="py-4 pl-2 font-medium text-white">{{ leave.leaveType }}</td>
-            <td class="py-4 text-gray-300">{{ leave.startDate | date:'mediumDate' }}</td>
-            <td class="py-4 text-gray-300">{{ leave.endDate | date:'mediumDate' }}</td>
-            <td class="py-4 text-slate-400 max-w-xs" title="{{ leave.reason }}">{{ leave.reason }}</td>
+          <tr *ngFor="let leave of myLeaves"
+            class="border-b border-slate-200 light:border-[#A8C4DF] dark:border-gray-700/30 hover:bg-slate-50 light:hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+            <td class="py-4 pl-2 font-medium text-slate-800 light:text-[#0D1B35] dark:text-white">{{ leave.leaveType }}
+            </td>
+            <td class="py-4 text-slate-600 light:text-[#3D5A7A] dark:text-gray-300">{{ leave.startDate |
+              date:'mediumDate' }}</td>
+            <td class="py-4 text-slate-600 light:text-[#3D5A7A] dark:text-gray-300">{{ leave.endDate | date:'mediumDate'
+              }}</td>
+            <td class="py-4 text-slate-700 light:text-[#2E4A6B] dark:text-slate-400 max-w-xs"
+              title="{{ leave.reason }}">{{ leave.reason }}
+            </td>
             <td class="py-4">
               <span class="px-2 py-1 rounded text-xs font-bold uppercase" [ngClass]="{
                   'bg-amber-500/20 text-amber-500': leave.status === 'Pending',
@@ -323,7 +373,9 @@
                 {{ leave.status }}
               </span>
             </td>
-            <td class="py-4 text-slate-400 max-w-xs" title="{{ leave.rejectionReason }}">{{ leave.rejectionReason || '–'
+            <td class="py-4 text-slate-700 light:text-[#2E4A6B] dark:text-slate-400 max-w-xs"
+              title="{{ leave.rejectionReason }}">{{
+              leave.rejectionReason || '–'
               }}</td>
             <td class="py-4 text-right">
               <div class="flex flex-col items-end gap-2">
@@ -354,11 +406,12 @@
     <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" (click)="closePolicyModal()">
     </div>
     <div
-      class="relative bg-[#1B264F] border border-blue-900/50 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-fade-in-up">
+      class="relative bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-blue-900/50 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-fade-in-up">
 
       <!-- Modal Header -->
-      <div class="px-6 py-4 border-b border-blue-900/50 bg-[#101935]/50 flex justify-between items-center">
-        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+      <div
+        class="px-6 py-4 border-b border-blue-900/50 bg-slate-50 light:bg-[#EEF3FA]/50 dark:bg-[#101935]/50 flex justify-between items-center">
+        <h3 class="text-xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center gap-2">
           <span class="p-1.5 bg-[#3083DC]/10 rounded-lg text-[#3083DC]">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -376,8 +429,10 @@
         <!-- General Rules -->
         <div *ngIf="generalRules.length > 0">
           <h4 class="text-sm font-bold text-[#3083DC] uppercase tracking-wider mb-3">General Rules & Guidelines</h4>
-          <ul class="space-y-3 bg-[#101935]/50 p-5 rounded-xl border border-blue-900/20">
-            <li *ngFor="let rule of generalRules" class="flex items-start gap-3 text-sm text-slate-300">
+          <ul
+            class="space-y-3 bg-slate-50 light:bg-[#EEF3FA]/50 dark:bg-[#101935]/50 p-5 rounded-xl border border-blue-900/20">
+            <li *ngFor="let rule of generalRules"
+              class="flex items-start gap-3 text-sm text-slate-600 light:text-[#3D5A7A] dark:text-slate-300">
               <span class="text-[#3083DC] font-bold mt-0.5">&bull;</span>
               <span class="leading-relaxed">{{ rule }}</span>
             </li>
@@ -387,9 +442,11 @@
         <!-- Policy Table -->
         <div>
           <h4 class="text-sm font-bold text-[#3083DC] uppercase tracking-wider mb-3">Leave Entitlements</h4>
-          <div class="overflow-hidden rounded-xl border border-blue-900/30 bg-[#101935]/30">
+          <div
+            class="overflow-hidden rounded-xl border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 bg-slate-50 light:bg-[#EEF3FA]/30 dark:bg-[#101935]/30">
             <table class="w-full text-left text-sm">
-              <thead class="bg-[#101935] text-xs uppercase text-slate-400 font-semibold border-b border-blue-900/30">
+              <thead
+                class="bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-xs uppercase text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-semibold border-b border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
                 <tr>
                   <th class="px-4 py-3">Leave Type</th>
                   <th class="px-4 py-3 text-center">Annual Limit</th>
@@ -397,10 +454,14 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-blue-900/20">
-                <tr *ngFor="let policy of policies" class="hover:bg-white/5 text-slate-300">
-                  <td class="px-4 py-3 font-medium text-white">{{ policy.leaveName }}</td>
+                <tr *ngFor="let policy of policies"
+                  class="hover:bg-white/5 text-slate-600 light:text-[#3D5A7A] dark:text-slate-300">
+                  <td class="px-4 py-3 font-medium text-slate-800 light:text-[#0D1B35] dark:text-white">{{
+                    policy.leaveName }}</td>
                   <td class="px-4 py-3 text-center font-mono text-[#3083DC]">{{ policy.annualLimit }} Days</td>
-                  <td class="px-4 py-3 text-center text-slate-400">{{ policy.minNoticeHours ? (policy.minNoticeHours + '
+                  <td class="px-4 py-3 text-center text-slate-500 light:text-[#7A96B2] dark:text-slate-400">{{
+                    policy.minNoticeHours ?
+                    (policy.minNoticeHours + '
                     Hrs') : 'None' }}</td>
                 </tr>
                 <tr *ngIf="policies.length === 0">
@@ -415,9 +476,10 @@
       </div>
 
       <!-- Modal Footer -->
-      <div class="px-6 py-4 bg-[#101935]/30 border-t border-blue-900/50 flex justify-end">
+      <div
+        class="px-6 py-4 bg-slate-50 light:bg-[#EEF3FA]/30 dark:bg-[#101935]/30 border-t border-blue-900/50 flex justify-end">
         <button (click)="acknowledgePolicy()"
-          class="px-8 py-2.5 bg-[#3083DC] text-white hover:bg-[#206bc4] rounded-lg text-sm font-bold transition-all shadow-lg active:scale-95">
+          class="px-8 py-2.5 bg-[#3083DC] text-slate-800 light:text-[#0D1B35] dark:text-white hover:bg-[#206bc4] rounded-lg text-sm font-bold transition-all shadow-lg active:scale-95">
           OK, I Understand
         </button>
       </div>
@@ -429,11 +491,12 @@
     <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" (click)="toggleNotifications()">
     </div>
     <div
-      class="absolute inset-y-0 right-0 max-w-sm w-full bg-[#1B264F] shadow-2xl flex flex-col animate-slide-in-right border-l border-blue-900/50">
+      class="absolute inset-y-0 right-0 max-w-sm w-full bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] shadow-2xl flex flex-col animate-slide-in-right border-l border-blue-900/50">
 
       <!-- Drawer Header -->
-      <div class="px-6 py-4 border-b border-blue-900/50 bg-[#101935]/50 flex justify-between items-center">
-        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+      <div
+        class="px-6 py-4 border-b border-blue-900/50 bg-slate-50 light:bg-[#EEF3FA]/50 dark:bg-[#101935]/50 flex justify-between items-center">
+        <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center gap-2">
           <span class="relative">
             <svg class="h-5 w-5 text-[#3083DC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -443,7 +506,8 @@
           </span>
           Notifications
         </h2>
-        <button (click)="toggleNotifications()" class="text-slate-400 hover:text-white transition-colors">
+        <button (click)="toggleNotifications()"
+          class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 hover:text-white transition-colors">
           <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -451,7 +515,8 @@
       </div>
 
       <!-- Tab Navigation -->
-      <div class="px-6 pt-2 pb-0 bg-[#101935]/50 flex gap-4 overflow-x-auto border-b border-blue-900/30 hide-scrollbar">
+      <div
+        class="px-6 pt-2 pb-0 bg-slate-50 light:bg-[#EEF3FA]/50 dark:bg-[#101935]/50 flex gap-4 overflow-x-auto border-b border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 hide-scrollbar">
         <button *ngFor="let tab of notificationTabs" (click)="setActiveNotificationTab(tab)"
           class="pb-2 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 whitespace-nowrap"
           [ngClass]="activeNotificationTab === tab ? 'text-[#3083DC] border-[#3083DC]' : 'text-slate-500 border-transparent hover:text-slate-300'">
@@ -465,7 +530,7 @@
         <div *ngFor="let note of getFilteredNotifications()" class="mb-3 animate-fade-in-up">
           <div
             class="p-4 rounded-xl border border-blue-900/20 hover:border-blue-500/30 transition-all group cursor-pointer relative overflow-hidden flex gap-3"
-            [ngClass]="{'bg-[#101935]': !note.read, 'bg-[#101935]/40 opacity-75': note.read}">
+            [ngClass]="{'bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935]': !note.read, 'bg-slate-50 light:bg-[#EEF3FA]/40 dark:bg-[#101935]/40 opacity-75': note.read}">
 
             <!-- Icon based on type -->
             <div class="mt-1 flex-shrink-0">
@@ -500,15 +565,16 @@
             <div class="flex-1">
               <div class="flex justify-between items-start">
                 <h4
-                  class="text-sm font-bold text-white mb-0.5 leading-tight group-hover:text-[#3083DC] transition-colors">
+                  class="text-sm font-bold text-slate-800 light:text-[#0D1B35] dark:text-white mb-0.5 leading-tight group-hover:text-[#3083DC] transition-colors">
                   {{ note.title }}</h4>
                 <span class="text-[10px] text-gray-500 whitespace-nowrap ml-2">{{ note.date | date:'shortTime' }}</span>
               </div>
-              <p class="text-xs text-slate-400 leading-relaxed line-clamp-2">{{ note.message }}</p>
+              <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 leading-relaxed line-clamp-2">{{
+                note.message }}</p>
               <div class="mt-2 flex items-center gap-2"
                 *ngIf="activeNotificationTab === 'All' || activeNotificationTab === 'Unread'">
                 <span
-                  class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 uppercase font-bold tracking-wider">{{
+                  class="text-[10px] px-1.5 py-0.5 rounded bg-white dark:bg-slate-800 text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase font-bold tracking-wider">{{
                   note.category }}</span>
               </div>
             </div>
@@ -517,7 +583,8 @@
 
         <div *ngIf="getFilteredNotifications().length === 0"
           class="flex flex-col items-center justify-center py-10 text-center">
-          <div class="w-12 h-12 rounded-full bg-[#101935] flex items-center justify-center mb-3">
+          <div
+            class="w-12 h-12 rounded-full bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] flex items-center justify-center mb-3">
             <svg class="w-6 h-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -528,7 +595,7 @@
 
       </div>
 
-      <div class="p-4 border-t border-blue-900/50 bg-[#101935]/30 text-center">
+      <div class="p-4 border-t border-blue-900/50 bg-slate-50 light:bg-[#EEF3FA]/30 dark:bg-[#101935]/30 text-center">
         <button class="text-xs text-[#3083DC] hover:text-white font-medium transition-colors">Mark all as read</button>
       </div>
 
@@ -540,11 +607,15 @@
     <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm transition-opacity" (click)="closeLeaveModal()">
     </div>
     <div
-      class="relative bg-[#1B264F] border border-blue-900/50 rounded-2xl shadow-2xl w-full max-w-md animate-fade-in-up">
+      class="relative bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-blue-900/50 rounded-2xl shadow-2xl w-full max-w-md animate-fade-in-up">
 
-      <div class="px-6 py-4 border-b border-blue-900/50 bg-[#101935]/50 flex justify-between items-center">
-        <h3 class="text-lg font-bold text-white">{{ isEditMode ? 'Edit Leave Request' : 'Apply for Leave' }}</h3>
-        <button (click)="closeLeaveModal()" class="text-slate-400 hover:text-white">
+      <div
+        class="px-6 py-4 border-b border-blue-900/50 bg-slate-50 light:bg-[#EEF3FA]/50 dark:bg-[#101935]/50 flex justify-between items-center">
+        <h3 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ isEditMode ? 'Edit Leave
+          Request' : 'Apply for
+          Leave' }}</h3>
+        <button (click)="closeLeaveModal()"
+          class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 hover:text-white">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -569,9 +640,11 @@
 
         <!-- Leave Type -->
         <div>
-          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Leave Type</label>
+          <label
+            class="block text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider mb-1.5">Leave
+            Type</label>
           <select [(ngModel)]="leaveForm.leaveType"
-            class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-[#3083DC] transition-colors">
+            class="w-full bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-lg px-3 py-2.5 text-slate-800 light:text-[#0D1B35] dark:text-white focus:outline-none focus:border-blue-500 dark:focus:border-[#3083DC] transition-colors">
             <option value="" disabled>Select Leave Type</option>
             <option *ngFor="let leave of leaveBalances" [value]="leave.type">{{ leave.type }} ({{ leave.available }}
               remaining)</option>
@@ -582,21 +655,27 @@
         <div class="flex gap-4 mb-2">
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="radio" name="leaveUnit" [(ngModel)]="leaveForm.leaveUnit" value="full-day"
-              class="text-[#3083DC] focus:ring-[#3083DC] bg-[#101935] border-blue-900/30">
-            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Full Day</span>
+              class="text-[#3083DC] focus:ring-[#3083DC] bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
+            <span
+              class="text-xs font-bold text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 uppercase tracking-wider">Full
+              Day</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="radio" name="leaveUnit" [(ngModel)]="leaveForm.leaveUnit" value="half-day"
-              class="text-[#3083DC] focus:ring-[#3083DC] bg-[#101935] border-blue-900/30">
-            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Half Day</span>
+              class="text-[#3083DC] focus:ring-[#3083DC] bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
+            <span
+              class="text-xs font-bold text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 uppercase tracking-wider">Half
+              Day</span>
           </label>
         </div>
 
         <!-- Half Day Period Selector -->
         <div *ngIf="leaveForm.leaveUnit === 'half-day'" class="mb-2 animate-fade-in-up">
-          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Select Period</label>
+          <label
+            class="block text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider mb-1.5">Select
+            Period</label>
           <select [(ngModel)]="leaveForm.halfDayPeriod"
-            class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-[#3083DC] transition-colors">
+            class="w-full bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-lg px-3 py-2.5 text-slate-800 light:text-[#0D1B35] dark:text-white focus:outline-none focus:border-blue-500 dark:focus:border-[#3083DC] transition-colors">
             <option value="first-half">First Half (AM)</option>
             <option value="second-half">Second Half (PM)</option>
           </select>
@@ -605,33 +684,40 @@
         <!-- Dates -->
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Start Date</label>
+            <label
+              class="block text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider mb-1.5">Start
+              Date</label>
             <input type="date" [(ngModel)]="leaveForm.startDate" [min]="minDate"
-              class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-[#3083DC] transition-colors">
+              class="w-full bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-lg px-3 py-2.5 text-slate-800 light:text-[#0D1B35] dark:text-white focus:outline-none focus:border-blue-500 dark:focus:border-[#3083DC] transition-colors">
           </div>
           <div *ngIf="leaveForm.leaveUnit !== 'half-day'">
-            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">End Date</label>
+            <label
+              class="block text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider mb-1.5">End
+              Date</label>
             <input type="date" [(ngModel)]="leaveForm.endDate" [min]="leaveForm.startDate || minDate"
-              class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-[#3083DC] transition-colors">
+              class="w-full bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-lg px-3 py-2.5 text-slate-800 light:text-[#0D1B35] dark:text-white focus:outline-none focus:border-blue-500 dark:focus:border-[#3083DC] transition-colors">
           </div>
         </div>
 
         <!-- Reason -->
         <div>
-          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Reason</label>
+          <label
+            class="block text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider mb-1.5">Reason</label>
           <textarea [(ngModel)]="leaveForm.reason" rows="3" placeholder="Brief reason for your leave..."
-            class="w-full bg-[#101935] border border-blue-900/30 rounded-lg px-3 py-2.5 text-white focus:outline-none focus:border-[#3083DC] transition-colors resize-none"></textarea>
+            class="w-full bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-lg px-3 py-2.5 text-slate-800 light:text-[#0D1B35] dark:text-white focus:outline-none focus:border-blue-500 dark:focus:border-[#3083DC] transition-colors resize-none"></textarea>
         </div>
 
         <!-- Attachments (Conditional - only for medical/sick leaves) -->
         <div *ngIf="requiresAttachment()">
-          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Attachments
+          <label
+            class="block text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider mb-1.5">Attachments
             (Optional)</label>
           <div class="flex items-center justify-center w-full">
             <label
-              class="flex flex-col items-center justify-center w-full h-24 border-2 border-blue-900/30 border-dashed rounded-lg cursor-pointer bg-[#101935] hover:bg-[#1B264F] transition-colors">
+              class="flex flex-col items-center justify-center w-full h-24 border-2 border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 border-dashed rounded-lg cursor-pointer bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] hover:bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] transition-colors">
               <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                <svg class="w-6 h-6 mb-2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-6 h-6 mb-2 text-slate-500 light:text-[#7A96B2] dark:text-slate-400" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
@@ -643,22 +729,25 @@
                 accept=".pdf,.jpg,.jpeg,.png" />
             </label>
           </div>
-          <div *ngIf="selectedFiles.length > 0" class="mt-2 text-xs text-slate-300">
+          <div *ngIf="selectedFiles.length > 0"
+            class="mt-2 text-xs text-slate-600 light:text-[#3D5A7A] dark:text-slate-300">
             <p>Selected files:</p>
-            <ul class="list-disc list-inside text-slate-400">
+            <ul class="list-disc list-inside text-slate-500 light:text-[#7A96B2] dark:text-slate-400">
               <li *ngFor="let file of selectedFiles">{{ file.name }}</li>
             </ul>
           </div>
         </div>
       </div>
 
-      <div class="px-6 py-4 bg-[#101935]/30 border-t border-blue-900/50 flex justify-end gap-3">
+      <div
+        class="px-6 py-4 bg-slate-50 light:bg-[#EEF3FA]/30 dark:bg-[#101935]/30 border-t border-blue-900/50 flex justify-end gap-3">
         <button (click)="closeLeaveModal()"
-          class="px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium">Cancel</button>
+          class="px-4 py-2 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium">Cancel</button>
         <button (click)="submitLeaveApplication()" [disabled]="isSubmittingLeave"
-          class="px-6 py-2 bg-[#3083DC] hover:bg-[#2563EB] text-white rounded-lg transition-colors text-sm font-bold shadow-lg flex items-center gap-2">
-          <svg *ngIf="isSubmittingLeave" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
-            fill="none" viewBox="0 0 24 24">
+          class="px-6 py-2 bg-[#3083DC] hover:bg-[#2563EB] text-slate-800 light:text-[#0D1B35] dark:text-white rounded-lg transition-colors text-sm font-bold shadow-lg flex items-center gap-2">
+          <svg *ngIf="isSubmittingLeave"
+            class="animate-spin h-4 w-4 text-slate-800 light:text-[#0D1B35] dark:text-white"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
