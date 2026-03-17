@@ -260,6 +260,15 @@ export class HomeComponent implements OnInit {
     return Math.max(0, Math.floor(diff) + 1);
   }
 
+  isLeaveEditable(leave: any): boolean {
+    if (!leave || !leave.startDate) return false;
+    const start = typeof leave.startDate === 'string' ? new Date(leave.startDate) : leave.startDate;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Only allow editing if the start date is in the future or today
+    return start >= today;
+  }
+
   // Modal Methods
   openProfileModal(): void {
     this.showProfileModal = true;
