@@ -23,7 +23,7 @@ export interface LeaveRequest {
     startDate: Date;
     endDate: Date;
     reason: string;
-    status: 'Pending' | 'Approved' | 'Rejected';
+    status: 'Pending' | 'Approved' | 'Rejected' | 'Changes Requested' | 'Cancelled';
     managerId?: string;
     rejectionReason?: string;
     createdAt?: Date;

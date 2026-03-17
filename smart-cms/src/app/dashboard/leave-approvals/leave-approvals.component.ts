@@ -76,9 +76,10 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
                     [ngClass]="{
                       'bg-amber-500/20 text-amber-500': request.status === 'Pending',
                       'bg-emerald-500/20 text-emerald-500': request.status === 'Approved',
-                      'bg-rose-500/20 text-rose-500': request.status === 'Rejected'
+                      'bg-rose-500/20 text-rose-500': request.status === 'Rejected',
+                      'bg-purple-500/20 text-purple-400': request.status === 'Changes Requested'
                     }">
-                    {{ request.status }}
+                    {{ request.status === 'Changes Requested' ? 'Waiting on Empl' : request.status }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
@@ -169,7 +170,14 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
           <button (click)="detailConfirmMode = 'reject'" class="px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-lg text-sm font-bold">Reject</button>
           <button (click)="detailConfirmMode = 'approve'" class="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm font-bold">Approve</button>
         </div>
-        <div class="px-6 py-4 bg-[#101935]/30 border-t border-blue-900/50 flex justify-end" *ngIf="detailConfirmMode === 'view' && selectedRequest.status !== 'Pending'">
+        <div class="px-6 py-4 bg-[#101935]/30 border-t border-blue-900/50 flex justify-between items-center" *ngIf="detailConfirmMode === 'view' && selectedRequest.status === 'Changes Requested'">
+          <span class="text-sm text-purple-400 font-medium flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Waiting for employee to update request
+          </span>
+          <button (click)="closeDetail()" class="px-4 py-2 text-slate-300 hover:text-white rounded-lg text-sm font-medium">Close</button>
+        </div>
+        <div class="px-6 py-4 bg-[#101935]/30 border-t border-blue-900/50 flex justify-end" *ngIf="detailConfirmMode === 'view' && selectedRequest.status !== 'Pending' && selectedRequest.status !== 'Changes Requested'">
           <button (click)="closeDetail()" class="px-4 py-2 text-slate-300 hover:text-white rounded-lg text-sm font-medium">Close</button>
         </div>
       </div>

@@ -326,10 +326,19 @@
             <td class="py-4 text-slate-400 max-w-xs" title="{{ leave.rejectionReason }}">{{ leave.rejectionReason || '–'
               }}</td>
             <td class="py-4 text-right">
-              <button *ngIf="leave.status === 'Pending'" (click)="onCancelLeave(leave._id)"
-                class="text-red-400 hover:text-red-300 hover:underline text-xs font-medium transition-colors">
-                Cancel
-              </button>
+              <div class="flex flex-col items-end gap-2">
+                <button *ngIf="(leave.status === 'Pending' || leave.status === 'Changes Requested') && isLeaveEditable(leave)" (click)="onEditLeave(leave)"
+                  class="text-[#3083DC] hover:text-[#2563EB] hover:underline text-xs font-bold transition-colors">
+                  {{ leave.status === 'Changes Requested' ? 'Edit Request' : 'Edit' }}
+                </button>
+                <button *ngIf="leave.status === 'Pending' && isLeaveEditable(leave)" (click)="onCancelLeave(leave._id)"
+                  class="text-red-400 hover:text-red-300 hover:underline text-xs font-medium transition-colors">
+                  Cancel
+                </button>
+                <span *ngIf="(leave.status === 'Pending' || leave.status === 'Changes Requested') && !isLeaveEditable(leave)" class="text-xs text-slate-500 italic">
+                  Past Modification Window
+                </span>
+              </div>
             </td>
           </tr>
           <tr *ngIf="myLeaves.length === 0">
