@@ -75,6 +75,11 @@ export const routes: Routes = [
     canActivate: [managerHrGuard]
   },
   {
+    path: 'dashboard/my-leaves',
+    loadComponent: () => import('./dashboard/my-leaves/my-leaves.component').then(m => m.MyLeavesComponent),
+    canActivate: [managerHrGuard]
+  },
+  {
     path: 'admin/leave-policy',
     loadComponent: () => import('./admin/leave-policy/leave-policy.component').then(m => m.LeavePolicyComponent),
     canActivate: [adminGuard]

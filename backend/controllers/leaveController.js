@@ -99,28 +99,64 @@ exports.applyForLeave = async (req, res) => {
     try {
         const { userId, leaveType, startDate, endDate, reason, leaveUnit, halfDayPeriod } = req.body;
 
-        const user = await User.findById(userId);
+        const Hr = require('../models/Hr');
+        
+        let user = await User.findById(userId);
+        let isManagerOrHr = false;
+        
+        if (user && (user.role === 'manager' || user.role === 'hr' || user.role === 'admin')) {
+            isManagerOrHr = true;
+        } else if (!user) {
+            user = await Manager.findById(userId);
+            if (user) isManagerOrHr = true;
+        }
+
+        if (!user) {
+            user = await Hr.findById(userId);
+            if (user) isManagerOrHr = true;
+        }
+
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const managerIdentifier = user.reportingManager ? String(user.reportingManager).trim() : null;
-        if (!managerIdentifier) {
-            return res.status(400).json({ message: 'No reporting manager assigned to your profile. Please contact HR.' });
-        }
+        let managerId = null;
+        let isEscalated = false;
 
-        let manager = null;
-        if (/^[0-9a-fA-F]{24}$/.test(managerIdentifier)) {
-            manager = await Manager.findById(managerIdentifier);
-        }
-        if (!manager) {
-            manager = await Manager.findOne({ email: new RegExp(`^${managerIdentifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
-        }
-        if (!manager) {
-            return res.status(400).json({ message: 'Reporting manager not found in the system. Please contact HR to assign a valid manager (by name & email).' });
-        }
+        if (isManagerOrHr) {
+            managerId = 'hr-pool';
+        } else {
+            const managerIdentifier = user.reportingManager ? String(user.reportingManager).trim() : null;
+            if (!managerIdentifier) {
+                return res.status(400).json({ message: 'No reporting manager assigned to your profile. Please contact HR.' });
+            }
 
-        const managerId = String(manager._id);
+            let manager = null;
+            if (/^[0-9a-fA-F]{24}$/.test(managerIdentifier)) {
+                manager = await Manager.findById(managerIdentifier);
+            }
+            if (!manager) {
+                manager = await Manager.findOne({ email: new RegExp(`^${managerIdentifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
+            }
+            if (!manager) {
+                return res.status(400).json({ message: 'Reporting manager not found in the system. Please contact HR to assign a valid manager (by name & email).' });
+            }
+            managerId = String(manager._id);
+
+            // AUTO-ROUTING (Escalation) Check
+            // Escalate if manager has an approved leave overlapping the requested dates
+            const managerOnLeave = await LeaveRequest.findOne({
+                userId: managerId,
+                status: 'Approved',
+                startDate: { $lte: new Date(endDate) },
+                endDate: { $gte: new Date(startDate) }
+            });
+
+            if (managerOnLeave) {
+                managerId = 'hr-pool'; // Escalate to HR
+                isEscalated = true;
+            }
+        }
 
         const validation = await validateLeaveRequest(userId, leaveType, startDate, endDate, leaveUnit, halfDayPeriod);
         if (!validation.valid) {
@@ -256,9 +292,50 @@ exports.getManagerLeaves = async (req, res) => {
         console.log('=== FETCHING MANAGER LEAVES ===');
         console.log('Manager ID:', managerId);
 
-        const leaves = await LeaveRequest.find({ managerId })
-            .populate('userId', 'firstName lastName designation department')
-            .sort({ createdAt: -1 });
+        const Hr = require('../models/Hr');
+        const Admin = require('../models/Admin');
+        
+        let isHr = false;
+        let isAdmin = false;
+
+        if (/^[0-9a-fA-F]{24}$/.test(managerId)) {
+            isHr = await Hr.findById(managerId);
+            isAdmin = await Admin.findById(managerId);
+        }
+
+        const queryOr = [{ managerId }];
+        if (isHr || isAdmin) {
+            queryOr.push({ managerId: 'hr-pool' });
+        }
+
+        const leaves = await LeaveRequest.find({ $or: queryOr })
+            .populate('userId', 'firstName lastName name designation department role')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        for (let leave of leaves) {
+            if (!leave.userId || (!leave.userId.firstName && !leave.userId.name)) {
+                let fallbackId = leave.userId;
+                if (leave.userId && leave.userId._id) fallbackId = leave.userId._id;
+                
+                const mgr = await Manager.findById(fallbackId, 'name designation department role');
+                if (mgr) {
+                    leave.userDetails = { firstName: mgr.name, lastName: '', designation: mgr.designation || 'Manager', department: mgr.department };
+                } else {
+                    const hrCall = await Hr.findById(fallbackId, 'name designation department role');
+                    if (hrCall) leave.userDetails = { firstName: hrCall.name, lastName: '', designation: hrCall.designation || 'HR', department: hrCall.department };
+                }
+            } else {
+                leave.userDetails = leave.userId;
+                if (!leave.userDetails.designation) {
+                    if (leave.userDetails.role === 'manager') {
+                        leave.userDetails.designation = 'Manager';
+                    } else if (leave.userDetails.role === 'hr') {
+                        leave.userDetails.designation = 'Human Resources';
+                    }
+                }
+            }
+        }
 
         console.log('Found leaves count:', leaves.length);
         console.log('================================');
@@ -277,8 +354,12 @@ exports.updateLeaveStatus = async (req, res) => {
         }
 
         const callerId = req.user && req.user._id ? String(req.user._id) : null;
-        if (!callerId || leave.managerId !== callerId) {
-            return res.status(403).json({ message: 'Only the reporting manager can approve or reject this leave' });
+        const callerRole = req.user ? req.user.role : null;
+        
+        const isHrOrAdmin = callerRole === 'admin' || callerRole === 'hr';
+
+        if (!callerId || (!isHrOrAdmin && leave.managerId !== callerId)) {
+            return res.status(403).json({ message: 'Only the reporting manager or HR/Admin can approve or reject this leave' });
         }
 
         if (leave.status !== 'Pending') {
@@ -330,5 +411,30 @@ exports.getTeamCalendar = async (req, res) => {
     } catch (error) {
         console.error('Error fetching team calendar:', error);
         res.status(500).json({ message: 'Server error fetching team calendar' });
+    }
+};
+
+exports.getManagerStatus = async (req, res) => {
+    try {
+        const { managerId } = req.params;
+        if (!managerId) return res.json({ onLeave: false });
+
+        const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+
+        const tomorrow = new Date(today);
+        tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+
+        const managerOnLeave = await LeaveRequest.findOne({
+            userId: managerId,
+            status: 'Approved',
+            startDate: { $lt: tomorrow },
+            endDate: { $gte: today }
+        });
+
+        res.json({ onLeave: !!managerOnLeave });
+    } catch (error) {
+        console.error('Error fetching manager status:', error);
+        res.status(500).json({ message: 'Server error fetching manager status' });
     }
 };

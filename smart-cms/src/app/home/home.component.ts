@@ -134,6 +134,7 @@ export class HomeComponent implements OnInit {
   isSubmittingLeave = false;
 
   myLeaves: any[] = [];
+  managerOnLeave = false;
 
   isDarkMode = true;
 
@@ -192,6 +193,7 @@ export class HomeComponent implements OnInit {
     this.loadLeaveData();
     if (this.userProfile) {
       this.loadMyLeavesAndSync();
+      this.checkManagerStatus();
     }
     this.loadAttendanceData();
   }
@@ -283,6 +285,16 @@ export class HomeComponent implements OnInit {
       },
       error: (err) => console.error('Error loading my leaves', err)
     });
+  }
+
+  checkManagerStatus(): void {
+    const managerId = this.userProfile?.reportingManager;
+    if (managerId) {
+      this.leavePolicyService.getManagerStatus(managerId).subscribe({
+        next: (res) => this.managerOnLeave = res.onLeave,
+        error: (err) => console.error('Error fetching manager status', err)
+      });
+    }
   }
 
   getLeaveDays(start: string | Date, end: string | Date): number {
@@ -829,12 +841,15 @@ export class HomeComponent implements OnInit {
       });
 
       this.leavePolicyService.applyForLeave(formData).subscribe({
-        next: (res) => {
-          console.log('Leave applied successfully', res);
-          this.isSubmittingLeave = false;
+        next: (res: any) => {
+          console.log('Leave requested successfully', res);
+          const msg = res.escalated
+             ? 'Leave submitted! Since your manager is away, it has been automatically routed to HR for approval.'
+             : 'Leave request submitted successfully!';
+          this.confirmationModal.alert('Success', msg, 'success');
           this.closeLeaveModal();
-          this.confirmationModal.alert('Success', 'Leave application submitted successfully!', 'success');
           this.loadMyLeavesAndSync();
+          this.isSubmittingLeave = false;
         },
         error: (err) => {
           console.error('Error applying for leave', err);

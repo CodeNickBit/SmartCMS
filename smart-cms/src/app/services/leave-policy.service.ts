@@ -83,6 +83,10 @@ export class LeavePolicyService {
         return this.http.get<LeaveRequest[]>(`${this.leaveUrl}/team-calendar/${managerId}`);
     }
 
+    getManagerStatus(managerId: string): Observable<{ onLeave: boolean }> {
+        return this.http.get<{ onLeave: boolean }>(`${this.leaveUrl}/manager-status/${managerId}`);
+    }
+
     updateLeaveStatus(leaveId: string, status: 'Approved' | 'Rejected' | 'Changes Requested', rejectionReason?: string, managerComments?: string): Observable<any> {
         return this.http.put(`${this.leaveUrl}/${leaveId}/status`, { status, rejectionReason, managerComments });
     }
