@@ -10,8 +10,9 @@ router.post('/apply', upload.array('attachments', 3), leaveController.applyForLe
 router.post('/cancel/:id', leaveController.cancelLeave);
 router.get('/my-leaves/:userId', leaveController.getMyLeaves);
 router.get('/manager-requests/:managerId', leaveController.getManagerLeaves);
+router.get('/manager-status/:managerId', leaveController.getManagerStatus);
 router.get('/team-calendar/:managerId', leaveController.getTeamCalendar);
-router.put('/:id/status', protect, checkRole(['manager']), leaveController.updateLeaveStatus);
+router.put('/:id/status', protect, checkRole(['manager', 'hr', 'admin']), leaveController.updateLeaveStatus);
 router.put('/:id', leaveController.updateLeaveRequest);
 
 // ... Year End (Admin Only)

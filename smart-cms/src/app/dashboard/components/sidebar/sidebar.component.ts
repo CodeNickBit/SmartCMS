@@ -69,6 +69,13 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
             </svg>
             <span class="font-medium text-sm">Manage Managers</span>
           </a>
+          <a routerLink="/dashboard/leave-approvals" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
+            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
+            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-medium text-sm">Leave Approvals</span>
+          </a>
           <a routerLink="/dashboard/employees" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
             class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
             <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -122,6 +129,20 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
             <span class="font-medium text-sm">My Team</span>
           </a>
 
+        </ng-container>
+
+        <!-- Personal Links -->
+        <ng-container *ngIf="userRole === 'manager' || userRole === 'hr'">
+          <div class="pt-4 pb-2 px-3">
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Personal</p>
+          </div>
+          <a routerLink="/dashboard/my-leaves" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
+            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
+            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v-4m8 4v-4m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span class="font-medium text-sm">My Leaves</span>
+          </a>
         </ng-container>
 
         <!-- Common Links -->
