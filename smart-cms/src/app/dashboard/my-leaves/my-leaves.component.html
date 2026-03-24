@@ -56,7 +56,11 @@
               <tr *ngFor="let leave of myLeaves" class="hover:bg-white/5 transition-colors">
                 <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-200">{{ leave.leaveType }}</td>
                 <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                  {{ leave.startDate | date:'mediumDate' }} <span *ngIf="leave.startDate !== leave.endDate">to {{ leave.endDate | date:'mediumDate' }}</span>
+                  <div class="flex flex-col">
+                    <span>{{ leave.startDate | date:'mediumDate' }}</span>
+                    <span class="text-xs text-slate-500 mt-0.5" *ngIf="leave.leaveUnit !== 'half-day'">to {{ leave.endDate | date:'mediumDate' }}</span>
+                    <span *ngIf="leave.leaveUnit === 'half-day'" class="text-[10px] font-bold text-indigo-500 mt-0.5 tracking-wider uppercase">Half Day ({{ leave.halfDayPeriod === 'first-half' ? 'First' : 'Second' }})</span>
+                  </div>
                 </td>
                 <td class="px-6 py-4 text-slate-600 dark:text-slate-400 max-w-xs truncate" title="{{ leave.reason }}">{{ leave.reason }}</td>
                 <td class="px-6 py-4">
@@ -133,6 +137,15 @@
           <option value="first-half">First Half</option>
           <option value="second-half">Second Half</option>
         </select>
+      </div>
+
+      <div *ngIf="activeManagers.length > 0 && leaveForm.leaveUnit !== 'half-day'">
+        <label class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Proxy Manager (Optional)</label>
+        <select [(ngModel)]="leaveForm.proxyManagerId" class="w-full bg-slate-100 dark:bg-[#1B264F] border border-slate-300 dark:border-blue-900/50 rounded-lg px-4 py-2.5 text-slate-800 dark:text-white focus:ring-2 focus:ring-[#3083DC]">
+          <option value="">-- Route to HR Pool --</option>
+          <option *ngFor="let mgr of activeManagers" [value]="mgr._id">{{ mgr.name }} ({{ mgr.department }})</option>
+        </select>
+        <p class="text-[10px] text-slate-400 mt-1">Select a peer to approve your team's leaves while you are away.</p>
       </div>
 
       <div>

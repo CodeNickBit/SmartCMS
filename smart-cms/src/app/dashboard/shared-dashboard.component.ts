@@ -28,6 +28,48 @@ import { AuthService } from '../services/auth.service'; // Import Auth
               <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-2 font-medium">Welcome back, {{ userName }}! Here's what's happening today.</p>
             </div>
 
+            <!-- Return Digest Banner (Manager Only) -->
+            <div *ngIf="userRole === 'manager' && digestVisible && digestItems.length > 0"
+              class="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 dark:bg-amber-900/10 overflow-hidden shadow-md">
+              <div class="flex items-center justify-between px-6 py-4 border-b border-amber-500/20 bg-amber-500/10">
+                <div class="flex items-center gap-3">
+                  <span class="text-xl">📋</span>
+                  <div>
+                    <h3 class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">Welcome Back! Here's What Happened While You Were Away</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">HR or a proxy manager actioned {{ digestItems.length }} leave request(s) on your behalf.</p>
+                  </div>
+                </div>
+                <button (click)="dismissDigest()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors text-lg leading-none" title="Dismiss">&times;</button>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="bg-amber-500/5 dark:bg-amber-900/10">
+                    <tr class="text-left text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                      <th class="px-6 py-3">Employee</th>
+                      <th class="px-6 py-3">Leave Type</th>
+                      <th class="px-6 py-3">Dates</th>
+                      <th class="px-6 py-3">Decision</th>
+                      <th class="px-6 py-3">Actioned By</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of digestItems; let last = last"
+                      [class]="'hover:bg-amber-500/5 transition-colors ' + (last ? '' : 'border-b border-amber-500/10')">
+                      <td class="px-6 py-3 font-medium text-slate-800 dark:text-white">{{ item.employeeName }}</td>
+                      <td class="px-6 py-3 text-slate-600 dark:text-slate-300">{{ item.leaveType }}</td>
+                      <td class="px-6 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ item.startDate | date:'d MMM' }} – {{ item.endDate | date:'d MMM yy' }}</td>
+                      <td class="px-6 py-3">
+                        <span [class]="'px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wide ' + (item.status === \'Approved\' ? \'bg-emerald-500/20 text-emerald-500\' : \'bg-rose-500/20 text-rose-500\')">
+                          {{ item.status }}
+                        </span>
+                      </td>
+                      <td class="px-6 py-3 text-slate-500 dark:text-slate-400">{{ item.resolvedByName || 'HR / Proxy' }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
             <!-- Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
               <div *ngFor="let stat of stats" class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl p-6 shadow-lg relative overflow-hidden group hover:border-[#3083DC]/50 transition-all">
@@ -136,7 +178,10 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
   userName: string = 'User';
   userRole: string = '';
   pendingCount: number = 0;
+  digestItems: any[] = [];
+  digestVisible = false;
   private pollingInterval: any;
+  private digestDismissKey = '';
 
   stats = [
     { label: 'Total Employees', value: '452', trend: '12%', trendUp: true, bgClass: 'bg-[#3083DC]', textClass: 'text-white', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
@@ -178,6 +223,15 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
             }, 30000);
           }
 
+          if (this.userRole === 'manager') {
+            const userId = user._id || user.id;
+            this.digestDismissKey = `digest_dismissed_${userId}`;
+            const dismissed = localStorage.getItem(this.digestDismissKey);
+            if (!dismissed) {
+              this.loadReturnDigest(userId);
+            }
+          }
+
         } catch (e) {
           console.error('Error parsing user data', e);
         }
@@ -203,6 +257,22 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
         }
       });
     }
-    // Logic for HR can be added here
+  }
+
+  loadReturnDigest(userId: string): void {
+    this.leaveService.getReturnDigest(userId).subscribe({
+      next: (data) => {
+        this.digestItems = data || [];
+        this.digestVisible = this.digestItems.length > 0;
+      },
+      error: () => {}
+    });
+  }
+
+  dismissDigest(): void {
+    this.digestVisible = false;
+    if (isPlatformBrowser(this.platformId) && this.digestDismissKey) {
+      localStorage.setItem(this.digestDismissKey, 'true');
+    }
   }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { LeavePolicyService, LeaveRequest, LeavePolicy } from '../../services/leave-policy.service';
+import { ManagerService, Manager } from '../../services/manager.service';
 import { SharedSidebarComponent } from '../components/sidebar/sidebar.component';
 import { SharedHeaderComponent } from '../components/header/header.component';
 import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
@@ -25,14 +26,18 @@ export class MyLeavesComponent implements OnInit {
     endDate: '',
     reason: '',
     leaveUnit: 'full-day',
-    halfDayPeriod: 'first-half'
+    halfDayPeriod: 'first-half',
+    proxyManagerId: ''
   };
+
+  activeManagers: Manager[] = [];
 
   pendingLeaveNotificationsCount = 0;
 
   constructor(
     private leaveService: LeavePolicyService,
     private authService: AuthService,
+    private managerService: ManagerService,
     private confirmationModal: ConfirmationModalService
   ) {}
 
@@ -42,6 +47,7 @@ export class MyLeavesComponent implements OnInit {
       this.loadLeaves();
       this.loadPolicies();
       this.loadPendingLeavesCount();
+      this.loadManagers();
     }
   }
 
@@ -61,6 +67,16 @@ export class MyLeavesComponent implements OnInit {
     this.leaveService.getMyLeaves(userId).subscribe({
       next: (data) => this.myLeaves = data || [],
       error: (err) => console.error('Error loading leaves', err)
+    });
+  }
+
+  loadManagers() {
+    this.managerService.getActiveManagers().subscribe({
+      next: (data) => {
+        const userId = this.currentUser._id ?? this.currentUser.id;
+        this.activeManagers = data.filter(m => m._id !== userId);
+      },
+      error: (err) => console.error('Error loading managers', err)
     });
   }
 
@@ -115,7 +131,8 @@ export class MyLeavesComponent implements OnInit {
         endDate: '',
         reason: '',
         leaveUnit: 'full-day',
-        halfDayPeriod: 'first-half'
+        halfDayPeriod: 'first-half',
+        proxyManagerId: ''
     };
     this.showApplyModal = true;
   }
@@ -125,13 +142,13 @@ export class MyLeavesComponent implements OnInit {
   }
 
   submitLeave() {
+    if (this.leaveForm.leaveUnit === 'half-day') {
+       this.leaveForm.endDate = this.leaveForm.startDate;
+    }
+
     if (!this.leaveForm.leaveType || !this.leaveForm.startDate || !this.leaveForm.endDate || !this.leaveForm.reason) {
       this.confirmationModal.alert('Error', 'Please fill all required fields.', 'error');
       return;
-    }
-    
-    if (this.leaveForm.leaveUnit === 'half-day') {
-       this.leaveForm.endDate = this.leaveForm.startDate;
     }
 
     const start = new Date(this.leaveForm.startDate);
@@ -145,6 +162,11 @@ export class MyLeavesComponent implements OnInit {
       userId: this.currentUser._id ?? this.currentUser.id,
       ...this.leaveForm
     };
+    
+    // Clean up empty string or half-day selection
+    if (!payload.proxyManagerId || this.leaveForm.leaveUnit === 'half-day') {
+       delete (payload as any).proxyManagerId;
+    }
 
     this.leaveService.applyForLeave(payload).subscribe({
       next: (res) => {

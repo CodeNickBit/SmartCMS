@@ -2,6 +2,8 @@ const LeaveRequest = require('../models/LeaveRequest');
 const User = require('../models/User');
 const Manager = require('../models/Manager');
 const LeavePolicy = require('../models/LeavePolicy');
+const Hr = require('../models/Hr');
+const { sendEscalationEmail } = require('../utils/mailer');
 
 const validateLeaveRequest = async (userId, leaveType, startDate, endDate, leaveUnit, halfDayPeriod, currentLeaveId = null) => {
     const start = new Date(startDate);
@@ -97,10 +99,8 @@ const validateLeaveRequest = async (userId, leaveType, startDate, endDate, leave
 
 exports.applyForLeave = async (req, res) => {
     try {
-        const { userId, leaveType, startDate, endDate, reason, leaveUnit, halfDayPeriod } = req.body;
+        const { userId, leaveType, startDate, endDate, reason } = req.body;
 
-        const Hr = require('../models/Hr');
-        
         let user = await User.findById(userId);
         let isManagerOrHr = false;
         
@@ -138,38 +138,61 @@ exports.applyForLeave = async (req, res) => {
             if (!manager) {
                 manager = await Manager.findOne({ email: new RegExp(`^${managerIdentifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
             }
+            if (!manager && /^[0-9]+$/.test(managerIdentifier)) {
+                manager = await User.findById(managerIdentifier);
+            }
             if (!manager) {
-                return res.status(400).json({ message: 'Reporting manager not found in the system. Please contact HR to assign a valid manager (by name & email).' });
+                manager = await User.findOne({ email: new RegExp(`^${managerIdentifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'), role: 'manager' });
+            }
+            
+            if (!manager) {
+                return res.status(400).json({ message: 'Reporting manager not found in the system. Please contact HR to assign a valid manager.' });
             }
             managerId = String(manager._id);
 
             // AUTO-ROUTING (Escalation) Check
-            // Escalate if manager has an approved leave overlapping the requested dates
+            // Escalate if manager has an approved or pending leave overlapping the requested dates
             const managerOnLeave = await LeaveRequest.findOne({
                 userId: managerId,
-                status: 'Approved',
+                status: { $in: ['Pending', 'Approved'] },
+                leaveUnit: { $ne: 'half-day' },
                 startDate: { $lte: new Date(endDate) },
                 endDate: { $gte: new Date(startDate) }
-            });
+            }).sort({ createdAt: -1 });
 
             if (managerOnLeave) {
-                managerId = 'hr-pool'; // Escalate to HR
-                isEscalated = true;
+                // Determine routing: Prefer Proxy Manager over HR-Pool
+                if (managerOnLeave.proxyManagerId) {
+                    managerId = managerOnLeave.proxyManagerId;
+                    isEscalated = true; // Technically a delegated escalation
+                } else {
+                    managerId = 'hr-pool'; // Escalate to HR
+                    isEscalated = true;
+                }
             }
         }
 
-        const validation = await validateLeaveRequest(userId, leaveType, startDate, endDate, leaveUnit, halfDayPeriod);
+        const validation = await validateLeaveRequest(userId, leaveType, startDate, endDate, req.body.leaveUnit, req.body.halfDayPeriod);
         if (!validation.valid) {
             return res.status(validation.status).json({ message: validation.message });
         }
 
+        const leaveUnit = req.body.leaveUnit || 'full-day';
+        const halfDayPeriod = req.body.halfDayPeriod;
+        const status = 'Pending'; // Default status for new requests
+        
+        // Proxy Manager Support
+        const proxyManagerId = req.body.proxyManagerId;
+
         const newLeave = new LeaveRequest({
             userId,
             leaveType,
-            startDate,
-            endDate,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
             reason,
+            status,
             managerId,
+            proxyManagerId, // Save the selected proxy manager
             leaveUnit,
             halfDayPeriod: leaveUnit === 'half-day' ? halfDayPeriod : undefined,
             attachments: req.files ? req.files.map(f => ({
@@ -186,6 +209,30 @@ exports.applyForLeave = async (req, res) => {
         console.log('===========================');
 
         await newLeave.save();
+
+        if (isEscalated && managerId === 'hr-pool') {
+            const employeeName = user.firstName
+                ? `${user.firstName} ${user.lastName || ''}`.trim()
+                : (user.name || 'Employee');
+
+            let originalManagerName = null;
+            const managerIdentifier = user.reportingManager ? String(user.reportingManager).trim() : null;
+            if (managerIdentifier) {
+                const mgr = await Manager.findById(managerIdentifier).lean()
+                    || await User.findById(managerIdentifier).lean();
+                if (mgr) originalManagerName = mgr.name || (`${mgr.firstName || ''} ${mgr.lastName || ''}`).trim();
+            }
+
+            sendEscalationEmail({
+                employeeName,
+                leaveType,
+                startDate,
+                endDate,
+                reason,
+                originalManagerName
+            });
+        }
+
         res.status(201).json(newLeave);
     } catch (error) {
         res.status(500).json({ message: 'Error applying for leave', error: error.message });
@@ -243,6 +290,87 @@ exports.updateLeaveRequest = async (req, res) => {
             return res.status(validation.status).json({ message: validation.message });
         }
 
+        // Re-evaluate Manager Routing if dates changed
+        if (new Date(startDate).getTime() !== leave.startDate.getTime() || new Date(endDate).getTime() !== leave.endDate.getTime() || leave.status === 'Pending') {
+            const User = require('../models/User');
+            const Manager = require('../models/Manager');
+            const Hr = require('../models/Hr');
+            
+            let userObj = await User.findById(leave.userId);
+            let isManagerOrHr = false;
+            
+            if (userObj && (userObj.role === 'manager' || userObj.role === 'hr' || userObj.role === 'admin')) {
+                isManagerOrHr = true;
+            } else if (!userObj) {
+                userObj = await Manager.findById(leave.userId);
+                if (userObj) isManagerOrHr = true;
+            }
+            if (!userObj) {
+                userObj = await Hr.findById(leave.userId);
+                if (userObj) isManagerOrHr = true;
+            }
+
+            if (userObj && !isManagerOrHr) {
+                const managerIdentifier = userObj.reportingManager ? String(userObj.reportingManager).trim() : null;
+                if (managerIdentifier) {
+                    let actualManager = null;
+                    if (/^[0-9a-fA-F]{24}$/.test(managerIdentifier)) {
+                        actualManager = await Manager.findById(managerIdentifier);
+                    }
+                    if (!actualManager) {
+                        actualManager = await Manager.findOne({ email: new RegExp(`^${managerIdentifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') });
+                    }
+                    if (!actualManager && /^[0-9]+$/.test(managerIdentifier)) {
+                        actualManager = await User.findById(managerIdentifier);
+                    }
+                    if (!actualManager) {
+                        actualManager = await User.findOne({ email: new RegExp(`^${managerIdentifier.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i'), role: 'manager' });
+                    }
+                    
+                    if (actualManager) {
+                        let originalManagerId = String(actualManager._id);
+                        
+                        // Check if original manager is on leave for the NEW dates
+                        const managerOnLeave = await LeaveRequest.findOne({
+                            userId: originalManagerId,
+                            status: { $in: ['Pending', 'Approved'] },
+                            leaveUnit: { $ne: 'half-day' },
+                            startDate: { $lte: new Date(endDate) },
+                            endDate: { $gte: new Date(startDate) }
+                        }).sort({ createdAt: -1 });
+
+                        if (managerOnLeave) {
+                            if (managerOnLeave.proxyManagerId) {
+                                leave.managerId = managerOnLeave.proxyManagerId;
+                            } else {
+                                leave.managerId = 'hr-pool';
+                                const empName = userObj.firstName
+                                    ? `${userObj.firstName} ${userObj.lastName || ''}`.trim()
+                                    : (userObj.name || 'Employee');
+                                const mgr = await Manager.findById(originalManagerId).lean()
+                                    || await User.findById(originalManagerId).lean();
+                                const originalManagerName = mgr
+                                    ? (mgr.name || (`${mgr.firstName || ''} ${mgr.lastName || ''}`).trim())
+                                    : null;
+                                sendEscalationEmail({
+                                    employeeName: empName,
+                                    leaveType: leave.leaveType,
+                                    startDate: leave.startDate,
+                                    endDate: leave.endDate,
+                                    reason: leave.reason,
+                                    originalManagerName
+                                });
+                            }
+                        } else {
+                            leave.managerId = originalManagerId;
+                        }
+                    }
+                }
+            } else if (isManagerOrHr) {
+                leave.managerId = 'hr-pool';
+            }
+        }
+
         await leave.save();
         res.json(leave);
     } catch (error) {
@@ -259,7 +387,7 @@ exports.cancelLeave = async (req, res) => {
         }
 
         // Ensure user owns the request
-        const requestingUserId = req.user && req.user._id ? String(req.user._id) : req.body.userId;
+        const requestingUserId = (req.user && (req.user.id || req.user._id)) ? String(req.user.id || req.user._id) : req.body.userId;
         if (leave.userId !== String(requestingUserId)) {
             return res.status(403).json({ message: 'Unauthorized to cancel this leave request.' });
         }
@@ -292,7 +420,6 @@ exports.getManagerLeaves = async (req, res) => {
         console.log('=== FETCHING MANAGER LEAVES ===');
         console.log('Manager ID:', managerId);
 
-        const Hr = require('../models/Hr');
         const Admin = require('../models/Admin');
         
         let isHr = false;
@@ -309,30 +436,54 @@ exports.getManagerLeaves = async (req, res) => {
         }
 
         const leaves = await LeaveRequest.find({ $or: queryOr })
-            .populate('userId', 'firstName lastName name designation department role')
             .sort({ createdAt: -1 })
             .lean();
 
         for (let leave of leaves) {
-            if (!leave.userId || (!leave.userId.firstName && !leave.userId.name)) {
-                let fallbackId = leave.userId;
-                if (leave.userId && leave.userId._id) fallbackId = leave.userId._id;
-                
-                const mgr = await Manager.findById(fallbackId, 'name designation department role');
-                if (mgr) {
-                    leave.userDetails = { firstName: mgr.name, lastName: '', designation: mgr.designation || 'Manager', department: mgr.department };
-                } else {
-                    const hrCall = await Hr.findById(fallbackId, 'name designation department role');
-                    if (hrCall) leave.userDetails = { firstName: hrCall.name, lastName: '', designation: hrCall.designation || 'HR', department: hrCall.department };
-                }
+            let fallbackId = leave.userId;
+            
+            // Try User collection first (covers Employee and User-Managers)
+            const dbUser = await User.findById(fallbackId, 'firstName lastName name designation department role reportingManager').lean();
+            if (dbUser) {
+                leave.userId = dbUser;
+                leave.userDetails = { 
+                    firstName: dbUser.firstName, 
+                    lastName: dbUser.lastName, 
+                    designation: dbUser.designation || (dbUser.role === 'manager' ? 'Manager' : 'Employee'), 
+                    department: dbUser.department,
+                    reportingManager: dbUser.reportingManager 
+                };
+                leave.userId.designation = leave.userDetails.designation;
             } else {
-                leave.userDetails = leave.userId;
-                if (!leave.userDetails.designation) {
-                    if (leave.userDetails.role === 'manager') {
-                        leave.userDetails.designation = 'Manager';
-                    } else if (leave.userDetails.role === 'hr') {
-                        leave.userDetails.designation = 'Human Resources';
+                const mgr = await Manager.findById(fallbackId, 'name designation department role reportingManager').lean();
+                if (mgr) {
+                    mgr.firstName = mgr.name;
+                    mgr.designation = mgr.designation || 'Manager';
+                    leave.userId = mgr;
+                    leave.userDetails = { firstName: mgr.name, lastName: '', designation: mgr.designation, department: mgr.department, reportingManager: mgr.reportingManager };
+                } else {
+                    const hrCall = await Hr.findById(fallbackId, 'name designation department role reportingManager').lean();
+                    if (hrCall) {
+                        hrCall.firstName = hrCall.name;
+                        hrCall.designation = hrCall.designation || 'HR';
+                        leave.userId = hrCall;
+                        leave.userDetails = { firstName: hrCall.name, lastName: '', designation: hrCall.designation, department: hrCall.department, reportingManager: hrCall.reportingManager };
                     }
+                }
+            }
+
+            // Flag escalated leaves with original manager name
+            if (leave.managerId === 'hr-pool' && leave.userDetails && leave.userDetails.reportingManager) {
+                try {
+                    const rMid = leave.userDetails.reportingManager;
+                    const mgrEsc = await Manager.findById(rMid, 'name').lean() 
+                        || await Hr.findById(rMid, 'name').lean() 
+                        || await User.findById(rMid, 'firstName lastName name').lean();
+                    if (mgrEsc) {
+                        leave.escalatedFromManager = mgrEsc.name || (`${mgrEsc.firstName || ''} ${mgrEsc.lastName || ''}`).trim();
+                    }
+                } catch (e) {
+                    console.error('Failed fetching escalated manager:', e);
                 }
             }
         }
@@ -378,6 +529,15 @@ exports.updateLeaveStatus = async (req, res) => {
             updateData.managerComments = managerComments;
         }
 
+        const originalManagerId = leave.managerId;
+        const actingAsProxy = !isHrOrAdmin && callerId !== originalManagerId;
+        const actingAsHr = isHrOrAdmin && leave.managerId === 'hr-pool';
+
+        if (actingAsHr || actingAsProxy) {
+            updateData.resolvedWhileManagerAway = true;
+            updateData.resolvedBy = callerId;
+        }
+
         const updated = await LeaveRequest.findByIdAndUpdate(
             req.params.id,
             updateData,
@@ -392,25 +552,75 @@ exports.updateLeaveStatus = async (req, res) => {
 exports.getTeamCalendar = async (req, res) => {
     try {
         const { managerId } = req.params;
-        // Find all users who report to this manager
         const reports = await User.find({ reportingManager: managerId }).select('_id firstName lastName');
-
-        if (!reports.length) {
-            return res.json([]);
-        }
 
         const reportIds = reports.map(r => r._id);
 
-        // Fetch approved leaves for these users
-        const leaves = await LeaveRequest.find({
-            userId: { $in: reportIds },
-            status: 'Approved' // Only show approved leaves on calendar
-        }).populate('userId', 'firstName lastName');
+        const teamLeaves = reportIds.length
+            ? await LeaveRequest.find({
+                userId: { $in: reportIds },
+                status: 'Approved'
+            }).populate('userId', 'firstName lastName')
+            : [];
 
-        res.json(leaves);
+        const managerLeaves = await LeaveRequest.find({
+            userId: managerId,
+            status: 'Approved'
+        }).lean();
+
+        let managerName = 'Manager';
+        const mgr = await Manager.findById(managerId, 'name').lean()
+            || await User.findById(managerId, 'firstName lastName name').lean();
+        if (mgr) managerName = mgr.name || (`${mgr.firstName || ''} ${mgr.lastName || ''}`).trim();
+
+        const taggedManagerLeaves = managerLeaves.map(l => ({
+            ...l,
+            isManagerLeave: true,
+            managerName
+        }));
+
+        res.json([...teamLeaves, ...taggedManagerLeaves]);
     } catch (error) {
         console.error('Error fetching team calendar:', error);
         res.status(500).json({ message: 'Server error fetching team calendar' });
+    }
+};
+
+exports.getReturnDigest = async (req, res) => {
+    try {
+        const { managerId } = req.params;
+        const Hr = require('../models/Hr');
+
+        const reports = await User.find({ reportingManager: managerId }).select('_id firstName lastName').lean();
+        const reportIds = reports.map(r => String(r._id));
+
+        const digestLeaves = await LeaveRequest.find({
+            userId: { $in: reportIds },
+            resolvedWhileManagerAway: true,
+            status: { $in: ['Approved', 'Rejected'] }
+        }).sort({ updatedAt: -1 }).lean();
+
+        for (const leave of digestLeaves) {
+            const emp = reports.find(r => String(r._id) === leave.userId);
+            leave.employeeName = emp
+                ? `${emp.firstName} ${emp.lastName || ''}`.trim()
+                : leave.userId;
+
+            if (leave.resolvedBy) {
+                const resolver = await Hr.findById(leave.resolvedBy, 'name').lean()
+                    || await Manager.findById(leave.resolvedBy, 'name').lean()
+                    || await User.findById(leave.resolvedBy, 'firstName lastName name').lean();
+                if (resolver) {
+                    leave.resolvedByName = resolver.name
+                        || (`${resolver.firstName || ''} ${resolver.lastName || ''}`).trim();
+                }
+            }
+        }
+
+        res.json(digestLeaves);
+    } catch (error) {
+        console.error('Error fetching return digest:', error);
+        res.status(500).json({ message: 'Server error fetching return digest' });
     }
 };
 
@@ -430,9 +640,29 @@ exports.getManagerStatus = async (req, res) => {
             status: 'Approved',
             startDate: { $lt: tomorrow },
             endDate: { $gte: today }
-        });
+        }).lean();
 
-        res.json({ onLeave: !!managerOnLeave });
+        if (!managerOnLeave) {
+            return res.json({ onLeave: false });
+        }
+
+        // Fetch proxy manager details if they assigned one
+        let proxyName = null;
+        if (managerOnLeave.proxyManagerId) {
+            const pId = managerOnLeave.proxyManagerId;
+            const pm = await Manager.findById(pId, 'name').lean() 
+                || await Hr.findById(pId, 'name').lean() 
+                || await User.findById(pId, 'firstName lastName name').lean();
+            if (pm) {
+                proxyName = pm.name || (`${pm.firstName || ''} ${pm.lastName || ''}`).trim();
+            }
+        }
+
+        res.json({ 
+            onLeave: true, 
+            proxyManagerId: managerOnLeave.proxyManagerId,
+            proxyName: proxyName
+        });
     } catch (error) {
         console.error('Error fetching manager status:', error);
         res.status(500).json({ message: 'Server error fetching manager status' });

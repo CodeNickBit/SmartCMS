@@ -60,6 +60,10 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
                     <div>
                       <div class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ request.userDetails?.firstName || '' }} {{ request.userDetails?.lastName || '' }}</div>
                       <div class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400">{{ request.userDetails?.designation || 'Employee' }} &bull; {{ request.userDetails?.department || '' }}</div>
+                      <div *ngIf="request.escalatedFromManager" class="text-[10px] font-bold text-amber-500 mt-1 uppercase tracking-wider flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        Escalated: Manager {{ request.escalatedFromManager }} away
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -67,7 +71,8 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
                 <td class="px-6 py-4 text-slate-600 light:text-[#3D5A7A] dark:text-slate-300">
                   <div class="flex flex-col">
                     <span>{{ (request.startDate | date:'mediumDate') || request.startDate }}</span>
-                    <span class="text-xs text-slate-500">to {{ (request.endDate | date:'mediumDate') || request.endDate }}</span>
+                    <span class="text-xs text-slate-500" *ngIf="request.leaveUnit !== 'half-day'">to {{ (request.endDate | date:'mediumDate') || request.endDate }}</span>
+                    <span *ngIf="request.leaveUnit === 'half-day'" class="text-[10px] font-bold text-indigo-500 mt-0.5 tracking-wider uppercase">Half Day ({{ request.halfDayPeriod === 'first-half' ? 'First' : 'Second' }})</span>
                   </div>
                 </td>
                 <td class="px-6 py-4 text-slate-500 light:text-[#7A96B2] dark:text-slate-400 max-w-xs truncate" title="{{ request.reason }}">{{ request.reason }}</td>
@@ -113,6 +118,10 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
             <div>
               <div class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ selectedRequest.userDetails?.firstName || '' }} {{ selectedRequest.userDetails?.lastName || '' }}</div>
               <div class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400">{{ selectedRequest.userDetails?.designation || 'Employee' }} &bull; {{ selectedRequest.userDetails?.department || '' }}</div>
+              <div *ngIf="selectedRequest.escalatedFromManager" class="text-xs font-bold text-amber-500 mt-1 bg-amber-500/10 px-2 py-1 rounded w-max flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Escalated (Manager {{ selectedRequest.escalatedFromManager }} away)
+              </div>
             </div>
           </div>
           <div>
@@ -121,7 +130,10 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
           </div>
           <div>
             <span class="text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider">Dates</span>
-            <p class="text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 mt-0.5">{{ selectedRequest.startDate | date:'mediumDate' }} – {{ selectedRequest.endDate | date:'mediumDate' }}</p>
+            <p class="text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 mt-0.5">
+              <span>{{ selectedRequest.startDate | date:'mediumDate' }}</span><span *ngIf="selectedRequest.leaveUnit !== 'half-day'"> – {{ selectedRequest.endDate | date:'mediumDate' }}</span>
+              <span *ngIf="selectedRequest.leaveUnit === 'half-day'" class="block mt-1 text-xs font-bold text-indigo-500 uppercase tracking-wider">Half Day ({{ selectedRequest.halfDayPeriod === 'first-half' ? 'First Half' : 'Second Half' }})</span>
+            </p>
           </div>
           <div>
             <span class="text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider">Reason</span>
@@ -166,9 +178,10 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
         </div>
 
         <div class="px-6 py-4 bg-slate-50 light:bg-[#EEF3FA]/30 dark:bg-[#101935]/30 border-t border-blue-900/50 flex justify-end gap-2" *ngIf="detailConfirmMode === 'view' && selectedRequest.status === 'Pending'">
-          <button (click)="detailConfirmMode = 'changes'" class="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg text-sm font-bold">Request Changes</button>
-          <button (click)="detailConfirmMode = 'reject'" class="px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-lg text-sm font-bold">Reject</button>
-          <button (click)="detailConfirmMode = 'approve'" class="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm font-bold">Approve</button>
+          <div *ngIf="isPastLeave(selectedRequest.endDate)" class="text-rose-500 text-sm font-medium my-auto mr-auto">This leave request has expired.</div>
+          <button (click)="detailConfirmMode = 'changes'" [disabled]="isPastLeave(selectedRequest.endDate)" class="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded-lg text-sm font-bold disabled:opacity-50 disabled:pointer-events-none">Request Changes</button>
+          <button (click)="detailConfirmMode = 'reject'" [disabled]="isPastLeave(selectedRequest.endDate)" class="px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 rounded-lg text-sm font-bold disabled:opacity-50 disabled:pointer-events-none">Reject</button>
+          <button (click)="detailConfirmMode = 'approve'" [disabled]="isPastLeave(selectedRequest.endDate)" class="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 rounded-lg text-sm font-bold disabled:opacity-50 disabled:pointer-events-none">Approve</button>
         </div>
         <div class="px-6 py-4 bg-[#101935]/30 border-t border-blue-900/50 flex justify-between items-center" *ngIf="detailConfirmMode === 'view' && selectedRequest.status === 'Changes Requested'">
           <span class="text-sm text-purple-400 font-medium flex items-center gap-2">
@@ -219,6 +232,7 @@ export class LeaveApprovalsComponent implements OnInit {
   currentUser: any;
   showDetailModal = false;
   selectedRequest: any = null;
+  // Trigger rebuild
   detailConfirmMode: 'view' | 'approve' | 'reject' | 'changes' = 'view';
   rejectReasonInModal = '';
   managerCommentsInModal = '';
@@ -246,6 +260,13 @@ export class LeaveApprovalsComponent implements OnInit {
 
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
+  }
+
+  isPastLeave(endDate: string | Date | undefined): boolean {
+    if (!endDate) return false;
+    const end = new Date(endDate);
+    end.setHours(23, 59, 59, 999);
+    return end.getTime() < new Date().getTime();
   }
 
   constructor(
