@@ -52,6 +52,7 @@ export class SignupComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.forceDarkMode();
     this.initializeForm();
     this.loadDepartments();
     this.loadDesignations();
@@ -74,6 +75,17 @@ export class SignupComponent implements OnInit {
     this.registrationForm.get('department')?.valueChanges.subscribe(() => {
       this.onDepartmentChange();
     });
+  }
+
+  private forceDarkMode(): void {
+    if (typeof document !== 'undefined') {
+      const body = document.body;
+      const html = document.documentElement;
+      body.classList.remove('theme-light');
+      html.classList.remove('theme-light');
+      body.classList.add('dark');
+      html.classList.add('dark');
+    }
   }
 
   loadDepartments() {

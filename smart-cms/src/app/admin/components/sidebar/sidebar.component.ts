@@ -24,8 +24,20 @@ export class AdminSidebarComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.forceDarkMode();
     if (isPlatformBrowser(this.platformId)) {
       this.loadUserData();
+    }
+  }
+
+  private forceDarkMode(): void {
+    if (typeof document !== 'undefined') {
+      const body = document.body;
+      const html = document.documentElement;
+      body.classList.remove('theme-light');
+      html.classList.remove('theme-light');
+      body.classList.add('dark');
+      html.classList.add('dark');
     }
   }
 
