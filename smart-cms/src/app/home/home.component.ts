@@ -135,6 +135,7 @@ export class HomeComponent implements OnInit {
 
   myLeaves: any[] = [];
   managerOnLeave = false;
+  managerProxyName: string | null = null;
 
   isDarkMode = true;
 
@@ -291,7 +292,10 @@ export class HomeComponent implements OnInit {
     const managerId = this.userProfile?.reportingManager;
     if (managerId) {
       this.leavePolicyService.getManagerStatus(managerId).subscribe({
-        next: (res) => this.managerOnLeave = res.onLeave,
+        next: (res: any) => {
+          this.managerOnLeave = res.onLeave;
+          this.managerProxyName = res.proxyName;
+        },
         error: (err) => console.error('Error fetching manager status', err)
       });
     }
@@ -843,9 +847,14 @@ export class HomeComponent implements OnInit {
       this.leavePolicyService.applyForLeave(formData).subscribe({
         next: (res: any) => {
           console.log('Leave requested successfully', res);
-          const msg = res.escalated
-             ? 'Leave submitted! Since your manager is away, it has been automatically routed to HR for approval.'
-             : 'Leave request submitted successfully!';
+          
+          let msg = 'Leave request submitted successfully!';
+          if (res.escalated) {
+             msg = this.managerProxyName 
+                 ? `Leave submitted! It has been automatically routed to your Proxy Manager (${this.managerProxyName}) for approval.`
+                 : 'Leave submitted! Since your manager is away, it has been automatically routed to HR for approval.';
+          }
+          
           this.confirmationModal.alert('Success', msg, 'success');
           this.closeLeaveModal();
           this.loadMyLeavesAndSync();

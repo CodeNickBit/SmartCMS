@@ -20,6 +20,8 @@ export interface LeaveRequest {
     _id?: string;
     userId: string;
     leaveType: string;
+    leaveUnit?: 'full-day' | 'half-day';
+    halfDayPeriod?: 'first-half' | 'second-half';
     startDate: Date;
     endDate: Date;
     reason: string;
@@ -28,6 +30,7 @@ export interface LeaveRequest {
     rejectionReason?: string;
     createdAt?: Date;
     userDetails?: any; // For populated user data in manager view
+    escalatedFromManager?: string; // Original manager names when escalated to HR
 }
 
 @Injectable({
@@ -105,5 +108,9 @@ export class LeavePolicyService {
 
     cancelLeave(id: string): Observable<any> {
         return this.http.post(`${this.leaveUrl}/cancel/${id}`, {});
+    }
+
+    getReturnDigest(managerId: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.leaveUrl}/return-digest/${managerId}`);
     }
 }
