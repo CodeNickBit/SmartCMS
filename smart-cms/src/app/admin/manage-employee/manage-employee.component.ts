@@ -94,10 +94,8 @@ export class ManageEmployeeComponent implements OnInit {
   }
 
   loadManagers() {
-    console.log('Loading all active managers...');
     this.managerService.getActiveManagers().subscribe({
       next: (data) => {
-        console.log('Managers loaded:', data);
         this.activeManagers = data;
       },
       error: (error) => {
@@ -107,19 +105,16 @@ export class ManageEmployeeComponent implements OnInit {
   }
 
   onDepartmentChange() {
-    console.log('Department changed:', this.editingEmployee?.department);
     if (this.editingEmployee && this.editingEmployee.department) {
       this.loadManagersByDepartment(this.editingEmployee.department);
     }
   }
 
   loadManagersByDepartment(department: string) {
-    console.log('Loading managers for department:', department);
     this.managerService.getActiveManagers(department).subscribe({
       next: (data) => {
-        console.log('Filtered managers:', data);
         this.activeManagers = data;
-        if (this.editingEmployee && !data.find(m => m.name === this.editingEmployee.reportingManager)) {
+        if (this.editingEmployee && !data.find((m: Manager) => m._id === this.editingEmployee.reportingManager)) {
           this.editingEmployee.reportingManager = '';
         }
       },

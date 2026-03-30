@@ -12,6 +12,7 @@ export interface OfficeLocation {
   longitude: number;
   radius: number;
   isActive: boolean;
+  timezone?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

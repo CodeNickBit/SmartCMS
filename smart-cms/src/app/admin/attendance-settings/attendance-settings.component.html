@@ -64,6 +64,10 @@
                 <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Radius</span>
                 <span class="text-sm font-bold text-[#3083DC]">{{ location.radius }}m</span>
               </div>
+              <div class="flex items-center justify-between p-3 bg-[#101935] rounded-lg border border-slate-700">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Timezone</span>
+                <span class="text-sm font-bold text-white">{{ location.timezone || 'Asia/Kolkata' }}</span>
+              </div>
             </div>
 
             <div class="flex items-center gap-2">
@@ -146,6 +150,20 @@
           <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Geofence Radius (meters) *</label>
           <input type="number" [(ngModel)]="newLocation.radius" min="50" max="1000" placeholder="100"
             class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Timezone *</label>
+          <select [(ngModel)]="newLocation.timezone"
+            class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+            <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+            <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+            <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
+            <option value="Europe/London">Europe/London (GMT)</option>
+            <option value="America/New_York">America/New_York (EST)</option>
+            <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
+            <option value="UTC">UTC</option>
+          </select>
         </div>
       </div>
 
@@ -238,6 +256,20 @@
           <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Geofence Radius (meters) *</label>
           <input type="number" [(ngModel)]="editingLocation.radius" min="50" max="1000" placeholder="100"
             class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Timezone *</label>
+          <select [(ngModel)]="editingLocation.timezone"
+            class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+            <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+            <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+            <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
+            <option value="Europe/London">Europe/London (GMT)</option>
+            <option value="America/New_York">America/New_York (EST)</option>
+            <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
+            <option value="UTC">UTC</option>
+          </select>
         </div>
       </div>
 

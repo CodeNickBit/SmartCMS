@@ -69,9 +69,8 @@ router.get('/active', async (req, res) => {
 
     const managers = await Manager.find(query)
       .select('_id name email department designation')
-      .sort({ name: 1 });
-    
-    console.log(`GET /api/manager/active - Department: ${department}, Found: ${managers.length} managers`);
+      .sort({ name: 1 })
+      .lean();
     
     res.json(managers);
   } catch (error) {
