@@ -33,7 +33,8 @@ export class AttendanceSettingsComponent implements OnInit {
     latitude: 0,
     longitude: 0,
     radius: 100,
-    isActive: true
+    isActive: true,
+    timezone: 'Asia/Kolkata'
   };
 
   editingLocation: OfficeLocation = {
@@ -43,7 +44,8 @@ export class AttendanceSettingsComponent implements OnInit {
     latitude: 0,
     longitude: 0,
     radius: 100,
-    isActive: true
+    isActive: true,
+    timezone: 'Asia/Kolkata'
   };
 
   constructor(
@@ -90,7 +92,8 @@ export class AttendanceSettingsComponent implements OnInit {
       latitude: 0,
       longitude: 0,
       radius: 100,
-      isActive: true
+      isActive: true,
+      timezone: 'Asia/Kolkata'
     };
   }
 
@@ -102,7 +105,8 @@ export class AttendanceSettingsComponent implements OnInit {
       latitude: 0,
       longitude: 0,
       radius: 100,
-      isActive: true
+      isActive: true,
+      timezone: 'Asia/Kolkata'
     };
   }
 
@@ -236,7 +240,8 @@ export class AttendanceSettingsComponent implements OnInit {
       latitude: Number(this.newLocation.latitude),
       longitude: Number(this.newLocation.longitude),
       radius: Number(this.newLocation.radius),
-      isActive: this.newLocation.isActive
+      isActive: this.newLocation.isActive,
+      timezone: this.newLocation.timezone || 'Asia/Kolkata'
     };
 
     this.officeLocationService.create(locationData).subscribe({
@@ -288,7 +293,8 @@ export class AttendanceSettingsComponent implements OnInit {
       latitude: Number(this.editingLocation.latitude),
       longitude: Number(this.editingLocation.longitude),
       radius: Number(this.editingLocation.radius),
-      isActive: this.editingLocation.isActive
+      isActive: this.editingLocation.isActive,
+      timezone: this.editingLocation.timezone || 'Asia/Kolkata'
     };
 
     this.officeLocationService.update(this.editingLocation._id, locationData).subscribe({

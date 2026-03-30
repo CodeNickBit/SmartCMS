@@ -99,11 +99,10 @@ export class SignupComponent implements OnInit {
   }
 
   loadManagers() {
-    console.log('Signup: Loading all active managers...');
     this.managerService.getActiveManagers().subscribe({
       next: (data) => {
-        console.log('Signup: Managers loaded:', data);
         this.activeManagers = data;
+        this.dbManagers = data.map(m => ({ _id: m._id, name: m.name, email: m.email }));
       },
       error: (error) => {
         console.error('Signup: Error fetching managers:', error);
@@ -113,20 +112,18 @@ export class SignupComponent implements OnInit {
 
   onDepartmentChange() {
     const department = this.registrationForm.get('department')?.value;
-    console.log('Signup: Department changed to:', department);
     if (department) {
       this.loadManagersByDepartment(department);
     }
   }
 
   loadManagersByDepartment(department: string) {
-    console.log('Signup: Loading managers for department:', department);
     this.managerService.getActiveManagers(department).subscribe({
       next: (data) => {
-        console.log('Signup: Filtered managers:', data);
         this.activeManagers = data;
+        this.dbManagers = data.map(m => ({ _id: m._id, name: m.name, email: m.email }));
         const currentManager = this.registrationForm.get('reportingManager')?.value;
-        if (currentManager && !data.find(m => m.name === currentManager)) {
+        if (currentManager && !data.find(m => m._id === currentManager)) {
           this.registrationForm.patchValue({ reportingManager: '' });
         }
       },

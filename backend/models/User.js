@@ -149,8 +149,14 @@ const userSchema = new mongoose.Schema({
     trim: true
   },
   reportingManager: {
-    type: String,
-    trim: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Manager',
+    default: null
+  },
+  backupManager: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Manager',
+    default: null
   },
   joiningDate: {
     type: Date,
