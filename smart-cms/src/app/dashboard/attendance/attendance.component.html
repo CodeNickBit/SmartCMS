@@ -1,26 +1,26 @@
-<div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+<div class="flex h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white font-sans overflow-hidden">
   <app-shared-sidebar></app-shared-sidebar>
 
   <div class="flex-1 flex flex-col h-full relative min-w-0">
     <app-shared-header></app-shared-header>
 
-    <main class="flex-1 overflow-y-auto bg-[#101935] scroll-smooth">
+    <main class="flex-1 overflow-y-auto bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] scroll-smooth">
       <div class="max-w-6xl mx-auto p-6 lg:p-8 space-y-8">
 
         <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-12 space-y-4">
           <div class="h-12 w-12 border-4 border-[#3083DC] border-t-transparent rounded-full animate-spin"></div>
-          <p class="text-slate-400 font-medium tracking-wide">Syncing attendance data...</p>
+          <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-medium tracking-wide">Syncing attendance data...</p>
         </div>
 
         <div *ngIf="!isLoading" class="space-y-8 animate-fade-in">
           <div class="flex items-center justify-between">
             <div>
-              <h1 class="text-3xl font-bold text-white tracking-tight">Attendance</h1>
-              <p class="text-slate-400 mt-2 font-medium">Mark your attendance for today</p>
+              <h1 class="text-[#246bb6] light:text-[#1A6DC2] dark:text-[#3083DC]xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white tracking-tight">Attendance</h1>
+              <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-2 font-medium">Mark your attendance for today</p>
             </div>
             <div class="text-right">
-              <p class="text-sm text-slate-400">Today's Date</p>
-              <p class="text-xl font-bold text-white">{{ (todayAttendance?.date || today) | date:'EEEE, MMMM d, y' }}
+              <p class="text-sm text-slate-500 light:text-[#7A96B2] dark:text-slate-400">Today's Date</p>
+              <p class="text-xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ (todayAttendance?.date || today) | date:'EEEE, MMMM d, y' }}
               </p>
             </div>
           </div>
@@ -49,9 +49,9 @@
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-            <div class="bg-[#1B264F] border border-blue-900/30 rounded-2xl p-8 shadow-xl">
+            <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-2xl p-8 shadow-xl">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-white">Check-In</h2>
+                <h2 class="text-xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">Check-In</h2>
                 <div *ngIf="hasCheckedIn" class="flex items-center gap-2 text-emerald-400">
                   <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -62,15 +62,15 @@
               </div>
 
               <div *ngIf="!hasCheckedIn" class="space-y-6">
-                <div class="bg-[#101935] border border-slate-700 rounded-xl p-6 text-center">
+                <div class="bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center">
                   <svg class="h-16 w-16 mx-auto text-slate-600 mb-4" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <p class="text-slate-400 text-sm mb-6">You haven't checked in yet today</p>
+                  <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 text-sm mb-6">You haven't checked in yet today</p>
                   <button (click)="checkIn()" [disabled]="isCheckingIn"
-                    class="w-full bg-[#3083DC] hover:bg-blue-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-3">
+                    class="w-full bg-[#3083DC] hover:bg-blue-600 disabled:bg-slate-700 disabled:cursor-not-allowed text-slate-800 light:text-[#0D1B35] dark:text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-3">
                     <svg class="h-6 w-6" [class.pulse-animation]="isCheckingIn" fill="none" viewBox="0 0 24 24"
                       stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -84,7 +84,7 @@
               </div>
 
               <div *ngIf="hasCheckedIn && todayAttendance?.checkIn" class="space-y-4">
-                <div class="bg-[#101935] border border-emerald-700/30 rounded-xl p-6">
+                <div class="bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-emerald-700/30 rounded-xl p-6">
                   <div class="flex items-center gap-3 mb-4">
                     <div class="h-12 w-12 rounded-full bg-emerald-900/30 flex items-center justify-center">
                       <svg class="h-6 w-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,8 +93,8 @@
                       </svg>
                     </div>
                     <div class="flex-1">
-                      <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Check-In Time</p>
-                      <p class="text-2xl font-bold text-white">{{ todayAttendance?.checkIn?.time | date:'h:mm a' }}</p>
+                      <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider font-bold">Check-In Time</p>
+                      <p class="text-2xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ todayAttendance?.checkIn?.time | date:'h:mm a' }}</p>
                     </div>
                     <!-- Approval Status Badge -->
                     <div *ngIf="todayAttendance?.approvalStatus === 'pending'"
@@ -134,43 +134,43 @@
 
                   <div class="space-y-3">
                     <div class="flex items-start gap-3">
-                      <svg class="h-5 w-5 text-slate-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg class="h-5 w-5 text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       <div class="flex-1">
-                        <p class="text-xs text-slate-400 font-bold">Location</p>
-                        <p class="text-sm text-white">{{ todayAttendance?.checkIn?.address }}</p>
+                        <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-bold">Location</p>
+                        <p class="text-sm text-slate-800 light:text-[#0D1B35] dark:text-white">{{ todayAttendance?.checkIn?.address }}</p>
                       </div>
                     </div>
 
                     <div class="flex items-center gap-3">
-                      <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg class="h-5 w-5 text-slate-500 light:text-[#7A96B2] dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                       </svg>
                       <div class="flex-1">
-                        <p class="text-xs text-slate-400 font-bold">Distance from Office</p>
+                        <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-bold">Distance from Office</p>
                         <p class="text-sm text-emerald-400 font-bold">{{ todayAttendance?.checkIn?.distance }}m</p>
                       </div>
                     </div>
 
                     <!-- Manager Notes (if any) -->
                     <div *ngIf="todayAttendance?.managerNotes"
-                      class="mt-4 p-4 bg-[#1B264F] rounded-lg border border-blue-900/30">
-                      <p class="text-xs text-slate-400 font-bold mb-2">Manager's Notes</p>
-                      <p class="text-sm text-white">{{ todayAttendance?.managerNotes }}</p>
+                      class="mt-4 p-4 bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] rounded-lg border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
+                      <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-bold mb-2">Manager's Notes</p>
+                      <p class="text-sm text-slate-800 light:text-[#0D1B35] dark:text-white">{{ todayAttendance?.managerNotes }}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="bg-[#1B264F] border border-blue-900/30 rounded-2xl p-8 shadow-xl">
+            <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-2xl p-8 shadow-xl">
               <div class="flex items-center justify-between mb-6">
-                <h2 class="text-xl font-bold text-white">Check-Out</h2>
+                <h2 class="text-xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">Check-Out</h2>
                 <div *ngIf="hasCheckedOut" class="flex items-center gap-2 text-orange-400">
                   <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -180,25 +180,25 @@
                 </div>
               </div>
 
-              <div *ngIf="!hasCheckedIn" class="bg-[#101935] border border-slate-700 rounded-xl p-6 text-center">
+              <div *ngIf="!hasCheckedIn" class="bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center">
                 <svg class="h-16 w-16 mx-auto text-slate-600 mb-4" fill="none" viewBox="0 0 24 24"
                   stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                <p class="text-slate-400 text-sm">Please check in first to enable check-out</p>
+                <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 text-sm">Please check in first to enable check-out</p>
               </div>
 
               <div *ngIf="hasCheckedIn && !hasCheckedOut" class="space-y-6">
-                <div class="bg-[#101935] border border-slate-700 rounded-xl p-6 text-center">
+                <div class="bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center">
                   <svg class="h-16 w-16 mx-auto text-slate-600 mb-4" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
-                  <p class="text-slate-400 text-sm mb-6">Ready to check out?</p>
+                  <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 text-sm mb-6">Ready to check out?</p>
                   <button (click)="checkOut()" [disabled]="isCheckingOut"
-                    class="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-3">
+                    class="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-slate-800 light:text-[#0D1B35] dark:text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-3">
                     <svg class="h-6 w-6" [class.pulse-animation]="isCheckingOut" fill="none" viewBox="0 0 24 24"
                       stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -210,7 +210,7 @@
               </div>
 
               <div *ngIf="hasCheckedOut && todayAttendance?.checkOut" class="space-y-4">
-                <div class="bg-[#101935] border border-orange-700/30 rounded-xl p-6">
+                <div class="bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-orange-700/30 rounded-xl p-6">
                   <div class="flex items-center gap-3 mb-4">
                     <div class="h-12 w-12 rounded-full bg-orange-900/30 flex items-center justify-center">
                       <svg class="h-6 w-6 text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -219,32 +219,32 @@
                       </svg>
                     </div>
                     <div>
-                      <p class="text-xs text-slate-400 uppercase tracking-wider font-bold">Check-Out Time</p>
-                      <p class="text-2xl font-bold text-white">{{ todayAttendance?.checkOut?.time | date:'h:mm a' }}</p>
+                      <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider font-bold">Check-Out Time</p>
+                      <p class="text-2xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ todayAttendance?.checkOut?.time | date:'h:mm a' }}</p>
                     </div>
                   </div>
 
                   <div class="space-y-3">
                     <div class="flex items-start gap-3">
-                      <svg class="h-5 w-5 text-slate-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg class="h-5 w-5 text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
                       <div class="flex-1">
-                        <p class="text-xs text-slate-400 font-bold">Location</p>
-                        <p class="text-sm text-white">{{ todayAttendance?.checkOut?.address }}</p>
+                        <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-bold">Location</p>
+                        <p class="text-sm text-slate-800 light:text-[#0D1B35] dark:text-white">{{ todayAttendance?.checkOut?.address }}</p>
                       </div>
                     </div>
 
-                    <div class="flex items-center gap-3 p-4 bg-[#1B264F] rounded-lg border border-blue-900/30">
+                    <div class="flex items-center gap-3 p-4 bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] rounded-lg border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
                       <svg class="h-6 w-6 text-[#3083DC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                       <div class="flex-1">
-                        <p class="text-xs text-slate-400 font-bold">Total Working Hours</p>
+                        <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-bold">Total Working Hours</p>
                         <p class="text-xl text-[#3083DC] font-bold">{{ formatWorkingHours(todayAttendance?.workingHours
                           || 0) }}</p>
                       </div>
@@ -255,11 +255,11 @@
             </div>
           </div>
 
-          <div class="bg-[#1B264F] border border-blue-900/30 rounded-2xl p-8 shadow-xl">
-            <h2 class="text-xl font-bold text-white mb-6">Office Locations</h2>
+          <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-2xl p-8 shadow-xl">
+            <h2 class="text-xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white mb-6">Office Locations</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div *ngFor="let office of officeLocations"
-                class="bg-[#101935] border border-slate-700 rounded-xl p-4 hover:border-[#3083DC]/50 transition-all">
+                class="bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:border-[#3083DC]/50 transition-all">
                 <div class="flex items-center gap-3">
                   <div class="h-10 w-10 rounded-lg bg-[#3083DC]/20 flex items-center justify-center">
                     <svg class="h-5 w-5 text-[#3083DC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -268,8 +268,8 @@
                     </svg>
                   </div>
                   <div class="flex-1">
-                    <p class="font-bold text-white">{{ office.name }}</p>
-                    <p class="text-xs text-slate-400">Geofence: {{ office.radius }}m radius</p>
+                    <p class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ office.name }}</p>
+                    <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400">Geofence: {{ office.radius }}m radius</p>
                   </div>
                 </div>
               </div>

@@ -58,6 +58,17 @@ const leaveRequestSchema = new mongoose.Schema({
     rejectionReason: {
         type: String,
         trim: true
+    },
+    proxyManagerId: {
+        type: String,
+        required: false
+    },
+    resolvedWhileManagerAway: {
+        type: Boolean,
+        default: false
+    },
+    resolvedBy: {
+        type: String
     }
 }, {
     timestamps: true

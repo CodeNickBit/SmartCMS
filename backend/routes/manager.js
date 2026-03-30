@@ -71,8 +71,32 @@ router.get('/active', async (req, res) => {
       .select('_id name email department designation')
       .sort({ name: 1 })
       .lean();
+      
+    const User = require('../models/User');
+    const userQuery = { role: 'manager', $or: [{ isActive: true }, { active_inactive: true }] };
+    if (department && department !== 'all') {
+      userQuery.department = new RegExp(`^${department}$`, 'i');
+    }
     
-    res.json(managers);
+    const userManagers = await User.find(userQuery)
+      .select('_id firstName lastName email department designation')
+      .sort({ firstName: 1 });
+      
+    const formattedUserManagers = userManagers.map(u => ({
+      _id: u._id,
+      name: `${u.firstName} ${u.lastName}`.trim(),
+      email: u.email,
+      department: u.department,
+      designation: u.designation || 'Manager'
+    }));
+
+    const allManagers = [...managers, ...formattedUserManagers];
+    
+    console.log(`GET /api/manager/active - Department: ${department}, Found: ${allManagers.length} managers`);
+      .sort({ name: 1 })
+      .lean();
+    
+    res.json(allManagers);
   } catch (error) {
     console.error('Error fetching active managers:', error);
     res.status(500).json({ message: 'Failed to fetch active managers', error: error.message });

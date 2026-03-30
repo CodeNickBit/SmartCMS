@@ -1,0 +1,162 @@
+<div class="flex h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white font-sans overflow-hidden">
+  <app-shared-sidebar class="flex-shrink-0"></app-shared-sidebar>
+
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <!-- Header -->
+    <app-shared-header [notificationCount]="pendingLeaveNotificationsCount"></app-shared-header>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar">
+      
+      <!-- Top Section -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] p-6 rounded-2xl border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">My Leaves</h2>
+          <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-1">Manage your leave applications and balances</p>
+        </div>
+        <button (click)="openApplyModal()" class="px-5 py-2.5 bg-[#3083DC] hover:bg-[#2068b5] text-white rounded-xl font-bold shadow-lg shadow-[#3083DC]/20 transition-all flex items-center gap-2">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Apply for Leave
+        </button>
+      </div>
+
+      <!-- Leave Balances -->
+      <div *ngIf="leaveBalances.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div *ngFor="let balance of leaveBalances" class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl p-5 shadow-lg relative overflow-hidden">
+          <h3 class="text-sm font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-widest mb-2">{{ balance.type }}</h3>
+          <div class="flex items-end gap-2">
+            <span class="text-3xl font-bold text-[#3083DC]">{{ balance.total - balance.used }}</span>
+            <span class="text-sm text-slate-500 font-medium mb-1">/ {{ balance.total }} remaining</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-2xl overflow-hidden shadow-lg">
+        <div class="p-6 border-b border-blue-900/20">
+          <h3 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center gap-2">
+            <span class="h-2 w-2 bg-[#3083DC] rounded-full"></span>
+            Leave History
+          </h3>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-xs uppercase text-slate-500 font-semibold border-b border-blue-900/30">
+              <tr>
+                <th class="px-6 py-4">Type</th>
+                <th class="px-6 py-4">Dates</th>
+                <th class="px-6 py-4">Reason</th>
+                <th class="px-6 py-4">Status</th>
+                <th class="px-6 py-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-blue-900/20">
+              <tr *ngFor="let leave of myLeaves" class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-200">{{ leave.leaveType }}</td>
+                <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
+                  <div class="flex flex-col">
+                    <span>{{ leave.startDate | date:'mediumDate' }}</span>
+                    <span class="text-xs text-slate-500 mt-0.5" *ngIf="leave.leaveUnit !== 'half-day'">to {{ leave.endDate | date:'mediumDate' }}</span>
+                    <span *ngIf="leave.leaveUnit === 'half-day'" class="text-[10px] font-bold text-indigo-500 mt-0.5 tracking-wider uppercase">Half Day ({{ leave.halfDayPeriod === 'first-half' ? 'First' : 'Second' }})</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-slate-600 dark:text-slate-400 max-w-xs truncate" title="{{ leave.reason }}">{{ leave.reason }}</td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider"
+                    [ngClass]="{
+                      'bg-amber-500/20 text-amber-500': leave.status === 'Pending',
+                      'bg-emerald-500/20 text-emerald-500': leave.status === 'Approved',
+                      'bg-rose-500/20 text-rose-500': leave.status === 'Rejected',
+                      'bg-purple-500/20 text-purple-400': leave.status === 'Changes Requested'
+                    }">
+                    {{ leave.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <button *ngIf="leave.status === 'Pending'" (click)="cancelLeave(leave._id)" class="text-xs font-bold text-rose-500 hover:text-rose-400 px-3 py-1 bg-rose-500/10 rounded">
+                    Cancel
+                  </button>
+                  <span *ngIf="leave.status !== 'Pending'" class="text-slate-500">-</span>
+                </td>
+              </tr>
+              <tr *ngIf="myLeaves.length === 0">
+                <td colspan="5" class="px-6 py-8 text-center text-slate-500 italic">No leave applications found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Apply Modal -->
+<div *ngIf="showApplyModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" (click)="closeApplyModal()"></div>
+  <div class="relative bg-white light:bg-[#EEF3FA] dark:bg-[#101935] border border-blue-900/50 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+    <div class="px-6 py-4 border-b border-blue-900/50 flex justify-between items-center bg-slate-50 dark:bg-slate-800/30">
+      <h3 class="text-lg font-bold text-slate-800 dark:text-white">Apply for Leave</h3>
+      <button (click)="closeApplyModal()" class="text-slate-400 hover:text-rose-500 transition-colors">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+    
+    <div class="p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Leave Type</label>
+        <select [(ngModel)]="leaveForm.leaveType" class="w-full bg-slate-100 dark:bg-[#1B264F] border border-slate-300 dark:border-blue-900/50 rounded-lg px-4 py-2.5 text-slate-800 dark:text-white focus:ring-2 focus:ring-[#3083DC]">
+          <option *ngFor="let balance of leaveBalances" [value]="balance.type">{{ balance.type }}</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Start Date</label>
+          <input type="date" [(ngModel)]="leaveForm.startDate" class="w-full bg-slate-100 dark:bg-[#1B264F] border border-slate-300 dark:border-blue-900/50 rounded-lg px-4 py-2.5 text-slate-800 dark:text-white focus:ring-2 focus:ring-[#3083DC]">
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">End Date</label>
+          <input type="date" [(ngModel)]="leaveForm.endDate" class="w-full bg-slate-100 dark:bg-[#1B264F] border border-slate-300 dark:border-blue-900/50 rounded-lg px-4 py-2.5 text-slate-800 dark:text-white focus:ring-2 focus:ring-[#3083DC]" [disabled]="leaveForm.leaveUnit === 'half-day'">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Leave Duration</label>
+        <select [(ngModel)]="leaveForm.leaveUnit" class="w-full bg-slate-100 dark:bg-[#1B264F] border border-slate-300 dark:border-blue-900/50 rounded-lg px-4 py-2.5 text-slate-800 dark:text-white focus:ring-2 focus:ring-[#3083DC]">
+          <option value="full-day">Full Day(s)</option>
+          <option value="half-day">Half Day</option>
+        </select>
+      </div>
+
+      <div *ngIf="leaveForm.leaveUnit === 'half-day'">
+        <label class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Half Day Period</label>
+        <select [(ngModel)]="leaveForm.halfDayPeriod" class="w-full bg-slate-100 dark:bg-[#1B264F] border border-slate-300 dark:border-blue-900/50 rounded-lg px-4 py-2.5 text-slate-800 dark:text-white focus:ring-2 focus:ring-[#3083DC]">
+          <option value="first-half">First Half</option>
+          <option value="second-half">Second Half</option>
+        </select>
+      </div>
+
+      <div *ngIf="activeManagers.length > 0 && leaveForm.leaveUnit !== 'half-day'">
+        <label class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Proxy Manager (Optional)</label>
+        <select [(ngModel)]="leaveForm.proxyManagerId" class="w-full bg-slate-100 dark:bg-[#1B264F] border border-slate-300 dark:border-blue-900/50 rounded-lg px-4 py-2.5 text-slate-800 dark:text-white focus:ring-2 focus:ring-[#3083DC]">
+          <option value="">-- Route to HR Pool --</option>
+          <option *ngFor="let mgr of activeManagers" [value]="mgr._id">{{ mgr.name }} ({{ mgr.department }})</option>
+        </select>
+        <p class="text-[10px] text-slate-400 mt-1">Select a peer to approve your team's leaves while you are away.</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">Reason</label>
+        <textarea [(ngModel)]="leaveForm.reason" rows="3" class="w-full bg-slate-100 dark:bg-[#1B264F] border border-slate-300 dark:border-blue-900/50 rounded-lg px-4 py-2.5 text-slate-800 dark:text-white focus:ring-2 focus:ring-[#3083DC] resize-none" placeholder="Provide a brief reason..."></textarea>
+      </div>
+    </div>
+
+    <div class="px-6 py-4 bg-slate-100 dark:bg-[#1B264F] border-t border-blue-900/50 flex justify-end gap-3">
+      <button (click)="closeApplyModal()" class="px-5 py-2 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg font-bold text-slate-500 dark:text-slate-400 transition-colors">Cancel</button>
+      <button (click)="submitLeave()" class="px-5 py-2 bg-[#3083DC] hover:bg-[#2068b5] text-white rounded-lg font-bold shadow-lg shadow-[#3083DC]/20 transition-colors">Submit Request</button>
+    </div>
+  </div>
+</div>
