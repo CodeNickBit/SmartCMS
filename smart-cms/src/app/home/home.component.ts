@@ -134,6 +134,33 @@ export class HomeComponent implements OnInit {
   isSubmittingLeave = false;
 
   myLeaves: any[] = [];
+  managerOnLeave = false;
+  managerProxyName: string | null = null;
+
+  isDarkMode = true;
+
+  toggleTheme(): void {
+    this.isDarkMode = !this.isDarkMode;
+    if (isPlatformBrowser(this.platformId)) {
+      this.applyTheme();
+    }
+  }
+
+  private applyTheme(): void {
+    const body = document.body;
+    const html = document.documentElement;
+    if (this.isDarkMode) {
+      body.classList.add('theme-dark', 'dark');
+      html.classList.add('dark');
+      body.classList.remove('theme-light');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      body.classList.add('theme-light');
+      body.classList.remove('theme-dark', 'dark');
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -148,6 +175,13 @@ export class HomeComponent implements OnInit {
   ngOnInit(): void {
     this.userProfile = this.authService.getUser();
 
+    // Check saved theme
+    if (isPlatformBrowser(this.platformId)) {
+      const savedTheme = localStorage.getItem('theme');
+      this.isDarkMode = savedTheme !== 'light'; // Default to dark if not set
+      this.applyTheme();
+    }
+
     // Fallback if no user is logged in
     if (!this.userProfile) {
       this.userProfile = {
@@ -160,6 +194,7 @@ export class HomeComponent implements OnInit {
     this.loadLeaveData();
     if (this.userProfile) {
       this.loadMyLeavesAndSync();
+      this.checkManagerStatus();
     }
     this.loadAttendanceData();
   }
@@ -253,11 +288,33 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  checkManagerStatus(): void {
+    const managerId = this.userProfile?.reportingManager;
+    if (managerId) {
+      this.leavePolicyService.getManagerStatus(managerId).subscribe({
+        next: (res: any) => {
+          this.managerOnLeave = res.onLeave;
+          this.managerProxyName = res.proxyName;
+        },
+        error: (err) => console.error('Error fetching manager status', err)
+      });
+    }
+  }
+
   getLeaveDays(start: string | Date, end: string | Date): number {
     const s = typeof start === 'string' ? new Date(start) : start;
     const e = typeof end === 'string' ? new Date(end) : end;
     const diff = (e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24);
     return Math.max(0, Math.floor(diff) + 1);
+  }
+
+  isLeaveEditable(leave: any): boolean {
+    if (!leave || !leave.startDate) return false;
+    const start = typeof leave.startDate === 'string' ? new Date(leave.startDate) : leave.startDate;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Only allow editing if the start date is in the future or today
+    return start >= today;
   }
 
   // Modal Methods
@@ -788,12 +845,20 @@ export class HomeComponent implements OnInit {
       });
 
       this.leavePolicyService.applyForLeave(formData).subscribe({
-        next: (res) => {
-          console.log('Leave applied successfully', res);
-          this.isSubmittingLeave = false;
+        next: (res: any) => {
+          console.log('Leave requested successfully', res);
+          
+          let msg = 'Leave request submitted successfully!';
+          if (res.escalated) {
+             msg = this.managerProxyName 
+                 ? `Leave submitted! It has been automatically routed to your Proxy Manager (${this.managerProxyName}) for approval.`
+                 : 'Leave submitted! Since your manager is away, it has been automatically routed to HR for approval.';
+          }
+          
+          this.confirmationModal.alert('Success', msg, 'success');
           this.closeLeaveModal();
-          this.confirmationModal.alert('Success', 'Leave application submitted successfully!', 'success');
           this.loadMyLeavesAndSync();
+          this.isSubmittingLeave = false;
         },
         error: (err) => {
           console.error('Error applying for leave', err);

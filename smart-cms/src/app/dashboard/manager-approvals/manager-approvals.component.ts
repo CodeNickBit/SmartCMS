@@ -178,7 +178,7 @@ export class ManagerApprovalsComponent implements OnInit {
             case 'approved': return 'bg-emerald-900/30 border-emerald-600/50 text-emerald-400';
             case 'declined': return 'bg-red-900/30 border-red-600/50 text-red-400';
             case 'marked_late': return 'bg-orange-900/30 border-orange-600/50 text-orange-400';
-            default: return 'bg-slate-900/30 border-slate-600/50 text-slate-400';
+            default: return 'bg-slate-900/30 border-slate-300 dark:border-slate-600/50 text-slate-500 light:text-[#7A96B2] dark:text-slate-400';
         }
     }
 
