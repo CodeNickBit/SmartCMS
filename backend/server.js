@@ -35,6 +35,8 @@ const departmentRoutes = require('./routes/department');
 const designationRoutes = require('./routes/designation');
 const officeLocationRoutes = require('./routes/officeLocation');
 const attendanceRoutes = require('./routes/attendance');
+const projectRoutes = require('./routes/project');
+const taskRoutes = require('./routes/task');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/manager', managerRoutes);
@@ -45,6 +47,8 @@ app.use('/api/leave-policy', require('./routes/leavePolicy'));
 app.use('/api/leave', require('./routes/leaveRoutes'));
 app.use('/api/office-locations', officeLocationRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api', taskRoutes);
 
 // Handle 404 routes with JSON response
 app.use((req, res, next) => {
