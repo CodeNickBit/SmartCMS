@@ -69,6 +69,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
               <span class="priority-badge" [ngClass]="'priority-' + p.priority">{{ p.priority }}</span>
             </div>
             <span class="status-badge" [ngClass]="'status-' + p.status">{{ formatStatus(p.status) }}</span>
+            <span class="user-role-badge" *ngIf="getUserRoleInProject(p)">{{ getUserRoleInProject(p) }}</span>
           </div>
           <p class="project-desc">{{ p.description || 'No description provided.' }}</p>
           <div class="task-progress" *ngIf="p.taskStats">
@@ -128,6 +129,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     .priority-medium { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
     .priority-high { background: rgba(234, 88, 12, 0.2); color: #f97316; }
     .priority-critical { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .user-role-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: rgba(99, 102, 241, 0.1); color: #818cf8; text-transform: uppercase; border: 1px solid rgba(99, 102, 241, 0.2); }
     .project-desc { font-size: 13px; color: #94a3b8; margin: 0 0 14px; line-height: 1.5; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
     .task-progress { margin-bottom: 14px; }
     .progress-bar-bg { background: rgba(30, 58, 138, 0.3); border-radius: 99px; height: 6px; overflow: hidden; margin-bottom: 6px; }
@@ -172,5 +174,14 @@ export class ProjectListComponent implements OnInit {
   getProgressPct(stats: any): number {
     if (!stats || !stats.total) return 0;
     return Math.round((stats.done / stats.total) * 100);
+  }
+
+  getUserRoleInProject(p: any): string {
+    const uid = String(this.auth.getUser()?._id || this.auth.getUser()?.id);
+    if (String(p.projectManager) === uid) return 'PM';
+    const member = (p.members || []).find((m: any) => String(m.userId) === uid);
+    if (member) return member.projectRole || 'Member';
+    if (String(p.createdBy) === uid) return 'Owner';
+    return '';
   }
 }

@@ -34,10 +34,13 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
             </div>
             <div class="form-group">
               <label>Project Manager *</label>
-              <select formControlName="projectManager" [class.invalid]="isInvalid('projectManager')">
-                <option value="">Select a Manager</option>
-                <option *ngFor="let m of managers" [value]="m._id">{{ m.name }} ({{ m.email }})</option>
-              </select>
+              <div class="searchable-dropdown">
+                <input type="text" [(ngModel)]="pmSearchTerm" [ngModelOptions]="{standalone: true}" placeholder="Search PM..." class="search-input">
+                <select formControlName="projectManager" [class.invalid]="isInvalid('projectManager')">
+                  <option value="">Select a Manager</option>
+                  <option *ngFor="let m of filteredPMs" [value]="m._id">{{ m.name }} ({{ m.email }})</option>
+                </select>
+              </div>
               <span class="error" *ngIf="isInvalid('projectManager')">Manager is required</span>
             </div>
           </div>
@@ -87,67 +90,81 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
             </div>
           </div>
 
-          <!-- Team Allocation Section -->
+          <!-- Team Allocation Section (Keka Inspired) -->
           <div class="team-allocation-section mt-8 pt-6 border-t border-blue-900/30">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-lg font-bold">Team Allocation</h3>
-              <span class="text-xs text-slate-400 uppercase tracking-widest">{{ members.length }} Members allocated</span>
+              <div>
+                <h3 class="text-lg font-bold">Team Allocation</h3>
+                <p class="text-xs text-slate-400">Search and assign members with specific project roles</p>
+              </div>
+              <span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">{{ members.length }} Allocated</span>
             </div>
             
-            <div class="allocation-controls bg-[#0D1B35] p-4 rounded-xl border border-blue-900/30 mb-4">
-              <div class="flex gap-3">
-                <select class="flex-1" [(ngModel)]="selectedUserToAdd" [ngModelOptions]="{standalone: true}">
-                  <option value="">Select member to allocate...</option>
-                  <optgroup label="── Managers" *ngIf="groupedManagers.length">
-                    <option *ngFor="let u of groupedManagers" [value]="u._id">{{ u.name }} · {{ u.email }}</option>
-                  </optgroup>
-                  <optgroup label="── Employees" *ngIf="groupedEmployees.length">
-                    <option *ngFor="let u of groupedEmployees" [value]="u._id">{{ u.name }} · {{ u.employeeId || u.email }}</option>
-                  </optgroup>
-                  <optgroup label="── HR" *ngIf="groupedHRs.length">
-                    <option *ngFor="let u of groupedHRs" [value]="u._id">{{ u.name }} · {{ u.email }}</option>
-                  </optgroup>
-                  <optgroup label="── Admins" *ngIf="groupedAdmins.length">
-                    <option *ngFor="let u of groupedAdmins" [value]="u._id">{{ u.name }} · {{ u.email }}</option>
-                  </optgroup>
-                </select>
-                <button type="button" class="btn-primary" [disabled]="!selectedUserToAdd" (click)="addMember()">Add</button>
+            <!-- Search Interface -->
+            <div class="search-container mb-6">
+              <div class="relative">
+                <input type="text" 
+                       [(ngModel)]="memberSearchTerm" 
+                       (focus)="showSearch = true"
+                       [ngModelOptions]="{standalone: true}" 
+                       placeholder="Search by name, email, department or ID..." 
+                       class="search-input w-full pl-14 h-12 text-sm bg-[#0D1B35] border-blue-900/30">
+                <span class="absolute left-5 top-3.5 text-slate-500 text-lg">🔍</span>
+                <button *ngIf="memberSearchTerm" (click)="memberSearchTerm = ''; showSearch = false" class="absolute right-3 top-3.5 text-slate-500 hover:text-white">✕</button>
               </div>
+
+              <!-- Search Results Dropdown -->
+              <div *ngIf="showSearch && filteredAvailableUsers.length > 0" 
+                   class="search-results-popup mt-2 bg-[#1B264F] border border-blue-800/50 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 overflow-x-hidden custom-scrollbar">
+                <div class="p-2 border-b border-blue-900/10 bg-blue-500/5 items-center justify-between flex">
+                  <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Select from members</span>
+                  <button (click)="showSearch = false" class="text-[10px] text-blue-400 hover:underline">Close</button>
+                </div>
+                <div *ngFor="let u of filteredAvailableUsers.slice(0, 50)" 
+                     (click)="addMemberWithUser(u)"
+                     class="flex items-center justify-between p-3 border-b border-blue-900/20 hover:bg-blue-600/10 cursor-pointer transition-colors group">
+                  <div class="flex items-center gap-3">
+                    <div class="h-8 w-8 rounded-full bg-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-300 border border-blue-500/10">
+                      {{ u.name.charAt(0) }}
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-sm font-medium text-slate-200 group-hover:text-blue-400">{{ u.name }}</span>
+                      <span class="text-[10px] text-slate-500">{{ u.role }} • {{ u.department || 'No Dept' }}</span>
+                    </div>
+                  </div>
+                  <span class="text-xs text-blue-500 font-bold opacity-0 group-hover:opacity-100">+ Add</span>
+                </div>
+              </div>
+              <p *ngIf="memberSearchTerm && filteredAvailableUsers.length === 0" class="text-xs text-orange-400 mt-2 px-2">No unallocated members found matching "{{ memberSearchTerm }}"</p>
             </div>
 
-            <div class="member-list space-y-2">
-              <div *ngFor="let m of members; let i = index" class="allocation-card flex items-center justify-between p-3 bg-white/5 rounded-xl border border-blue-900/10 hover:border-blue-700/30 transition-all">
-                <div class="flex items-center gap-3">
-                  <div class="h-9 w-9 rounded-full bg-blue-600/20 flex items-center justify-center font-bold text-blue-400 border border-blue-500/20">
+            <!-- Allocation List (Hierarchy Style) -->
+            <div class="member-grid grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div *ngFor="let m of members; let i = index" class="allocation-item flex items-center justify-between p-3 bg-[#0D1B35] rounded-xl border border-blue-900/20 hover:border-blue-700/40 transition-all">
+                <div class="flex items-center gap-3 truncate mr-2">
+                  <div class="h-9 w-9 flex-shrink-0 rounded-lg bg-blue-600/20 flex items-center justify-center font-bold text-blue-400 border border-blue-500/20">
                     {{ m.name.charAt(0) }}
                   </div>
-                  <div>
-                    <p class="text-sm font-semibold text-slate-200">{{ m.name }}</p>
-                    <p class="text-[10px] text-slate-500">{{ m.email }}</p>
+                  <div class="truncate">
+                    <p class="text-xs font-bold text-slate-200 truncate">{{ m.name }}</p>
+                    <p class="text-[9px] text-slate-500 uppercase tracking-tighter">{{ m.userModel }}</p>
                   </div>
                 </div>
                 
-                <div class="flex items-center gap-4">
-                  <div class="flex flex-col">
-                    <label class="text-[9px] uppercase tracking-tighter text-slate-500 font-bold mb-1">Project Role</label>
-                    <select class="role-select" [(ngModel)]="m.projectRole" [ngModelOptions]="{standalone: true}">
-                      <option value="member">Member</option>
-                      <option value="lead">Lead</option>
-                      <option value="viewer">Viewer</option>
-                    </select>
-                  </div>
-                  <button type="button" class="remove-btn group" (click)="removeMember(i)" title="Remove Allocation">
-                    <svg class="h-5 w-5 text-slate-500 group-hover:text-red-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                <div class="flex items-center gap-2">
+                  <select class="role-badge-select" [(ngModel)]="m.projectRole" [ngModelOptions]="{standalone: true}">
+                    <option value="member">Member</option>
+                    <option value="lead">Technical Lead</option>
+                    <option value="manager">Project Manager</option>
+                    <option value="viewer">Viewer</option>
+                  </select>
+                  <button type="button" class="remove-member-btn" (click)="removeMember(i)">✕</button>
                 </div>
               </div>
-              
-              <div *ngIf="members.length === 0" class="empty-allocation text-center py-8 border-2 border-dashed border-blue-900/10 rounded-xl">
-                <div class="text-3xl mb-2 opacity-20">👥</div>
-                <p class="text-sm text-slate-500 font-medium">No team members allocated to this project.</p>
-              </div>
+            </div>
+            
+            <div *ngIf="members.length === 0" class="empty-allocation text-center py-10 bg-[#0D1B35]/50 border-2 border-dashed border-blue-900/20 rounded-xl mt-4">
+              <p class="text-sm text-slate-500">No team members assigned yet.</p>
             </div>
           </div>
 
@@ -198,6 +215,17 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     .role-select:focus { border-color: #3b82f6; }
     .role-select option { background: #101935; color: #e2e8f0; }
     .remove-btn { background: none; border: none; cursor: pointer; padding: 4px; border-radius: 6px; display: flex; align-items: center; }
+
+    .searchable-dropdown { display: flex; flex-direction: column; gap: 4px; }
+    .search-input { padding: 8px 12px; border: 1px solid rgba(30, 58, 138, 0.3); border-radius: 8px; font-size: 13px; background: rgba(16, 25, 53, 0.5); color: white; outline: none; transition: all 0.2s; }
+    .search-input:focus { border-color: #3b82f6; background: rgba(16, 25, 53, 0.8); }
+
+    .search-container { position: relative; }
+    .search-results-popup { position: absolute; width: 100%; top: 100%; left: 0; z-index: 100; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); }
+    .role-badge-select { background: rgba(30, 58, 138, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; padding: 4px 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; cursor: pointer; outline: none; transition: all 0.2s; }
+    .role-badge-select:hover { background: rgba(59, 130, 246, 0.3); border-color: #3b82f6; }
+    .remove-member-btn { width: 24px; height: 24px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; border-radius: 6px; font-size: 10px; cursor: pointer; transition: all 0.2s; }
+    .remove-member-btn:hover { background: #ef4444; color: white; }
   `]
 })
 export class ProjectFormComponent implements OnInit {
@@ -215,6 +243,11 @@ export class ProjectFormComponent implements OnInit {
   availableEmployees: any[] = [];
   members: any[] = []; // { userId, name, email, projectRole, userModel }
   selectedUserToAdd: string = '';
+  
+  // Search parameters
+  pmSearchTerm: string = '';
+  memberSearchTerm: string = '';
+  showSearch: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -241,13 +274,12 @@ export class ProjectFormComponent implements OnInit {
       projectManager: ['', Validators.required]
     });
 
-    this.loadUsers();
-
     this.projectId = this.route.snapshot.paramMap.get('id') || '';
     if (this.projectId && this.projectId !== 'new') {
       this.isEdit = true;
-      this.loadProject();
     }
+
+    this.loadUsers();
   }
 
   loadUsers() {
@@ -259,9 +291,34 @@ export class ProjectFormComponent implements OnInit {
         }));
         this.managers = this.allUsers.filter(u => u.role === 'manager' || u.role === 'admin');
         this.updateAvailableEmployees();
+        
+        if (this.isEdit) {
+          this.loadProject();
+        }
       }
     });
   }
+
+  get filteredPMs() {
+    const s = this.pmSearchTerm.toLowerCase();
+    return this.managers.filter(u => u.name.toLowerCase().includes(s) || u.email.toLowerCase().includes(s));
+  }
+
+  get filteredAvailableUsers() {
+    const s = this.memberSearchTerm.toLowerCase();
+    if (!s) return this.availableEmployees;
+    return this.availableEmployees.filter(u => 
+      u.name.toLowerCase().includes(s) || 
+      u.email.toLowerCase().includes(s) || 
+      u.department?.toLowerCase().includes(s) ||
+      u.employeeId?.toLowerCase().includes(s)
+    );
+  }
+
+  get filteredGroupedManagers() { return this.filteredAvailableUsers.filter(u => u.role === 'manager'); }
+  get filteredGroupedEmployees() { return this.filteredAvailableUsers.filter(u => u.role === 'employee'); }
+  get filteredGroupedHRs() { return this.filteredAvailableUsers.filter(u => u.role === 'hr'); }
+  get filteredGroupedAdmins() { return this.filteredAvailableUsers.filter(u => u.role === 'admin'); }
 
   get groupedManagers() { return this.availableEmployees.filter(u => u.role === 'manager'); }
   get groupedEmployees() { return this.availableEmployees.filter(u => u.role === 'employee'); }
@@ -273,19 +330,26 @@ export class ProjectFormComponent implements OnInit {
     this.availableEmployees = this.allUsers.filter(u => !memberIds.includes(u._id));
   }
 
+  addMemberWithUser(user: any) {
+    if (!user) return;
+    this.members.push({
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+      projectRole: 'member',
+      userModel: this.getUserModel(user.role)
+    });
+    this.memberSearchTerm = '';
+    this.showSearch = false;
+    this.updateAvailableEmployees();
+  }
+
   addMember() {
     if (!this.selectedUserToAdd) return;
     const user = this.allUsers.find(u => u._id === this.selectedUserToAdd);
     if (user) {
-      this.members.push({
-        userId: user._id,
-        name: user.name,
-        email: user.email,
-        projectRole: 'member',
-        userModel: this.getUserModel(user.role)
-      });
+      this.addMemberWithUser(user);
       this.selectedUserToAdd = '';
-      this.updateAvailableEmployees();
     }
   }
 
@@ -321,14 +385,13 @@ export class ProjectFormComponent implements OnInit {
         // Map existing members for the UI
         if (p.members && Array.isArray(p.members)) {
           this.members = p.members.map((m: any) => {
-            // Backend now returns enriched members with name/email directly
-            const fallbackUser = this.allUsers.find(u => u._id === m.userId);
+            const fallbackUser = this.allUsers.find(u => String(u._id) === String(m.userId) || (m.email && u.email === m.email));
             return {
               userId: m.userId,
               name: m.name || fallbackUser?.name || 'Unknown User',
               email: m.email || fallbackUser?.email || '',
               projectRole: m.role || 'member',
-              userModel: m.userModel
+              userModel: m.userModel || (fallbackUser ? this.getUserModel(fallbackUser.role) : 'User')
             };
           });
           this.updateAvailableEmployees();
@@ -348,14 +411,18 @@ export class ProjectFormComponent implements OnInit {
     const membersToSubmit = this.members.map(m => ({
       userId: m.userId,
       userModel: m.userModel,
-      role: m.projectRole
+      role: m.projectRole,
+      email: m.email
     }));
 
+    const selectedPM = this.managers.find(m => m._id === val.projectManager);
+    
     const payload = { 
       ...val, 
       tags: val.tags ? val.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
       members: membersToSubmit,
-      projectManagerModel: this.getUserModel(this.managers.find(m => m._id === val.projectManager)?.role || 'manager')
+      projectManagerModel: this.getUserModel(selectedPM?.role || 'manager'),
+      projectManagerEmail: selectedPM?.email
     };
 
     const req = this.isEdit ? this.projectService.update(this.projectId, payload) : this.projectService.create(payload);

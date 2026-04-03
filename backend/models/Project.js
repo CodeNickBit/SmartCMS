@@ -8,8 +8,9 @@ const milestoneSchema = new mongoose.Schema({
 }, { _id: true });
 
 const memberSchema = new mongoose.Schema({
-  userId: { type: String, required: true, refPath: 'members.userId.userModel' }, // Note: This is slightly tricky for arrays, better to populate manually or use dynamic ref
+  userId: { type: String, required: true },
   userModel: { type: String, enum: ['User', 'Manager', 'Hr', 'Admin'], required: true },
+  email: { type: String }, // For fallback lookup
   role: { type: String, enum: ['lead', 'member', 'viewer'], default: 'member' },
   addedAt: { type: Date, default: Date.now }
 }, { _id: false });
@@ -33,6 +34,7 @@ const projectSchema = new mongoose.Schema({
   createdByModel: { type: String, enum: ['Admin', 'Manager'], required: true },
   projectManager: { type: String },
   projectManagerModel: { type: String, enum: ['Manager', 'Admin'] },
+  projectManagerEmail: { type: String }, // For fallback lookup
   members: [memberSchema],
   milestones: [milestoneSchema],
   tags: [{ type: String, trim: true }],

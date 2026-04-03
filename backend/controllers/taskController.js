@@ -5,25 +5,39 @@ const User = require('../models/User');
 const Manager = require('../models/Manager');
 const Admin = require('../models/Admin');
 
+const enrichUser = async (userId, userModel) => {
+  if (!userId || !userModel) return null;
+  let userDoc = null;
+  try {
+    if (userModel === 'User') userDoc = await User.findById(userId).select('firstName lastName name email').lean();
+    else if (userModel === 'Manager') userDoc = await Manager.findById(userId).select('name email').lean();
+    else if (userModel === 'Admin') userDoc = await Admin.findById(userId).select('name email').lean();
+  } catch (e) { return null; }
+  
+  if (!userDoc) return null;
+  
+  return {
+    name: userDoc.name || `${userDoc.firstName || ''} ${userDoc.lastName || ''}`.trim() || userDoc.email,
+    email: userDoc.email
+  };
+};
+
 const enrichMembers = async (members) => {
   return Promise.all((members || []).map(async (m) => {
     const mPlain = m.toObject ? m.toObject() : { ...m };
-    let userDoc = null;
-    try {
-      if (mPlain.userModel === 'User') userDoc = await User.findById(mPlain.userId).select('firstName lastName email').lean();
-      else if (mPlain.userModel === 'Manager') userDoc = await Manager.findById(mPlain.userId).select('name email').lean();
-      else if (mPlain.userModel === 'Admin') userDoc = await Admin.findById(mPlain.userId).select('name email').lean();
-    } catch (e) { /* ignore individual lookup errors */ }
-    const name = userDoc
-      ? (userDoc.name || `${userDoc.firstName || ''} ${userDoc.lastName || ''}`.trim())
-      : mPlain.name || 'Unknown';
-    const email = userDoc?.email || mPlain.email || '';
-    return { userId: mPlain.userId, userModel: mPlain.userModel, role: mPlain.role, name, email };
+    const details = await enrichUser(mPlain.userId, mPlain.userModel);
+    return {
+      userId: mPlain.userId,
+      userModel: mPlain.userModel,
+      role: mPlain.role,
+      name: details?.name || mPlain.name || 'Unknown',
+      email: details?.email || mPlain.email || ''
+    };
   }));
 };
 
 const getUserId = (req) => String(req.user._id || req.user.id);
-const getUserRole = (req) => req.user.role;
+const getUserRole = (req) => req.user.role?.toLowerCase();
 const getUserName = (req) => req.user.name || `${req.user.firstName} ${req.user.lastName}`;
 
 const canModifyTask = (task, userId, role) => {

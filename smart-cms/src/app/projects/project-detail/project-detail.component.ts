@@ -25,16 +25,17 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
         <button class="btn-back" (click)="router.navigate(['/projects'])">← All Projects</button>
         <div class="header-main">
           <div class="title-row">
-            <h1>{{ project.title }}</h1>
-            <span class="status-badge status-{{ project.status }}">{{ formatStatus(project.status) }}</span>
-            <span class="priority-badge priority-{{ project.priority }}">{{ project.priority }}</span>
+            <h1>{{ project?.title }}</h1>
+            <span class="status-badge status-{{ project?.status }}">{{ formatStatus(project?.status) }}</span>
+            <span class="priority-badge priority-{{ project?.priority }}">{{ project?.priority }}</span>
           </div>
-          <p class="project-desc" *ngIf="project.description">{{ project.description }}</p>
+          <p class="project-desc" *ngIf="project?.description">{{ project?.description }}</p>
           <div class="meta-row">
-            <span *ngIf="project.department">🏢 {{ project.department }}</span>
-            <span *ngIf="project.startDate">📅 {{ project.startDate | date:'mediumDate' }}</span>
-            <span *ngIf="project.endDate">→ {{ project.endDate | date:'mediumDate' }}</span>
-            <span>👥 {{ project.members?.length || 0 }} members</span>
+            <span *ngIf="project?.projectManagerName">👤 PM: {{ project?.projectManagerName }}</span>
+            <span *ngIf="project?.department">🏢 {{ project?.department }}</span>
+            <span *ngIf="project?.startDate">📅 {{ project?.startDate | date:'mediumDate' }}</span>
+            <span *ngIf="project?.endDate">→ {{ project?.endDate | date:'mediumDate' }}</span>
+            <span>👥 {{ project?.members?.length || 0 }} members</span>
           </div>
           <div class="tags" *ngIf="project.tags?.length">
             <span class="tag" *ngFor="let t of project.tags">{{ t }}</span>
@@ -57,37 +58,76 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
         </div>
       </div>
 
-      <div class="kanban-section">
-        <h2>Task Board</h2>
-        <div class="kanban-board">
-          <div class="kanban-col" *ngFor="let col of columns">
-            <div class="col-header">
-              <span class="col-dot" [ngClass]="col.key"></span>
-              <h3>{{ col.label }}</h3>
-              <span class="task-count">{{ getColTasks(col.key).length }}</span>
-            </div>
-            <div class="task-list">
-              <div class="task-card" *ngFor="let t of getColTasks(col.key)" (click)="openTask(t)">
-                <div class="task-card-header">
-                  <span class="task-priority priority-{{ t.priority }}">{{ t.priority }}</span>
-                  <span class="task-date" *ngIf="t.dueDate" [class.overdue]="isOverdue(t)">{{ t.dueDate | date:'MMM d' }}</span>
-                </div>
-                <p class="task-title">{{ t.title }}</p>
-                <p class="task-desc" *ngIf="t.description">{{ t.description | slice:0:80 }}{{ t.description.length > 80 ? '...' : '' }}</p>
-                <div class="task-footer">
-                  <span class="assignee" *ngIf="t.assignedToName">{{ t.assignedToName }}</span>
-                  <div class="task-meta">
-                    <span *ngIf="t.comments?.length">💬 {{ t.comments.length }}</span>
-                    <span *ngIf="t.loggedHours">⏱ {{ t.loggedHours }}h</span>
+      <div class="main-content-grid">
+        <div class="kanban-section">
+          <h2>Task Board</h2>
+          <div class="kanban-board">
+            <div class="kanban-col" *ngFor="let col of columns">
+              <div class="col-header">
+                <span class="col-dot" [ngClass]="col.key"></span>
+                <h3>{{ col.label }}</h3>
+                <span class="task-count">{{ getColTasks(col.key).length }}</span>
+              </div>
+              <div class="task-list">
+                <div class="task-card" *ngFor="let t of getColTasks(col.key)" (click)="openTask(t)">
+                  <div class="task-card-header">
+                    <span class="task-priority priority-{{ t.priority }}">{{ t.priority }}</span>
+                    <span class="task-date" *ngIf="t.dueDate" [class.overdue]="isOverdue(t)">{{ t.dueDate | date:'MMM d' }}</span>
+                  </div>
+                  <p class="task-title">{{ t.title }}</p>
+                  <p class="task-desc" *ngIf="t.description">{{ t.description | slice:0:80 }}{{ t.description.length > 80 ? '...' : '' }}</p>
+                  <div class="task-footer">
+                    <span class="assignee" *ngIf="t.assignedToName">{{ t.assignedToName }}</span>
+                    <div class="task-meta">
+                      <span *ngIf="t.comments?.length">💬 {{ t.comments.length }}</span>
+                      <span *ngIf="t.loggedHours">⏱ {{ t.loggedHours }}h</span>
+                    </div>
                   </div>
                 </div>
-                <div class="status-actions" *ngIf="canUpdateTask(t)">
-                  <select (click)="$event.stopPropagation()" (change)="changeStatus(t, $any($event.target).value)">
-                    <option *ngFor="let c of columns" [value]="c.key" [selected]="c.key === t.status">{{ c.label }}</option>
-                  </select>
+                <div class="empty-col" *ngIf="getColTasks(col.key).length === 0">No tasks</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="team-sidebar">
+          <div class="sidebar-card">
+            <div class="card-title">
+              <h3>Project Team</h3>
+              <span class="count-badge">{{ project.members?.length || 0 }}</span>
+            </div>
+            
+            <div class="hierarchy-group" *ngIf="getProjectManager() as pm">
+              <label>Primary Owner</label>
+              <div class="member-item lead-item">
+                <div class="avatar">{{ pm.name?.charAt(0) }}</div>
+                <div class="m-info">
+                  <p class="m-name">{{ pm.name }}</p>
+                  <p class="m-role">Project Manager</p>
                 </div>
               </div>
-              <div class="empty-col" *ngIf="getColTasks(col.key).length === 0">No tasks</div>
+            </div>
+
+            <div class="hierarchy-group" *ngIf="getLeads().length">
+              <label>Technical Leads</label>
+              <div class="member-item" *ngFor="let m of getLeads()">
+                <div class="avatar lead-avatar">{{ m.name?.charAt(0) }}</div>
+                <div class="m-info">
+                  <p class="m-name">{{ m.name }}</p>
+                  <p class="m-role">{{ m.projectRole === 'lead' ? 'Tech Lead' : 'Manager' }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="hierarchy-group" *ngIf="getMembers().length">
+              <label>Contributors</label>
+              <div class="member-item" *ngFor="let m of getMembers()">
+                <div class="avatar member-avatar">{{ m.name?.charAt(0) }}</div>
+                <div class="m-info">
+                  <p class="m-name">{{ m.name }}</p>
+                  <p class="m-role">Member</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -139,7 +179,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     .title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
     .title-row h1 { font-size: 26px; font-weight: 700; color: white; margin: 0; }
     .status-badge, .priority-badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; text-transform: capitalize; }
-    .status-planning{background:rgba(59, 130, 246, 0.2);color:#60a5fa}.status-active{background:rgba(34, 197, 94, 0.2);color:#4ade80}.status-on_hold{background:rgba(245, 158, 11, 0.2);color:#fbbf24}.status-completed{background:rgba(16, 185, 129, 0.2);color:#34d399}.status-archived{background:rgba(148, 163, 184, 0.2);color:#94a3b8}
+    .status-archived{background:rgba(148, 163, 184, 0.2);color:#94a3b8}
     .priority-low{background:rgba(34, 197, 94, 0.2);color:#4ade80}.priority-medium{background:rgba(245, 158, 11, 0.2);color:#fbbf24}.priority-high{background:rgba(234, 88, 12, 0.2);color:#f97316}.priority-critical{background:rgba(239, 68, 68, 0.2);color:#f87171}
     .project-desc { color: #94a3b8; font-size: 14px; margin: 0 0 8px; }
     .meta-row { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #94a3b8; margin-bottom: 8px; }
@@ -160,12 +200,14 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     .m-date { color: #64748b; font-size: 12px; }
     
     .kanban-section h2 { font-size: 18px; font-weight: 700; color: white; margin: 0 0 16px; }
-    .kanban-board { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; }
+    .kanban-board { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 12px; min-height: 500px; }
     .kanban-board::-webkit-scrollbar { height: 8px; }
     .kanban-board::-webkit-scrollbar-track { background: transparent; }
     .kanban-board::-webkit-scrollbar-thumb { background: rgba(30, 58, 138, 0.5); border-radius: 10px; }
-    .kanban-col { background: rgba(30, 58, 138, 0.1); border-radius: 12px; padding: 14px; min-width: 270px; flex: 1; border: 1px solid rgba(30, 58, 138, 0.3); }
-    .col-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .kanban-board::-webkit-scrollbar-thumb:hover { background: #3083DC; }
+    .kanban-col { background: rgba(30, 58, 138, 0.1); border-radius: 12px; padding: 14px; min-width: 280px; max-width: 350px; flex: 1; border: 1px solid rgba(30, 58, 138, 0.3); display: flex; flex-direction: column; }
+    .kanban-section { min-width: 0; }
+    .col-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-shrink: 0; }
     .col-dot { width: 10px; height: 10px; border-radius: 50%; }
     .col-dot.todo{background:#94a3b8}.col-dot.in_progress{background:#3b82f6}.col-dot.in_review{background:#f59e0b}.col-dot.done{background:#22c55e}.col-dot.blocked{background:#ef4444}
     .col-header h3 { font-size: 14px; font-weight: 600; color: white; margin: 0; flex: 1; }
@@ -200,6 +242,30 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #3b82f6; }
     .form-group textarea { resize: none; font-family: inherit; }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
+
+    /* Team Sidebar Styles */
+    .main-content-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+    .team-sidebar { position: sticky; top: 0; min-width: 0; }
+    .sidebar-card { background: #1B264F; border: 1px solid rgba(30, 58, 138, 0.4); border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    .card-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(30, 58, 138, 0.2); }
+    .card-title h3 { font-size: 16px; font-weight: 700; color: white; margin: 0; }
+    .count-badge { background: rgba(59, 130, 246, 0.1); color: #60a5fa; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+    .hierarchy-group { margin-bottom: 20px; }
+    .hierarchy-group label { display: block; font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .member-item { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border-radius: 8px; background: rgba(16, 25, 53, 0.3); border: 1px solid rgba(30, 58, 138, 0.1); transition: all 0.2s; margin-bottom: 6px; }
+    .member-item:hover { background: rgba(16, 25, 53, 0.5); border-color: rgba(59, 130, 246, 0.2); }
+    .lead-item { border-left: 3px solid #6366f1; background: rgba(99, 102, 241, 0.05); }
+    .avatar { width: 32px; height: 32px; border-radius: 8px; background: #3b82f6; color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; }
+    .lead-avatar { background: #6366f1; }
+    .member-avatar { background: #475569; }
+    .m-info { display: flex; flex-direction: column; overflow: hidden; }
+    .m-name { font-size: 13px; font-weight: 600; color: #e2e8f0; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .m-role { font-size: 10px; color: #94a3b8; margin: 0; }
+
+    @media (max-width: 1024px) {
+      .main-content-grid { grid-template-columns: 1fr; }
+      .team-sidebar { order: -1; margin-bottom: 24px; }
+    }
   `]
 })
 export class ProjectDetailComponent implements OnInit {
@@ -248,7 +314,7 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
-  getColTasks(status: string) { return this.tasks.filter(t => t.status === status); }
+  getColTasks(status: string) { return (this.tasks || []).filter(t => t.status === status); }
   formatStatus(s: string) { return s?.replace('_', ' ') || ''; }
   isOverdue(t: any) { return t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'done'; }
   canUpdateTask(t: any) {
@@ -284,5 +350,27 @@ export class ProjectDetailComponent implements OnInit {
         this.newTask = { title: '', description: '', priority: 'medium', dueDate: '', assignedTo: '', estimatedHours: 0 };
       }
     });
+  }
+
+  getProjectManager() {
+    if (!this.project) return null;
+    return {
+      userId: this.project.projectManager,
+      name: this.project.projectManagerName || 'Unknown Manager',
+      projectRole: 'manager'
+    };
+  }
+
+  getLeads() {
+    return (this.project?.members || []).filter((m: any) => 
+      (m.projectRole === 'lead' || m.projectRole === 'manager') && 
+      m.userId !== this.getProjectManager()?.userId
+    );
+  }
+
+  getMembers() {
+    return (this.project?.members || []).filter((m: any) => 
+      m.projectRole !== 'lead' && m.projectRole !== 'manager'
+    );
   }
 }
