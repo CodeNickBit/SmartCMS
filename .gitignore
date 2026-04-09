@@ -1,0 +1,64 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Package lock files (optional — remove if you want to track these)
+# package-lock.json
+# bun.lock
+
+# Build output
+dist/
+/tmp/
+/out-tsc/
+/bazel-out/
+
+# Angular cache
+.angular/cache
+**/.angular/cache
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-error.log*
+*.log
+
+# IDEs and editors
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Coverage
+/coverage
+
+# Kiro IDE files
+.kiro/
+
+# Debug / one-off scripts (project-specific)
+backend/debug-*.js
+backend/fix-*.js
+backend/check-*.js
+backend/verify-*.js
+backend/list-*.js
+backend/test-*.js
+backend/inspect_debug.js
+inspect_debug.js
+backend/data-output.txt
+backend/test-output.txt
+backend/users-output.txt
+
+# Uploads
+backend/uploads/*
+!backend/uploads/.gitkeep
