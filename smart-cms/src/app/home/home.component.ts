@@ -8,6 +8,7 @@ import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 import { OfficeLocationService } from '../services/office-location.service';
 import { AttendanceService, AttendanceRecord } from '../services/attendance.service';
 import { ProfileModalComponent } from '../dashboard/components/profile-modal/profile-modal.component';
+import { TaskService } from '../services/task.service';
 
 export interface Task {
   id: number;
@@ -92,11 +93,11 @@ export class HomeComponent implements OnInit {
     { type: 'Privilege Leave', total: 15, used: 0, available: 15 }
   ];
 
-  tasks: Task[] = [
-    { id: 1, title: 'Complete Q1 Report', status: 'In Progress', priority: 'High', dueDate: new Date() },
-    { id: 2, title: 'Update Client Profile', status: 'To Do', priority: 'Medium', dueDate: new Date(new Date().setDate(new Date().getDate() + 2)) },
-    { id: 3, title: 'Team Meeting Prep', status: 'Done', priority: 'Low', dueDate: new Date(new Date().setDate(new Date().getDate() - 1)) }
-  ];
+  realTasks: any[] = [];
+  taskSummary = { total: 0, inProgress: 0, done: 0, overdue: 0 };
+  tasksLoading = false;
+
+  tasks: Task[] = [];
 
   recentPayslip: Payslip = {
     id: 'PAY-JAN-2025',
@@ -169,7 +170,8 @@ export class HomeComponent implements OnInit {
     private leavePolicyService: LeavePolicyService,
     private confirmationModal: ConfirmationModalService,
     private officeLocationService: OfficeLocationService,
-    private attendanceService: AttendanceService
+    private attendanceService: AttendanceService,
+    private taskService: TaskService
   ) { }
 
   ngOnInit(): void {
@@ -197,6 +199,7 @@ export class HomeComponent implements OnInit {
       this.checkManagerStatus();
     }
     this.loadAttendanceData();
+    this.loadRealTasks();
   }
   // ngOnDestroy removed as polling is removed
 
@@ -902,6 +905,27 @@ export class HomeComponent implements OnInit {
     console.log('Downloading payslip:', id);
     // Logic to download generic PDF or nav to payslip view
   }
+
+  loadRealTasks(): void {
+    this.tasksLoading = true;
+    this.taskService.getMyTasks().subscribe({
+      next: (data: any[]) => {
+        this.realTasks = (data || []).slice(0, 5);
+        const now = new Date();
+        let inProgress = 0, done = 0, overdue = 0;
+        (data || []).forEach((t: any) => {
+          if (t.status === 'in_progress') inProgress++;
+          if (t.status === 'done') done++;
+          if (t.dueDate && new Date(t.dueDate) < now && t.status !== 'done') overdue++;
+        });
+        this.taskSummary = { total: data?.length || 0, inProgress, done, overdue };
+        this.tasksLoading = false;
+      },
+      error: () => { this.tasksLoading = false; }
+    });
+  }
+
+  formatTaskStatus(s: string): string { return s?.replace(/_/g, ' ') || ''; }
 
   logout(): void {
     this.authService.logout();

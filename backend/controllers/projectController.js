@@ -82,19 +82,21 @@ const getModelName = (role) => {
   return 'User';
 };
 
-const isProjectMember = (project, userId) => {
+const isProjectMember = (project, userId, userEmail) => {
   if (!project) return false;
   const uid = String(userId);
   if (String(project.createdBy) === uid) return true;
   if (String(project.projectManager) === uid) return true;
-  return project.members.some(m => String(m.userId) === uid);
+  if (userEmail && project.projectManagerEmail && project.projectManagerEmail.toLowerCase() === userEmail.toLowerCase()) return true;
+  return project.members.some(m => String(m.userId) === uid || (userEmail && m.email && m.email.toLowerCase() === userEmail.toLowerCase()));
 };
 
-const isProjectAdminOrManager = (project, userId, role) => {
+const isProjectAdminOrManager = (project, userId, role, userEmail) => {
   if (role === 'admin') return true;
   const uid = String(userId);
   if (String(project.createdBy) === uid) return true;
   if (String(project.projectManager) === uid) return true;
+  if (userEmail && project.projectManagerEmail && project.projectManagerEmail.toLowerCase() === userEmail.toLowerCase()) return true;
   return false;
 };
 
@@ -119,7 +121,8 @@ exports.createProject = async (req, res) => {
       milestones,
       tags,
       department,
-      billable
+      billable,
+      budget
     } = req.body;
 
     const userId = getUserId(req);
@@ -150,7 +153,8 @@ exports.createProject = async (req, res) => {
       milestones: milestones || [],
       tags: tags || [],
       department,
-      billable: billable || false
+      billable: billable || false,
+      budget: Number(budget) || 0
     });
 
     // Enriched members with email
@@ -258,7 +262,7 @@ exports.getProjectById = async (req, res) => {
 
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    if (role !== 'admin' && role !== 'hr' && !isProjectMember(project, userId)) {
+    if (role !== 'admin' && role !== 'hr' && !isProjectMember(project, userId, req.user.email)) {
       return res.status(403).json({ message: 'Access denied: You are not a member of this project' });
     }
 
@@ -287,7 +291,7 @@ exports.updateProject = async (req, res) => {
     const project = await Project.findById(req.params.id);
 
     if (!project) return res.status(404).json({ message: 'Project not found' });
-    if (!isProjectAdminOrManager(project, userId, role)) {
+    if (!isProjectAdminOrManager(project, userId, role, req.user.email)) {
       return res.status(403).json({ message: 'Access denied: Only the project creator or admin can update this project' });
     }
 
@@ -361,7 +365,7 @@ exports.addMembers = async (req, res) => {
     const project = await Project.findById(req.params.id);
 
     if (!project) return res.status(404).json({ message: 'Project not found' });
-    if (!isProjectAdminOrManager(project, userId, role)) {
+    if (!isProjectAdminOrManager(project, userId, role, req.user.email)) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -387,7 +391,7 @@ exports.removeMember = async (req, res) => {
     const project = await Project.findById(req.params.id);
 
     if (!project) return res.status(404).json({ message: 'Project not found' });
-    if (!isProjectAdminOrManager(project, userId, role)) {
+    if (!isProjectAdminOrManager(project, userId, role, req.user.email)) {
       return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -456,7 +460,7 @@ exports.getBudgetReport = async (req, res) => {
 
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    if (role !== 'admin' && role !== 'hr' && !isProjectMember(project, userId)) {
+    if (role !== 'admin' && role !== 'hr' && !isProjectMember(project, userId, req.user.email)) {
       return res.status(403).json({ message: 'Access denied: You are not a member of this project' });
     }
 
@@ -483,7 +487,7 @@ exports.getProjectTimeLogs = async (req, res) => {
 
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    if (role !== 'admin' && role !== 'hr' && !isProjectMember(project, userId)) {
+    if (role !== 'admin' && role !== 'hr' && !isProjectMember(project, userId, req.user.email)) {
       return res.status(403).json({ message: 'Access denied: You are not a member of this project' });
     }
 
