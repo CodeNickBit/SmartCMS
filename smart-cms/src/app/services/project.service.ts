@@ -48,4 +48,16 @@ export class ProjectService {
   getAnalytics(): Observable<any> {
     return this.http.get<any>(`${API_URL}/analytics`, { headers: this.getHeaders() });
   }
+
+  getWorkload(projectId: string): Observable<any> {
+    return this.http.get<any>(`${API_URL}/${projectId}/workload`, { headers: this.getHeaders() });
+  }
+
+  getBudgetReport(projectId: string): Observable<any> {
+    return this.http.get<any>(`${API_URL}/${projectId}/budget`, { headers: this.getHeaders() });
+  }
+
+  getProjectTimeLogs(projectId: string): Observable<any> {
+    return this.http.get<any>(`${API_URL}/${projectId}/timelogs`, { headers: this.getHeaders() });
+  }
 }

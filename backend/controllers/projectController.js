@@ -84,15 +84,17 @@ const getModelName = (role) => {
 
 const isProjectMember = (project, userId) => {
   if (!project) return false;
-  if (project.createdBy === userId) return true;
-  if (project.projectManager === userId) return true;
-  return project.members.some(m => m.userId === userId);
+  const uid = String(userId);
+  if (String(project.createdBy) === uid) return true;
+  if (String(project.projectManager) === uid) return true;
+  return project.members.some(m => String(m.userId) === uid);
 };
 
 const isProjectAdminOrManager = (project, userId, role) => {
   if (role === 'admin') return true;
-  if (project.createdBy === userId) return true;
-  if (project.projectManager === userId) return true;
+  const uid = String(userId);
+  if (String(project.createdBy) === uid) return true;
+  if (String(project.projectManager) === uid) return true;
   return false;
 };
 
@@ -103,8 +105,26 @@ exports.createProject = async (req, res) => {
       return res.status(403).json({ message: 'Only Admin or Manager can create projects' });
     }
 
+    const {
+      title,
+      description,
+      status,
+      priority,
+      startDate,
+      endDate,
+      projectManager,
+      projectManagerModel,
+      projectManagerEmail,
+      members,
+      milestones,
+      tags,
+      department,
+      billable
+    } = req.body;
+
     const userId = getUserId(req);
-    // Helper to find email from models
+    const models = { User, Manager, Admin, Hr: User };
+
     const findEmail = async (uid, modelName) => {
       if (!uid) return null;
       const m = models[modelName] || User;
@@ -129,7 +149,8 @@ exports.createProject = async (req, res) => {
       members: members || [],
       milestones: milestones || [],
       tags: tags || [],
-      department
+      department,
+      billable: billable || false
     });
 
     // Enriched members with email
@@ -178,12 +199,13 @@ exports.getAllProjects = async (req, res) => {
     if (role === 'admin' || role === 'hr') {
       filter = {};
     } else {
+      const uid = String(userId);
       filter = {
         $or: [
-          { createdBy: userId },
-          { projectManager: userId },
+          { createdBy: uid },
+          { projectManager: uid },
           { projectManagerEmail: userEmail },
-          { 'members.userId': userId },
+          { 'members.userId': uid },
           { 'members.email': userEmail }
         ]
       }
@@ -269,7 +291,8 @@ exports.updateProject = async (req, res) => {
       return res.status(403).json({ message: 'Access denied: Only the project creator or admin can update this project' });
     }
 
-    // Helper to find email from models
+    const models = { User, Manager, Admin, Hr: User };
+
     const findEmail = async (uid, modelName) => {
       if (!uid) return null;
       const m = models[modelName] || User;
@@ -277,8 +300,14 @@ exports.updateProject = async (req, res) => {
       return d?.email || null;
     };
 
-    const allowed = ['title', 'description', 'status', 'priority', 'startDate', 'endDate', 'projectManager', 'projectManagerModel', 'milestones', 'tags', 'department'];
+    const allowed = ['title', 'description', 'status', 'priority', 'startDate', 'endDate', 'projectManager', 'projectManagerModel', 'milestones', 'tags', 'department', 'billable', 'budget'];
     allowed.forEach(field => { if (req.body[field] !== undefined) project[field] = req.body[field]; });
+
+    if (req.body.status === 'completed' && !project.completedAt) {
+      project.completedAt = new Date();
+    } else if (req.body.status && req.body.status !== 'completed') {
+      project.completedAt = null;
+    }
 
     // Update PM Email if PM changed
     if (req.body.projectManager || req.body.projectManagerEmail) {
@@ -368,6 +397,195 @@ exports.removeMember = async (req, res) => {
     res.json({ message: 'Member removed', project });
   } catch (err) {
     res.status(500).json({ message: 'Failed to remove member', error: err.message });
+  }
+};
+
+exports.getWorkload = async (req, res) => {
+  try {
+    const role = getUserRole(req);
+    if (!['admin', 'manager'].includes(role)) {
+      return res.status(403).json({ message: 'Access denied: Only Admin or Manager can view workload' });
+    }
+
+    const project = await Project.findById(req.params.id);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const diffToMonday = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diffToMonday);
+    monday.setHours(0, 0, 0, 0);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+
+    const members = await Promise.all((project.members || []).map(async (m) => {
+      const mPlain = m.toObject ? m.toObject() : { ...m };
+      const details = await enrichUser(mPlain.userId, mPlain.userModel, mPlain.email);
+      const name = details?.name || mPlain.name || 'Unknown';
+
+      const [tasks, timeLogs] = await Promise.all([
+        Task.find({ projectId: project._id, assignedTo: mPlain.userId }).select('status').lean(),
+        TimeLog.find({
+          projectId: project._id,
+          employeeId: mPlain.userId,
+          date: { $gte: monday, $lte: sunday }
+        }).select('hours').lean()
+      ]);
+
+      const taskCounts = { todo: 0, in_progress: 0, in_review: 0, done: 0, blocked: 0 };
+      tasks.forEach(t => { if (taskCounts[t.status] !== undefined) taskCounts[t.status]++; });
+
+      const weeklyLoggedHours = timeLogs.reduce((sum, log) => sum + (log.hours || 0), 0);
+
+      return { userId: mPlain.userId, name, taskCounts, weeklyLoggedHours };
+    }));
+
+    res.json({ members });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch workload', error: err.message });
+  }
+};
+
+exports.getBudgetReport = async (req, res) => {
+  try {
+    const role = getUserRole(req);
+    const userId = getUserId(req);
+    const project = await Project.findById(req.params.id);
+
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    if (role !== 'admin' && role !== 'hr' && !isProjectMember(project, userId)) {
+      return res.status(403).json({ message: 'Access denied: You are not a member of this project' });
+    }
+
+    const result = await TimeLog.aggregate([
+      { $match: { projectId: project._id } },
+      { $group: { _id: null, total: { $sum: '$hours' } } }
+    ]);
+
+    const totalLoggedHours = result[0]?.total || 0;
+    const billableHours = project.billable ? totalLoggedHours : 0;
+    const nonBillableHours = totalLoggedHours - billableHours;
+
+    res.json({ budget: project.budget, totalLoggedHours, billableHours, nonBillableHours });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch budget report', error: err.message });
+  }
+};
+
+exports.getProjectTimeLogs = async (req, res) => {
+  try {
+    const role = getUserRole(req);
+    const userId = getUserId(req);
+    const project = await Project.findById(req.params.id);
+
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    if (role !== 'admin' && role !== 'hr' && !isProjectMember(project, userId)) {
+      return res.status(403).json({ message: 'Access denied: You are not a member of this project' });
+    }
+
+    const logs = await TimeLog.find({ projectId: project._id }).lean();
+
+    const taskIds = [...new Set(logs.map(l => String(l.taskId)))];
+    const tasks = await Task.find({ _id: { $in: taskIds } }).select('_id title').lean();
+    const taskMap = {};
+    tasks.forEach(t => { taskMap[String(t._id)] = t.title; });
+
+    const employeeMap = {};
+    logs.forEach(log => {
+      const eid = log.employeeId;
+      if (!employeeMap[eid]) {
+        employeeMap[eid] = { employeeId: eid, employeeName: log.employeeName || '', totalHours: 0, logs: [] };
+      }
+      employeeMap[eid].totalHours += log.hours || 0;
+      employeeMap[eid].logs.push(log);
+    });
+
+    const taskMap2 = {};
+    logs.forEach(log => {
+      const tid = String(log.taskId);
+      if (!taskMap2[tid]) {
+        taskMap2[tid] = { taskId: tid, taskTitle: taskMap[tid] || null, totalHours: 0, logs: [] };
+      }
+      taskMap2[tid].totalHours += log.hours || 0;
+      taskMap2[tid].logs.push(log);
+    });
+
+    res.json({
+      byEmployee: Object.values(employeeMap),
+      byTask: Object.values(taskMap2)
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch project time logs', error: err.message });
+  }
+};
+
+exports.getEmployeeTimesheet = async (req, res) => {
+  try {
+    const role = getUserRole(req);
+    if (!['admin', 'hr'].includes(role)) {
+      return res.status(403).json({ message: 'Access denied: Only Admin or HR can view timesheets' });
+    }
+
+    const { employeeId } = req.params;
+    const { startDate, endDate } = req.query;
+
+    const dateFilter = {};
+    if (startDate) dateFilter.$gte = new Date(startDate);
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      dateFilter.$lte = end;
+    }
+
+    const query = { employeeId };
+    if (Object.keys(dateFilter).length) query.date = dateFilter;
+
+    const logs = await TimeLog.find(query).sort({ date: 1 }).lean();
+
+    const projectIds = [...new Set(logs.map(l => String(l.projectId)))];
+    const projects = await Project.find({ _id: { $in: projectIds } }).select('_id billable').lean();
+    const projectBillableMap = {};
+    projects.forEach(p => { projectBillableMap[String(p._id)] = p.billable; });
+
+    const employee = await User.findById(employeeId).select('name firstName lastName').lean();
+    const employeeName = logs[0]?.employeeName ||
+      (employee ? (employee.name || `${employee.firstName || ''} ${employee.lastName || ''}`.trim()) : employeeId);
+
+    const dateGroupMap = {};
+    for (const log of logs) {
+      const dateKey = new Date(log.date).toISOString().slice(0, 10);
+      if (!dateGroupMap[dateKey]) dateGroupMap[dateKey] = { date: dateKey, entries: [], totalHours: 0 };
+      dateGroupMap[dateKey].entries.push(log);
+      dateGroupMap[dateKey].totalHours += log.hours || 0;
+    }
+
+    const groupedLogs = Object.keys(dateGroupMap).sort().map(k => dateGroupMap[k]);
+
+    let totalHours = 0;
+    let billableHours = 0;
+    let nonBillableHours = 0;
+    for (const log of logs) {
+      const h = log.hours || 0;
+      totalHours += h;
+      if (projectBillableMap[String(log.projectId)]) {
+        billableHours += h;
+      } else {
+        nonBillableHours += h;
+      }
+    }
+
+    res.json({
+      employeeId,
+      employeeName,
+      logs: groupedLogs,
+      summary: { totalHours, billableHours, nonBillableHours }
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch timesheet', error: err.message });
   }
 };
 

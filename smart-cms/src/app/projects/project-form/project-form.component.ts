@@ -89,6 +89,23 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
               <input type="date" formControlName="endDate">
             </div>
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Budget <span class="hint">(optional)</span></label>
+              <input type="number" formControlName="budget" placeholder="0" min="0">
+            </div>
+            <div class="form-group billable-group">
+              <label>Billing</label>
+              <label class="billable-toggle">
+                <input type="checkbox" formControlName="billable">
+                <span class="toggle-track">
+                  <span class="toggle-thumb"></span>
+                </span>
+                <span class="toggle-label">Billable Project</span>
+              </label>
+              <span class="hint">Hours logged will count toward client billing</span>
+            </div>
+          </div>
 
           <!-- Team Allocation Section (Keka Inspired) -->
           <div class="team-allocation-section mt-8 pt-6 border-t border-blue-900/30">
@@ -226,6 +243,14 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     .role-badge-select:hover { background: rgba(59, 130, 246, 0.3); border-color: #3b82f6; }
     .remove-member-btn { width: 24px; height: 24px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; border-radius: 6px; font-size: 10px; cursor: pointer; transition: all 0.2s; }
     .remove-member-btn:hover { background: #ef4444; color: white; }
+    .billable-group { justify-content: flex-start; gap: 8px; }
+    .billable-toggle { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+    .billable-toggle input[type="checkbox"] { display: none; }
+    .toggle-track { position: relative; width: 40px; height: 22px; background: rgba(30, 58, 138, 0.4); border-radius: 11px; border: 1px solid rgba(59, 130, 246, 0.3); transition: background 0.2s; flex-shrink: 0; }
+    .billable-toggle input:checked ~ .toggle-track { background: #3b82f6; border-color: #3b82f6; }
+    .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; background: #94a3b8; border-radius: 50%; transition: transform 0.2s, background 0.2s; }
+    .billable-toggle input:checked ~ .toggle-track .toggle-thumb { transform: translateX(18px); background: white; }
+    .toggle-label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
   `]
 })
 export class ProjectFormComponent implements OnInit {
@@ -271,7 +296,9 @@ export class ProjectFormComponent implements OnInit {
       startDate: [''],
       endDate: [''],
       tags: [''],
-      projectManager: ['', Validators.required]
+      projectManager: ['', Validators.required],
+      billable: [false],
+      budget: [0]
     });
 
     this.projectId = this.route.snapshot.paramMap.get('id') || '';
@@ -379,7 +406,9 @@ export class ProjectFormComponent implements OnInit {
           startDate: p.startDate ? p.startDate.split('T')[0] : '',
           endDate: p.endDate ? p.endDate.split('T')[0] : '',
           tags: (p.tags || []).join(', '),
-          projectManager: p.projectManager || ''
+          projectManager: p.projectManager || '',
+          billable: p.billable ?? false,
+          budget: p.budget ?? 0
         });
 
         // Map existing members for the UI

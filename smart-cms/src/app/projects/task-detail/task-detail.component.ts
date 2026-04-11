@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TaskService } from '../../services/task.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -12,7 +13,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
 @Component({
   selector: 'app-task-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, SharedSidebarComponent, AdminSidebarComponent, SharedHeaderComponent],
+  imports: [CommonModule, FormsModule, MatSnackBarModule, RouterModule, SharedSidebarComponent, AdminSidebarComponent, SharedHeaderComponent],
   template: `
     <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
       <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
@@ -22,7 +23,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
         <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-[#101935]">
           <div class="task-detail-page" *ngIf="task">
             <div class="page-header">
-        <button class="btn-back" (click)="router.navigate(['/projects', task.projectId])">← Back to Project</button>
+        <button class="btn-back" (click)="router.navigate(['/projects', task.projectId?.toString ? task.projectId.toString() : task.projectId])">← Back to Project</button>
         <div class="status-select">
           <label>Status</label>
           <select [ngModel]="task.status" (ngModelChange)="updateStatus($event)" [disabled]="!canUpdate">
@@ -94,21 +95,55 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
 
           <div class="sidebar-card" *ngIf="canUpdate">
             <h4>Log Time</h4>
-            <div class="form-group"><label>Hours</label><input type="number" [(ngModel)]="timeLog.hours" min="0.25" step="0.25" placeholder="0.5"></div>
-            <div class="form-group"><label>Date</label><input type="date" [(ngModel)]="timeLog.date"></div>
-            <div class="form-group"><label>Note</label><input [(ngModel)]="timeLog.description" placeholder="What did you work on?"></div>
-            <button class="btn-primary full-width" (click)="logTime()" [disabled]="!timeLog.hours">Log Time</button>
+            <div class="form-group">
+              <label>Hours <span class="hint">(0.25 – 24)</span></label>
+              <input type="number" [(ngModel)]="timeLog.hours" min="0.25" max="24" step="0.25" placeholder="0.5" [class.input-error]="hoursError">
+              <span class="error-msg" *ngIf="hoursError">{{ hoursError }}</span>
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" [(ngModel)]="timeLog.date">
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <input [(ngModel)]="timeLog.description" placeholder="What did you work on?">
+            </div>
+            <button class="btn-primary full-width" (click)="logTime()" [disabled]="submittingLog || !timeLog.hours">
+              {{ submittingLog ? 'Logging...' : 'Log Time' }}
+            </button>
           </div>
 
-          <div class="sidebar-card" *ngIf="timeLogs?.length">
-            <h4>Time Log</h4>
-            <div class="time-entry" *ngFor="let l of timeLogs">
-              <div class="time-entry-row">
-                <span class="log-name">{{ l.employeeName }}</span>
-                <span class="log-hours">{{ l.hours }}h</span>
+          <div class="sidebar-card">
+            <h4>Time Logs ({{ timeLogs?.length || 0 }})</h4>
+            <div *ngIf="loadingLogs" class="logs-loading"><div class="spinner-sm"></div></div>
+            <ng-container *ngIf="!loadingLogs">
+              <div class="time-entry" *ngFor="let l of timeLogs">
+                <div class="time-entry-row">
+                  <span class="log-name">{{ l.employeeName }}</span>
+                  <span class="log-hours">{{ l.hours }}h</span>
+                </div>
+                <div class="log-meta">{{ l.date | date:'MMM d, yyyy' }}<span *ngIf="l.description"> · {{ l.description }}</span></div>
               </div>
-              <div class="log-meta">{{ l.date | date:'MMM d' }}<span *ngIf="l.description"> · {{ l.description }}</span></div>
-            </div>
+              <div class="no-logs" *ngIf="!timeLogs?.length">No time logged yet.</div>
+            </ng-container>
+          </div>
+
+          <div class="sidebar-card">
+            <h4>Subtasks ({{ subtasks?.length || 0 }})</h4>
+            <div *ngIf="loadingSubtasks" class="logs-loading"><div class="spinner-sm"></div></div>
+            <ng-container *ngIf="!loadingSubtasks">
+              <div class="subtask-entry" *ngFor="let s of subtasks" [routerLink]="['/tasks', s._id]">
+                <div class="subtask-row">
+                  <span class="subtask-title">{{ s.title }}</span>
+                  <span class="priority-badge priority-{{ s.priority }}">{{ s.priority }}</span>
+                </div>
+                <div class="subtask-meta">
+                  <span class="status-badge status-{{ s.status }}">{{ formatStatus(s.status) }}</span>
+                  <span class="subtask-assignee" *ngIf="s.assignedToName">· {{ s.assignedToName }}</span>
+                </div>
+              </div>
+              <div class="no-logs" *ngIf="!subtasks?.length">No subtasks yet.</div>
+            </ng-container>
           </div>
 
           <div class="sidebar-card">
@@ -198,16 +233,34 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     .act-meta { font-size: 11px; color: #64748b; margin: 0; }
     .loading-state { display: flex; flex-direction: column; align-items: center; padding: 60px; color: #94a3b8; }
     .spinner { width: 36px; height: 36px; border: 3px solid rgba(30, 58, 138, 0.3); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+    .spinner-sm { width: 20px; height: 20px; border: 2px solid rgba(30, 58, 138, 0.3); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 8px auto; }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .hint { font-size: 11px; color: #64748b; font-weight: 400; }
+    .input-error { border-color: #f87171 !important; }
+    .error-msg { font-size: 11px; color: #f87171; margin-top: 2px; }
+    .no-logs { text-align: center; color: #64748b; font-size: 13px; padding: 12px 0; }
+    .logs-loading { display: flex; justify-content: center; padding: 8px 0; }
+    .subtask-entry { border-bottom: 1px solid rgba(30, 58, 138, 0.3); padding: 10px 0; cursor: pointer; transition: background 0.15s; border-radius: 6px; padding-left: 4px; }
+    .subtask-entry:last-child { border-bottom: none; }
+    .subtask-entry:hover { background: rgba(59, 130, 246, 0.07); }
+    .subtask-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .subtask-title { font-size: 13px; font-weight: 600; color: white; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .subtask-meta { display: flex; align-items: center; gap: 6px; }
+    .subtask-assignee { font-size: 12px; color: #64748b; }
   `]
 })
 export class TaskDetailComponent implements OnInit {
   task: any = null;
   timeLogs: any[] = [];
+  subtasks: any[] = [];
   loading = true;
+  loadingLogs = false;
+  loadingSubtasks = false;
+  submittingLog = false;
   canUpdate = false;
   commentText = '';
   timeLog: any = { hours: null, date: '', description: '' };
+  hoursError = '';
   currentUser: any;
   userRole: string = '';
   isAdmin: boolean = false;
@@ -218,7 +271,8 @@ export class TaskDetailComponent implements OnInit {
     public router: Router,
     private route: ActivatedRoute,
     private taskService: TaskService,
-    private auth: AuthService
+    private auth: AuthService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -229,16 +283,46 @@ export class TaskDetailComponent implements OnInit {
     this.taskService.getById(id).subscribe({
       next: (data: any) => {
         this.task = data.task;
-        this.timeLogs = data.timeLogs || [];
         this.projectMembers = data.projectMembers || [];
         this.loading = false;
-        
+
         const uid = String(this.currentUser?._id || this.currentUser?.id);
         const role = this.userRole;
         this.canUpdate = role === 'admin' || role === 'manager' || this.task.assignedTo === uid;
         this.canManage = role === 'admin' || role === 'manager';
+
+        this.fetchTimeLogs(id);
+        this.fetchSubtasks(id);
       },
-      error: () => { this.loading = false; }
+      error: () => {
+        this.loading = false;
+        this.snackBar.open('Failed to load task details', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+  fetchTimeLogs(taskId: string) {
+    this.loadingLogs = true;
+    this.taskService.getTimeLogs(taskId).subscribe({
+      next: (logs: any) => {
+        this.timeLogs = Array.isArray(logs) ? logs : (logs?.timeLogs || []);
+        this.loadingLogs = false;
+      },
+      error: () => { this.loadingLogs = false; }
+    });
+  }
+
+  fetchSubtasks(taskId: string) {
+    this.loadingSubtasks = true;
+    this.taskService.getSubtasks(taskId).subscribe({
+      next: (data: any) => {
+        this.subtasks = Array.isArray(data) ? data : (data?.subtasks || []);
+        this.loadingSubtasks = false;
+      },
+      error: () => {
+        this.loadingSubtasks = false;
+        this.snackBar.open('Failed to load subtasks', 'Close', { duration: 3000 });
+      }
     });
   }
 
@@ -275,17 +359,35 @@ export class TaskDetailComponent implements OnInit {
   addComment() {
     if (!this.commentText.trim()) return;
     this.taskService.addComment(this.task._id, this.commentText).subscribe({
-      next: (res: any) => { this.task.comments = res.comments; this.commentText = ''; }
+      next: (res: any) => {
+        this.task.comments = res.comments;
+        this.commentText = '';
+        this.snackBar.open('Comment posted', 'Close', { duration: 2000 });
+      },
+      error: () => { this.snackBar.open('Failed to post comment', 'Close', { duration: 3000 }); }
     });
   }
 
   logTime() {
-    if (!this.timeLog.hours) return;
+    this.hoursError = '';
+    const hours = Number(this.timeLog.hours);
+    if (!hours || hours < 0.25 || hours > 24) {
+      this.hoursError = 'Hours must be between 0.25 and 24';
+      return;
+    }
+    this.submittingLog = true;
     this.taskService.logTime(this.task._id, this.timeLog).subscribe({
       next: (res: any) => {
         this.timeLogs.unshift(res.log);
         this.task.loggedHours = res.loggedHours;
         this.timeLog = { hours: null, date: '', description: '' };
+        this.submittingLog = false;
+        this.snackBar.open('Time logged successfully', 'Close', { duration: 3000 });
+      },
+      error: (err: any) => {
+        this.submittingLog = false;
+        const msg = err?.error?.message || 'Failed to log time';
+        this.snackBar.open(msg, 'Close', { duration: 4000 });
       }
     });
   }
