@@ -6,20 +6,30 @@ const Manager = require('../models/Manager');
 const Admin = require('../models/Admin');
 
 const enrichUser = async (userId, userModel) => {
-  if (!userId || !userModel) return null;
-  let userDoc = null;
-  try {
-    if (userModel === 'User') userDoc = await User.findById(userId).select('firstName lastName name email').lean();
-    else if (userModel === 'Manager') userDoc = await Manager.findById(userId).select('name email').lean();
-    else if (userModel === 'Admin') userDoc = await Admin.findById(userId).select('name email').lean();
-  } catch (e) { return null; }
+  if (!userId) return null;
+  const models = { User, Manager, Admin, Hr: User };
   
-  if (!userDoc) return null;
-  
-  return {
-    name: userDoc.name || `${userDoc.firstName || ''} ${userDoc.lastName || ''}`.trim() || userDoc.email,
-    email: userDoc.email
-  };
+  // Try the specified model first, then fall back to others
+  const searchOrder = [userModel, 'User', 'Manager', 'Admin'].filter(Boolean);
+  const visited = new Set();
+
+  for (const modelName of searchOrder) {
+    if (visited.has(modelName)) continue;
+    visited.add(modelName);
+    const m = models[modelName];
+    if (!m) continue;
+    try {
+      const doc = await m.findById(userId).select('firstName lastName name email role').lean();
+      if (doc) {
+        return {
+          name: doc.name || `${doc.firstName || ''} ${doc.lastName || ''}`.trim() || doc.email,
+          email: doc.email,
+          role: doc.role
+        };
+      }
+    } catch (e) { /* continue */ }
+  }
+  return null;
 };
 
 const enrichMembers = async (members) => {
@@ -43,7 +53,7 @@ const getUserName = (req) => req.user.name || `${req.user.firstName} ${req.user.
 const canModifyTask = (task, userId, role) => {
   if (role === 'admin') return true;
   if (role === 'manager') return true;
-  if (task.assignedTo === userId) return true;
+  if (String(task.assignedTo) === String(userId)) return true;
   return false;
 };
 
@@ -69,7 +79,7 @@ exports.createTask = async (req, res) => {
       description,
       status: status || 'todo',
       priority: priority || 'medium',
-      assignedTo,
+      assignedTo: assignedTo ? String(assignedTo) : undefined,
       assignedToName,
       assignedToModel,
       assignedBy: userId,
@@ -94,7 +104,9 @@ exports.getProjectTasks = async (req, res) => {
 
     const role = getUserRole(req);
     const userId = getUserId(req);
-    const isMember = project.createdBy === userId || project.projectManager === userId || project.members.some(m => m.userId === userId);
+    const isMember = String(project.createdBy) === String(userId) || 
+      String(project.projectManager) === String(userId) || 
+      project.members.some(m => String(m.userId) === String(userId));
 
     if (!['admin', 'hr'].includes(role) && !isMember) {
       return res.status(403).json({ message: 'Access denied: Not a project member' });
@@ -124,10 +136,13 @@ exports.getMyTasks = async (req, res) => {
     if (priority) filter.priority = priority;
 
     const tasks = await Task.find(filter).sort({ dueDate: 1 });
+    const now = new Date();
 
     const tasksWithProject = await Promise.all(tasks.map(async (t) => {
       const project = await Project.findById(t.projectId).select('title status');
-      return { ...t.toObject(), project };
+      const plain = t.toObject();
+      plain.isOverdue = !!(plain.dueDate && new Date(plain.dueDate) < now && plain.status !== 'done');
+      return { ...plain, project };
     }));
 
     res.json(tasksWithProject);
@@ -146,7 +161,7 @@ exports.getTaskById = async (req, res) => {
 
     if (!['admin', 'hr'].includes(role)) {
       const project = await Project.findById(task.projectId);
-      const isMember = project && (project.createdBy === userId || project.projectManager === userId || project.members.some(m => m.userId === userId));
+      const isMember = project && (String(project.createdBy) === String(userId) || String(project.projectManager) === String(userId) || project.members.some(m => String(m.userId) === String(userId)));
       if (!isMember) return res.status(403).json({ message: 'Access denied' });
     }
 
@@ -175,12 +190,16 @@ exports.updateTask = async (req, res) => {
 
     const previousStatus = task.status;
     const allowed = ['title', 'description', 'status', 'priority', 'assignedTo', 'assignedToName', 'assignedToModel', 'dueDate', 'estimatedHours', 'milestoneId'];
-    allowed.forEach(field => { if (req.body[field] !== undefined) task[field] = req.body[field]; });
+    allowed.forEach(field => {
+      if (req.body[field] !== undefined) {
+        task[field] = field === 'assignedTo' ? String(req.body[field]) : req.body[field];
+      }
+    });
 
-    if (req.body.status === 'done' && !task.completedAt) {
+    if (req.body.status === 'done') {
       task.completedAt = new Date();
     } else if (req.body.status && req.body.status !== 'done') {
-      task.completedAt = undefined;
+      task.completedAt = null;
     }
 
     const logEntry = { performedBy: userId, performedByName: userName, at: new Date() };
@@ -251,12 +270,12 @@ exports.logTime = async (req, res) => {
     const userId = getUserId(req);
     const role = getUserRole(req);
 
-    if (role === 'hr' || (role === 'employee' && task.assignedTo !== userId)) {
+    if (role === 'hr' || (role === 'employee' && String(task.assignedTo) !== String(userId))) {
       return res.status(403).json({ message: 'Access denied: You can only log time on your own tasks' });
     }
 
     const { hours, date, description } = req.body;
-    if (!hours || hours <= 0) return res.status(400).json({ message: 'Valid hours required' });
+    if (hours < 0.25 || hours > 24) return res.status(400).json({ message: 'Hours must be between 0.25 and 24' });
 
     const log = new TimeLog({
       taskId: task._id,
@@ -284,6 +303,15 @@ exports.logTime = async (req, res) => {
   }
 };
 
+exports.getSubtasks = async (req, res) => {
+  try {
+    const subtasks = await Task.find({ parentTask: req.params.id });
+    res.json(subtasks);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch subtasks', error: err.message });
+  }
+};
+
 exports.getTimeLogs = async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
@@ -291,7 +319,7 @@ exports.getTimeLogs = async (req, res) => {
 
     const userId = getUserId(req);
     const role = getUserRole(req);
-    const canView = ['admin', 'manager'].includes(role) || task.assignedTo === userId;
+    const canView = ['admin', 'manager'].includes(role) || String(task.assignedTo) === String(userId);
     if (!canView) return res.status(403).json({ message: 'Access denied' });
 
     const logs = await TimeLog.find({ taskId: task._id }).sort({ date: -1 });

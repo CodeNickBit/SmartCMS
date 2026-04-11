@@ -60,4 +60,8 @@ export class TaskService {
   getTimeLogs(taskId: string): Observable<any[]> {
     return this.http.get<any[]>(`${BASE_URL}/tasks/${taskId}/time-log`, { headers: this.getHeaders() });
   }
+
+  getSubtasks(taskId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${BASE_URL}/tasks/${taskId}/subtasks`, { headers: this.getHeaders() });
+  }
 }

@@ -164,7 +164,7 @@ export class HomeComponent implements OnInit {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private router: Router,
+    public router: Router,
     private authService: AuthService,
     private leavePolicyService: LeavePolicyService,
     private confirmationModal: ConfirmationModalService,

@@ -28,10 +28,10 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
       </div>
 
       <div class="summary-cards">
-        <div class="summary-card" *ngFor="let s of summaryItems">
+        <div class="summary-card" *ngFor="let s of summaryItems" [ngStyle]="{'border-color': s.color + '33'}">
           <div class="card-icon" [ngStyle]="{'background': s.bg}">{{ s.icon }}</div>
           <div>
-            <div class="card-count">{{ s.count }}</div>
+            <div class="card-count" [ngStyle]="{'color': s.color}">{{ s.count }}</div>
             <div class="card-label">{{ s.label }}</div>
           </div>
         </div>
@@ -79,17 +79,18 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let t of filtered" [class.overdue-row]="isOverdue(t)">
+            <tr *ngFor="let t of filtered" [class.overdue-row]="t.isOverdue">
               <td class="task-name-cell">
                 <p class="task-name">{{ t.title }}</p>
                 <p class="task-project-name" *ngIf="t.project">{{ t.project.title }}</p>
+                <span class="overdue-badge" *ngIf="t.isOverdue">Overdue</span>
               </td>
               <td><span class="project-chip">{{ t.project?.title || '—' }}</span></td>
               <td><span class="priority-badge priority-{{ t.priority }}">{{ t.priority }}</span></td>
               <td><span class="status-badge status-{{ t.status }}">{{ formatStatus(t.status) }}</span></td>
               <td>
-                <span [class.overdue-text]="isOverdue(t)">{{ t.dueDate ? (t.dueDate | date:'MMM d') : '—' }}</span>
-                <span class="late-badge" *ngIf="isOverdue(t)"> Late</span>
+                <span [class.overdue-text]="t.isOverdue">{{ t.dueDate ? (t.dueDate | date:'MMM d') : '—' }}</span>
+                <span class="late-badge" *ngIf="t.isOverdue"> Late</span>
               </td>
               <td>
                 <div class="mini-progress">
@@ -143,7 +144,8 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     th { padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid rgba(30, 58, 138, 0.3); }
     td { padding: 12px 16px; border-bottom: 1px solid rgba(30, 58, 138, 0.2); font-size: 14px; color: #cbd5e1; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
-    tr.overdue-row { background: rgba(239, 68, 68, 0.05); }
+    tr.overdue-row { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; }
+    .overdue-badge { display: inline-block; background: rgba(239, 68, 68, 0.2); color: #f87171; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-top: 3px; border: 1px solid rgba(239, 68, 68, 0.4); }
     .task-name { font-weight: 600; color: white; margin: 0; }
     .task-project-name { font-size: 12px; color: #94a3b8; margin: 2px 0 0; }
     .project-chip { background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; }
@@ -209,13 +211,13 @@ export class MyTasksComponent implements OnInit {
     this.allTasks.forEach(t => {
       if (t.status === 'in_progress') counts.inProgress++;
       if (t.status === 'done') counts.done++;
-      if (this.isOverdue(t)) counts.overdue++;
+      if (t.isOverdue) counts.overdue++;
     });
     this.summaryItems = [
-      { icon: '📋', label: 'Total', count: counts.total, bg: 'rgba(59, 130, 246, 0.2)' },
-      { icon: '🔄', label: 'In Progress', count: counts.inProgress, bg: 'rgba(59, 130, 246, 0.2)' },
-      { icon: '✅', label: 'Done', count: counts.done, bg: 'rgba(34, 197, 94, 0.2)' },
-      { icon: '⚠️', label: 'Overdue', count: counts.overdue, bg: 'rgba(239, 68, 68, 0.2)' }
+      { icon: '📋', label: 'Total Tasks', count: counts.total, bg: 'rgba(59, 130, 246, 0.25)', color: '#60a5fa' },
+      { icon: '🔄', label: 'In Progress', count: counts.inProgress, bg: 'rgba(245, 158, 11, 0.25)', color: '#fbbf24' },
+      { icon: '✅', label: 'Completed', count: counts.done, bg: 'rgba(34, 197, 94, 0.25)', color: '#4ade80' },
+      { icon: '⚠️', label: 'Overdue', count: counts.overdue, bg: 'rgba(239, 68, 68, 0.25)', color: '#f87171' }
     ];
   }
 
@@ -223,7 +225,7 @@ export class MyTasksComponent implements OnInit {
     this.filtered = this.allTasks.filter(t => {
       if (this.filterStatus && t.status !== this.filterStatus) return false;
       if (this.filterPriority && t.priority !== this.filterPriority) return false;
-      if (this.showOverdueOnly && !this.isOverdue(t)) return false;
+      if (this.showOverdueOnly && !t.isOverdue) return false;
       return true;
     });
   }

@@ -16,6 +16,8 @@ import { ProjectFormComponent } from './projects/project-form/project-form.compo
 import { MyTasksComponent } from './projects/my-tasks/my-tasks.component';
 import { TaskDetailComponent } from './projects/task-detail/task-detail.component';
 import { ProjectAnalyticsComponent } from './projects/project-analytics/project-analytics.component';
+import { TimesheetComponent } from './projects/timesheet/timesheet.component';
+import { WorkloadComponent } from './projects/workload/workload.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -120,8 +122,10 @@ export const routes: Routes = [
   { path: 'projects/analytics', component: ProjectAnalyticsComponent, canActivate: [authGuard] },
   { path: 'projects/:id', component: ProjectDetailComponent, canActivate: [authGuard] },
   { path: 'projects/:id/edit', component: ProjectFormComponent, canActivate: [authGuard] },
+  { path: 'projects/:id/workload', component: WorkloadComponent, canActivate: [authGuard] },
   { path: 'my-tasks', component: MyTasksComponent, canActivate: [authGuard] },
   { path: 'tasks/:id', component: TaskDetailComponent, canActivate: [authGuard] },
+  { path: 'timesheets/:employeeId', component: TimesheetComponent, canActivate: [authGuard] },
 
   {
     path: 'unauthorized',
