@@ -387,4 +387,40 @@ router.get('/my-team', protect, async (req, res) => {
   }
 });
 
+router.get('/users', protect, async (req, res) => {
+  try {
+    const [employees, managers, admins] = await Promise.all([
+      User.find({}).select('_id firstName lastName email role employeeId department designation').lean(),
+      require('../models/Manager').find({}).select('_id name email role department designation').lean(),
+      require('../models/Admin').find({}).select('_id name email role').lean()
+    ]);
+
+    let HrModel;
+    try { HrModel = require('../models/Hr'); } catch (e) { HrModel = null; }
+    const hrs = HrModel ? await HrModel.find({}).select('_id name email role department').lean() : [];
+
+    const normalize = (u, role) => ({
+      _id: String(u._id),
+      name: u.name || `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
+      email: u.email,
+      role: u.role || role,
+      employeeId: u.employeeId || null,
+      department: u.department || null,
+      designation: u.designation || null
+    });
+
+    const result = [
+      ...employees.map(u => normalize(u, 'employee')),
+      ...managers.map(u => normalize(u, 'manager')),
+      ...hrs.map(u => normalize(u, 'hr')),
+      ...admins.map(u => normalize(u, 'admin'))
+    ];
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch users', error: err.message });
+  }
+});
+
 module.exports = router;
+
