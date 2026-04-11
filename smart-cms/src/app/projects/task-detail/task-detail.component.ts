@@ -114,7 +114,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
           </div>
 
           <div class="sidebar-card">
-            <h4>Time Logs ({{ timeLogs?.length || 0 }})</h4>
+            <h4>Time Logs ({{ timeLogs.length || 0 }})</h4>
             <div *ngIf="loadingLogs" class="logs-loading"><div class="spinner-sm"></div></div>
             <ng-container *ngIf="!loadingLogs">
               <div class="time-entry" *ngFor="let l of timeLogs">
@@ -129,7 +129,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
           </div>
 
           <div class="sidebar-card">
-            <h4>Subtasks ({{ subtasks?.length || 0 }})</h4>
+            <h4>Subtasks ({{ subtasks.length || 0 }})</h4>
             <div *ngIf="loadingSubtasks" class="logs-loading"><div class="spinner-sm"></div></div>
             <ng-container *ngIf="!loadingSubtasks">
               <div class="subtask-entry" *ngFor="let s of subtasks" [routerLink]="['/tasks', s._id]">
