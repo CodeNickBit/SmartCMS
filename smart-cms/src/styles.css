@@ -530,6 +530,8 @@ input[type="submit"],
    TYPOGRAPHY HIERARCHY
    ============================================ */
 
+@layer base {
+
 /* Headings with proper contrast against backgrounds */
 h1 {
   font-weight: 600;
@@ -537,7 +539,7 @@ h1 {
   letter-spacing: -0.02em;
 }
 
-:is(.dark) h1 {
+:where(.dark) h1 {
   color: #ffffff;
 }
 
@@ -547,7 +549,7 @@ h2 {
   letter-spacing: -0.01em;
 }
 
-:is(.dark) h2 {
+:where(.dark) h2 {
   color: #ffffff;
 }
 
@@ -556,7 +558,7 @@ h3 {
   color: #334155;
 }
 
-:is(.dark) h3 {
+:where(.dark) h3 {
   color: #e5e7eb;
 }
 
@@ -568,10 +570,10 @@ time {
   color: #475569;
 }
 
-:is(.dark) p,
-:is(.dark) span,
-:is(.dark) label,
-:is(.dark) time {
+:where(.dark) p,
+:where(.dark) span,
+:where(.dark) label,
+:where(.dark) time {
   color: #d1d5db;
 }
 
@@ -585,20 +587,22 @@ a:hover {
   color: #4a9df0;
 }
 
-:is(.theme-light) h1,
-:is(.theme-light) h2 {
+:where(.theme-light) h1,
+:where(.theme-light) h2 {
   color: #0D1B35;
 }
 
-:is(.theme-light) h3 {
+:where(.theme-light) h3 {
   color: #3D5A7A;
 }
 
-:is(.theme-light) p,
-:is(.theme-light) span,
-:is(.theme-light) label,
-:is(.theme-light) time {
+:where(.theme-light) p,
+:where(.theme-light) span,
+:where(.theme-light) label,
+:where(.theme-light) time {
   color: #2E4A6B;
+}
+
 }
 
 /* ============================================

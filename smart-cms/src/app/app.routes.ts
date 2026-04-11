@@ -131,6 +131,10 @@ export const routes: Routes = [
     path: 'unauthorized',
     loadComponent: () => import('./unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
   },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {
+    path: '',
+    loadComponent: () => import('./landing/landing.component').then(m => m.LandingComponent),
+    pathMatch: 'full'
+  },
   { path: '**', loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];
