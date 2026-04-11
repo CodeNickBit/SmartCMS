@@ -63,3 +63,5 @@ backend/users-output.txt
 backend/uploads/*
 !backend/uploads/.gitkeep
 /backend/node_modules
+backend/package-lock.json
+backend/node_modules/node-cron/package.json
