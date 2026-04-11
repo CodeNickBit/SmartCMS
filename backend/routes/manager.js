@@ -93,6 +93,8 @@ router.get('/active', async (req, res) => {
     const allManagers = [...managers, ...formattedUserManagers];
     
     console.log(`GET /api/manager/active - Department: ${department}, Found: ${allManagers.length} managers`);
+      .sort({ name: 1 })
+      .lean();
     
     res.json(allManagers);
   } catch (error) {

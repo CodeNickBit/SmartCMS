@@ -26,6 +26,11 @@ const officeLocationSchema = new mongoose.Schema({
     min: 50,
     max: 1000
   },
+  timezone: {
+    type: String,
+    default: 'Asia/Kolkata',
+    trim: true
+  },
   isActive: {
     type: Boolean,
     default: true

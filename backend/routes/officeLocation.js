@@ -5,7 +5,7 @@ const { authenticateToken, isAdmin } = require('../middleware/authMiddleware');
 
 router.post('/', authenticateToken, isAdmin, async (req, res) => {
   try {
-    const { name, address, latitude, longitude, radius, isActive } = req.body;
+    const { name, address, latitude, longitude, radius, isActive, timezone } = req.body;
 
     if (!name || !address || latitude === undefined || longitude === undefined) {
       return res.status(400).json({ message: 'Name, address, latitude, and longitude are required' });
@@ -18,6 +18,7 @@ router.post('/', authenticateToken, isAdmin, async (req, res) => {
       longitude,
       radius: radius || 100,
       isActive: isActive !== undefined ? isActive : true,
+      timezone: timezone || 'Asia/Kolkata',
       createdBy: req.user.id
     });
 
@@ -64,7 +65,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 
 router.put('/:id', authenticateToken, isAdmin, async (req, res) => {
   try {
-    const { name, address, latitude, longitude, radius, isActive } = req.body;
+    const { name, address, latitude, longitude, radius, isActive, timezone } = req.body;
 
     const location = await OfficeLocation.findById(req.params.id);
     if (!location) {
@@ -77,6 +78,7 @@ router.put('/:id', authenticateToken, isAdmin, async (req, res) => {
     if (longitude !== undefined) location.longitude = longitude;
     if (radius !== undefined) location.radius = radius;
     if (isActive !== undefined) location.isActive = isActive;
+    if (timezone) location.timezone = timezone;
 
     await location.save();
     res.json({ message: 'Office location updated successfully', location });
