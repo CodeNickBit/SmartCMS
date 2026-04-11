@@ -258,6 +258,10 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
           <div class="loading-state" *ngIf="!project && loading">
             <div class="spinner"></div><p>Loading project...</p>
           </div>
+          <div class="error-state" *ngIf="!project && !loading">
+            <p>⚠️ Failed to load project. You may not have access or the project does not exist.</p>
+            <button (click)="router.navigate(['/projects'])" class="inline-flex items-center gap-1.5 bg-transparent border border-blue-900/30 text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer mt-3 hover:bg-blue-900/20 hover:text-white transition-all">← Back to Projects</button>
+          </div>
         </main>
       </div>
     </div>
@@ -307,6 +311,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     .empty-col { text-align: center; color: #64748b; font-size: 13px; padding: 20px; border: 1px dashed rgba(30, 58, 138, 0.3); border-radius: 10px; }
     
     .loading-state { display: flex; flex-direction: column; align-items: center; padding: 60px; color: #94a3b8; }
+    .error-state { display: flex; flex-direction: column; align-items: center; padding: 60px; color: #f87171; text-align: center; font-size: 15px; }
     .spinner { width: 36px; height: 36px; border: 3px solid rgba(30, 58, 138, 0.3); border-top-color: #3b82f6; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     
@@ -447,7 +452,7 @@ export class ProjectDetailComponent implements OnInit {
       }
     }
 
-    const payload = { ...this.newTask };
+    const payload = { ...this.newTask, estimatedHours: Number(this.newTask.estimatedHours) || 0 };
     if (!payload.parentTask) delete payload.parentTask;
 
     this.taskService.create(this.project._id, payload).subscribe({

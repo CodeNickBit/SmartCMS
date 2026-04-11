@@ -296,15 +296,6 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
-router.get('/users', async (req, res) => {
-  try {
-    const users = await User.find({}, '-password');
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch users', error: error.message });
-  }
-});
-
 router.put('/users/:id', async (req, res) => {
   try {
     const { id } = req.params;
