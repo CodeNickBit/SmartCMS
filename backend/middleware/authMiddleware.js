@@ -30,18 +30,7 @@ const protect = async (req, res, next) => {
             }
 
             if (!req.user) {
-                console.error(`User verified but not found in DB. Role: ${decoded.role}, ID: ${decoded.id}`);
-                // RETURN DEBUG INFO TO CLIENT TO DIAGNOSE MONGODB LOOKUP FAILURE
-                return res.status(401).json({
-                    message: 'Not authorized, user not found',
-                    debug: {
-                        tokenRole: decoded.role,
-                        tokenId: decoded.id,
-                        queriedCollection: decoded.role === 'admin' ? 'Admin' :
-                            decoded.role === 'hr' ? 'Hr' :
-                                decoded.role === 'manager' ? 'Manager' : 'User'
-                    }
-                });
+                return res.status(401).json({ message: 'Not authorized, user not found' });
             }
 
             next();
@@ -95,4 +84,12 @@ const isManager = (req, res, next) => {
     next();
 };
 
-module.exports = { protect, checkRole, authenticateToken, isAdmin, isHR, isManager };
+const isManagerOrHR = (req, res, next) => {
+    if (!req.user) return res.status(401).json({ message: 'Not authorized' });
+    if (!['manager', 'hr', 'admin'].includes(req.user.role)) {
+        return res.status(403).json({ message: 'Access denied. Manager, HR or Admin only.' });
+    }
+    next();
+};
+
+module.exports = { protect, checkRole, authenticateToken, isAdmin, isHR, isManager, isManagerOrHR };

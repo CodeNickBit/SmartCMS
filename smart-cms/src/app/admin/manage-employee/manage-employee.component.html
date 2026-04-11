@@ -82,7 +82,17 @@
               <select [(ngModel)]="editingEmployee.reportingManager"
                 class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
                 <option value="">No Manager</option>
-                <option *ngFor="let manager of activeManagers" [value]="manager.name">{{manager.name}}</option>
+                <option *ngFor="let manager of activeManagers" [value]="manager._id">{{manager.name}} ({{manager.department}})</option>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Backup Manager
+                <span class="text-slate-500 normal-case font-normal ml-1">(covers when primary is on leave)</span>
+              </label>
+              <select [(ngModel)]="editingEmployee.backupManager"
+                class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
+                <option value="">None</option>
+                <option *ngFor="let manager of activeManagers" [value]="manager._id">{{manager.name}} ({{manager.department}})</option>
               </select>
             </div>
             <div class="space-y-2">
@@ -192,6 +202,8 @@
                 <th class="px-6 py-4">Email</th>
                 <th class="px-6 py-4">Department</th>
                 <th class="px-6 py-4">Designation</th>
+                <th class="px-6 py-4">Reporting Manager</th>
+                <th class="px-6 py-4">Backup Manager</th>
                 <th class="px-6 py-4">Status</th>
                 <th class="px-6 py-4 text-right">Actions</th>
               </tr>
@@ -210,6 +222,8 @@
                   <td class="px-6 py-4 text-slate-300">{{ emp.email }}</td>
                   <td class="px-6 py-4 text-slate-300 capitalize">{{ emp.department || 'N/A' }}</td>
                   <td class="px-6 py-4 text-slate-300">{{ emp.designation || 'N/A' }}</td>
+                  <td class="px-6 py-4 text-slate-300">{{ emp.reportingManager || '—' }}</td>
+                  <td class="px-6 py-4 text-slate-300">{{ emp.backupManager || '—' }}</td>
                   <td class="px-6 py-4">
                     <span [class]="emp.active_inactive !== false ? 'bg-emerald-900/30 text-emerald-300 border-emerald-700' : 'bg-orange-900/30 text-orange-300 border-orange-700'"
                       class="px-2.5 py-1 rounded-full text-xs font-bold border">
@@ -238,7 +252,7 @@
                 </td>
               </tr>
               <tr *ngIf="filteredEmployees.length === 0">
-                <td colspan="7" class="px-6 py-10 text-center text-slate-400 italic">
+                <td colspan="9" class="px-6 py-10 text-center text-slate-400 italic">
                   No employees found matching your criteria.
                 </td>
               </tr>
