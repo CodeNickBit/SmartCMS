@@ -62,3 +62,4 @@ backend/users-output.txt
 # Uploads
 backend/uploads/*
 !backend/uploads/.gitkeep
+/backend/node_modules
