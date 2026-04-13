@@ -3,8 +3,12 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { SharedSidebarComponent } from './components/sidebar/sidebar.component';
 import { SharedHeaderComponent } from './components/header/header.component';
-import { LeavePolicyService } from '../services/leave-policy.service'; // Import Service
-import { AuthService } from '../services/auth.service'; // Import Auth
+import { LeavePolicyService } from '../services/leave-policy.service';
+import { AuthService } from '../services/auth.service';
+import { ManagerService } from '../services/manager.service';
+import { DepartmentService } from '../services/department.service';
+import { DesignationService } from '../services/designation.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-shared-dashboard',
@@ -72,16 +76,16 @@ import { AuthService } from '../services/auth.service'; // Import Auth
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-              <div *ngFor="let stat of stats" class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl p-6 shadow-lg relative overflow-hidden group hover:border-[#3083DC]/50 transition-all">
-                <div class="flex items-center justify-between mb-4">
+              <div *ngFor="let stat of stats" class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl p-6 shadow-lg relative overflow-hidden group hover:border-[#3083DC]/50 transition-all flex flex-col items-center justify-center">
+                <div class="flex items-center justify-center space-x-4 mb-3">
                   <div [class]="'p-3 rounded-xl shadow-sm flex items-center justify-center ' + stat.bgClass + ' ' + stat.textClass">
                     <span [innerHTML]="stat.icon"></span>
                   </div>
-                  <span class="text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-widest">{{ stat.label }}</span>
+                  <h3 class="text-3xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ stat.value }}</h3>
                 </div>
-                <div class="flex items-baseline space-x-2">
-                  <h3 class="text-2xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ stat.value }}</h3>
-                  <span [class]="'text-xs font-bold ' + (stat.trendUp ? 'text-emerald-400' : 'text-rose-400')">
+                <div class="text-center">
+                  <span class="text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-widest">{{ stat.label }}</span>
+                  <span *ngIf="stat.trend" [class]="'ml-2 text-xs font-bold ' + (stat.trendUp ? 'text-emerald-400' : 'text-rose-400')">
                     {{ stat.trendUp ? '↑' : '↓' }} {{ stat.trend }}
                   </span>
                 </div>
@@ -183,12 +187,7 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
   private pollingInterval: any;
   private digestDismissKey = '';
 
-  stats = [
-    { label: 'Total Employees', value: '452', trend: '12%', trendUp: true, bgClass: 'bg-[#3083DC]', textClass: 'text-white', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>' },
-    { label: 'On Leave', value: '18', trend: '2%', trendUp: false, bgClass: 'bg-rose-500', textClass: 'text-white', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>' },
-    { label: 'Open Positions', value: '12', trend: '5%', trendUp: true, bgClass: 'bg-[#10B981]', textClass: 'text-white', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>' },
-    { label: 'Pending Approvals', value: '24', trend: '8%', trendUp: true, bgClass: 'bg-[#EE964B]', textClass: 'text-white', icon: '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>' },
-  ];
+  stats: any[] = [];
 
   team = [
     { name: 'Alex Johnson', role: 'UI Developer', status: 'Active' },
@@ -204,7 +203,11 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private leaveService: LeavePolicyService,
-    private authService: AuthService
+    private authService: AuthService,
+    private managerService: ManagerService,
+    private departmentService: DepartmentService,
+    private designationService: DesignationService,
+    private sanitizer: DomSanitizer
   ) { }
 
   ngOnInit() {
@@ -218,8 +221,10 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
 
           if (this.userRole === 'manager' || this.userRole === 'hr') {
             this.loadPendingLeaves();
+            this.loadDynamicStats();
             this.pollingInterval = setInterval(() => {
               this.loadPendingLeaves();
+              this.loadDynamicStats();
             }, 30000);
           }
 
@@ -243,6 +248,121 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
     }
+  }
+
+  loadDynamicStats(): void {
+    if (this.userRole === 'hr') {
+      this.loadHRStats();
+    } else if (this.userRole === 'manager') {
+      this.loadManagerStats();
+    }
+  }
+
+  private loadHRStats(): void {
+    // 1. Total Employees
+    this.authService.getUsers().subscribe({
+      next: (users) => {
+        const val = users ? users.length : 0;
+        this.updateStat('Employees', val, 'bg-[#3083DC]', '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>');
+      },
+      error: () => this.updateStat('Employees', 0, 'bg-[#3083DC]', '')
+    });
+
+    // 2. Total Managers
+    this.managerService.getActiveManagers().subscribe({
+      next: (managers) => {
+        const val = managers ? managers.length : 0;
+        this.updateStat('Managers', val, 'bg-[#10B981]', '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>');
+      },
+      error: () => this.updateStat('Managers', 0, 'bg-[#10B981]', '')
+    });
+
+    // 3. Total Departments
+    this.departmentService.getDepartments().subscribe({
+      next: (deps) => {
+        const val = deps ? deps.length : 0;
+        this.updateStat('Departments', val, 'bg-rose-500', '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>');
+      },
+      error: () => this.updateStat('Departments', 0, 'bg-rose-500', '')
+    });
+
+    // 4. Total Designations
+    this.designationService.getDesignations().subscribe({
+      next: (desigs) => {
+        const val = desigs ? desigs.length : 0;
+        this.updateStat('Designations', val, 'bg-[#EE964B]', '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>');
+      },
+      error: () => this.updateStat('Designations', 0, 'bg-[#EE964B]', '')
+    });
+  }
+
+  private loadManagerStats(): void {
+    const user = this.authService.getUser();
+    if (!user) return;
+    const userId = user._id || user.id;
+    const managerName = user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim();
+
+    // 1. Team Size
+    this.authService.getUsers().subscribe({
+      next: (users) => {
+        const team = users.filter((u: any) => u.reportingManager === managerName);
+        this.updateStat('Team Size', team.length, 'bg-[#3083DC]', '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>');
+      },
+      error: () => this.updateStat('Team Size', 0, 'bg-[#3083DC]', '')
+    });
+
+    // 2. Pending Approvals & 3. Team Members on Leave Today & 4. Lifetime Handled
+    this.leaveService.getManagerLeaves(userId).subscribe({
+      next: (leaves) => {
+        const pending = leaves.filter((l: any) => l.status === 'Pending').length;
+        this.updateStat('Approvals', pending, 'bg-[#EE964B]', '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>');
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const onLeaveToday = leaves.filter((l: any) => {
+          if (l.status !== 'Approved') return false;
+          const start = new Date(l.startDate);
+          start.setHours(0,0,0,0);
+          const end = new Date(l.endDate);
+          end.setHours(23,59,59,999);
+          return today >= start && today <= end;
+        }).length;
+        this.updateStat('On Leave', onLeaveToday, 'bg-rose-500', '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>');
+
+        const handled = leaves.filter((l: any) => l.status === 'Approved' || l.status === 'Rejected').length;
+        this.updateStat('Processed', handled, 'bg-[#10B981]', '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>');
+      },
+      error: () => {
+        this.updateStat('Approvals', 0, 'bg-[#EE964B]', '');
+        this.updateStat('On Leave', 0, 'bg-rose-500', '');
+        this.updateStat('Processed', 0, 'bg-[#10B981]', '');
+      }
+    });
+  }
+
+  private updateStat(label: string, value: number | string, bgClass: string, iconString: string): void {
+    const icon = this.sanitizer.bypassSecurityTrustHtml(iconString);
+    const existing = this.stats.find(s => s.label === label);
+    if (existing) {
+      existing.value = value;
+      existing.icon = icon;
+      existing.bgClass = bgClass;
+    } else {
+      this.stats.push({ label, value, bgClass, textClass: 'text-white', icon });
+    }
+    
+    // Maintain strict sort order
+    const hrOrder = ['Employees', 'Managers', 'Departments', 'Designations'];
+    const mgrOrder = ['Team Size', 'Approvals', 'On Leave', 'Processed'];
+    const order = this.userRole === 'hr' ? hrOrder : mgrOrder;
+    
+    this.stats.sort((a, b) => {
+       const indexA = order.indexOf(a.label);
+       const indexB = order.indexOf(b.label);
+       if (indexA === -1) return 1;
+       if (indexB === -1) return -1;
+       return indexA - indexB;
+    });
   }
 
   loadPendingLeaves(): void {

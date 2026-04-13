@@ -10,6 +10,14 @@ import { managerHrGuard } from './guards/manager-hr.guard';
 import { AddUserComponent } from './admin/add-user/add-user.component';
 import { LeaveApprovalsComponent } from './dashboard/leave-approvals/leave-approvals.component';
 import { TeamCalendarComponent } from './dashboard/team-calendar/team-calendar.component';
+import { ProjectListComponent } from './projects/project-list/project-list.component';
+import { ProjectDetailComponent } from './projects/project-detail/project-detail.component';
+import { ProjectFormComponent } from './projects/project-form/project-form.component';
+import { MyTasksComponent } from './projects/my-tasks/my-tasks.component';
+import { TaskDetailComponent } from './projects/task-detail/task-detail.component';
+import { ProjectAnalyticsComponent } from './projects/project-analytics/project-analytics.component';
+import { TimesheetComponent } from './projects/timesheet/timesheet.component';
+import { WorkloadComponent } from './projects/workload/workload.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -109,10 +117,24 @@ export const routes: Routes = [
   },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
+  { path: 'projects', component: ProjectListComponent, canActivate: [authGuard] },
+  { path: 'projects/new', component: ProjectFormComponent, canActivate: [authGuard] },
+  { path: 'projects/analytics', component: ProjectAnalyticsComponent, canActivate: [authGuard] },
+  { path: 'projects/:id', component: ProjectDetailComponent, canActivate: [authGuard] },
+  { path: 'projects/:id/edit', component: ProjectFormComponent, canActivate: [authGuard] },
+  { path: 'projects/:id/workload', component: WorkloadComponent, canActivate: [authGuard] },
+  { path: 'my-tasks', component: MyTasksComponent, canActivate: [authGuard] },
+  { path: 'tasks/:id', component: TaskDetailComponent, canActivate: [authGuard] },
+  { path: 'timesheets/:employeeId', component: TimesheetComponent, canActivate: [authGuard] },
+
   {
     path: 'unauthorized',
     loadComponent: () => import('./unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
   },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {
+    path: '',
+    loadComponent: () => import('./landing/landing.component').then(m => m.LandingComponent),
+    pathMatch: 'full'
+  },
   { path: '**', loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];
