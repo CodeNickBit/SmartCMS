@@ -4,6 +4,8 @@ const Attendance = require('../models/Attendance');
 const OfficeLocation = require('../models/OfficeLocation');
 const User = require('../models/User');
 const LeaveRequest = require('../models/LeaveRequest');
+const Manager = require('../models/Manager');
+const AttendanceEscalation = require('../models/AttendanceEscalation');
 const { authenticateToken, isAdmin, isHR, isManager, isManagerOrHR } = require('../middleware/authMiddleware');
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
@@ -34,6 +36,99 @@ async function getDirectReportIds(managerId) {
     ]
   }).select('_id');
   return employees.map(e => e._id.toString());
+}
+
+async function getAssignedAttendanceIds(managerId) {
+  const attendances = await Attendance.find({
+    assignedManagerId: managerId,
+    approvalStatus: 'pending'
+  }).select('_id');
+  return attendances.map(a => a._id.toString());
+}
+
+async function checkManagerAvailability(managerId, date) {
+  console.log('Checking manager availability:', managerId, date);
+  
+  const manager = await Manager.findById(managerId);
+  if (!manager) {
+    console.log('Manager not found in Manager collection');
+    return true;
+  }
+  console.log('Manager found:', manager.name, manager.email);
+  
+  const managerLeaveByManagerId = await LeaveRequest.findOne({
+    userId: managerId.toString(),
+    status: 'Approved',
+    startDate: { $lte: date },
+    endDate: { $gte: date }
+  });
+  
+  if (managerLeaveByManagerId) {
+    console.log('Manager Leave found by Manager ID:', managerLeaveByManagerId.leaveType);
+    return false;
+  }
+  
+  const managerUser = await User.findOne({ 
+    email: manager.email
+  });
+  
+  if (!managerUser) {
+    console.log('Manager user not found in User collection');
+    console.log('No leave found for manager');
+    return true;
+  }
+  
+  console.log('Manager User ID:', managerUser._id);
+  console.log('Manager User Role:', managerUser.role);
+  
+  const managerAttendance = await Attendance.findOne({
+    employeeId: managerUser._id.toString(),
+    date: date,
+    $or: [
+      { status: 'absent' },
+      { status: 'on_leave' }
+    ]
+  });
+  console.log('Manager Attendance:', managerAttendance ? `Found - Status: ${managerAttendance.status}` : 'Not found');
+
+  const managerLeave = await LeaveRequest.findOne({
+    userId: managerUser._id.toString(),
+    status: 'Approved',
+    startDate: { $lte: date },
+    endDate: { $gte: date }
+  });
+  console.log('Manager Leave:', managerLeave ? `Found - ${managerLeave.leaveType}` : 'Not found');
+
+  const isAvailable = !managerAttendance && !managerLeave;
+  console.log('Is Available:', isAvailable);
+  
+  return isAvailable;
+}
+
+async function findAlternateManager(employeeDepartment, excludeManagerId) {
+  // First, try to find Atik manager
+  const atikManager = await Manager.findOne({
+    email: 'atikmanager@gmail.com',
+    _id: { $ne: excludeManagerId }
+  });
+  
+  if (atikManager) {
+    console.log('Using Atik as alternate manager');
+    return atikManager;
+  }
+  
+  // Fallback: find managers from different departments
+  const alternateManagers = await Manager.find({
+    _id: { $ne: excludeManagerId },
+    department: { $ne: employeeDepartment }
+  }).limit(10);
+
+  if (!alternateManagers.length) {
+    const anyManager = await Manager.findOne({ _id: { $ne: excludeManagerId } });
+    return anyManager;
+  }
+
+  return alternateManagers[Math.floor(Math.random() * alternateManagers.length)];
 }
 
 router.post('/check-in', authenticateToken, async (req, res) => {
@@ -78,7 +173,7 @@ router.post('/check-in', authenticateToken, async (req, res) => {
       return res.status(400).json({ message: 'Already checked in today' });
     }
 
-    const employee = await User.findById(employeeId).select('workingHoursStart workingHoursEnd');
+    const employee = await User.findById(employeeId).select('workingHoursStart workingHoursEnd reportingManager department');
     let status = 'present';
 
     if (employee?.workingHoursStart) {
@@ -102,6 +197,42 @@ router.post('/check-in', authenticateToken, async (req, res) => {
       }
     }
 
+    let escalationInfo = null;
+    let assignedManagerId = employee.reportingManager;
+
+    if (employee.reportingManager) {
+      console.log('=== ESCALATION CHECK ===');
+      console.log('Employee:', employeeId);
+      console.log('Reporting Manager:', employee.reportingManager);
+      console.log('Check Date:', today);
+      
+      const isManagerAvailable = await checkManagerAvailability(employee.reportingManager, today);
+      console.log('Manager Available:', isManagerAvailable);
+      
+      if (!isManagerAvailable) {
+        const originalManager = await Manager.findById(employee.reportingManager);
+        console.log('Original Manager:', originalManager);
+        
+        const alternateManager = await findAlternateManager(employee.department, employee.reportingManager);
+        console.log('Alternate Manager:', alternateManager);
+
+        if (alternateManager) {
+          assignedManagerId = alternateManager._id;
+          escalationInfo = {
+            originalManagerId: employee.reportingManager,
+            originalManagerName: originalManager?.name || 'Unknown',
+            escalatedToManagerId: alternateManager._id,
+            escalatedToManagerName: alternateManager.name,
+            escalatedToManagerEmail: alternateManager.email,
+            escalatedToManagerDepartment: alternateManager.department,
+            reason: 'manager_on_leave'
+          };
+          console.log('Escalation Info Created:', escalationInfo);
+        }
+      }
+      console.log('======================');
+    }
+
     const attendance = new Attendance({
       employeeId,
       date: today,
@@ -116,23 +247,53 @@ router.post('/check-in', authenticateToken, async (req, res) => {
       },
       status,
       approvalStatus: 'pending',
+      assignedManagerId: assignedManagerId,
       auditLog: [{
         actorId: employeeId.toString(),
         actorRole: 'employee',
         action: 'created',
         newStatus: status,
-        newApprovalStatus: 'pending'
+        newApprovalStatus: 'pending',
+        notes: escalationInfo ? `Escalated to ${escalationInfo.escalatedToManagerName} (${escalationInfo.escalatedToManagerDepartment}) due to reporting manager unavailability` : undefined
       }]
     });
 
     await attendance.save();
 
-    res.status(201).json({
+    if (escalationInfo) {
+      const escalation = new AttendanceEscalation({
+        attendanceId: attendance._id,
+        employeeId: employeeId,
+        originalManagerId: escalationInfo.originalManagerId,
+        originalManagerName: escalationInfo.originalManagerName,
+        escalatedToManagerId: escalationInfo.escalatedToManagerId,
+        escalatedToManagerName: escalationInfo.escalatedToManagerName,
+        escalatedToManagerEmail: escalationInfo.escalatedToManagerEmail,
+        escalatedToManagerDepartment: escalationInfo.escalatedToManagerDepartment,
+        reason: escalationInfo.reason,
+        checkInDate: today,
+        status: 'active'
+      });
+      await escalation.save();
+    }
+
+    const responseData = {
       message: 'Check-in successful. Awaiting manager approval.',
       attendance,
       officeName: nearest.name,
       status
-    });
+    };
+
+    if (escalationInfo) {
+      responseData.escalation = {
+        message: `Your reporting manager is unavailable. Request assigned to ${escalationInfo.escalatedToManagerName}`,
+        managerName: escalationInfo.escalatedToManagerName,
+        managerEmail: escalationInfo.escalatedToManagerEmail,
+        managerDepartment: escalationInfo.escalatedToManagerDepartment
+      };
+    }
+
+    res.status(201).json(responseData);
   } catch (error) {
     console.error('Check-in error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -254,24 +415,47 @@ router.get('/pending-approvals', authenticateToken, isManagerOrHR, async (req, r
     if (req.user.role === 'manager') {
       const managerId = req.user._id || req.user.id;
       const reportIds = await getDirectReportIds(managerId);
-      if (!reportIds.length) {
-        return res.json({ attendance: [], total: 0, hasMore: false });
-      }
-      query.employeeId = { $in: reportIds };
+      
+      query.$or = [
+        { employeeId: { $in: reportIds } },
+        { assignedManagerId: managerId }
+      ];
     }
 
     const [pendingAttendance, total] = await Promise.all([
       Attendance.find(query)
         .populate('checkIn.officeLocation', 'name')
         .populate('employeeId', 'firstName lastName email employeeId department designation')
+        .populate('assignedManagerId', 'name email department')
         .sort({ 'checkIn.time': -1 })
         .limit(parseInt(limit))
         .skip(parseInt(skip)),
       Attendance.countDocuments(query)
     ]);
 
-    res.json({ attendance: pendingAttendance, total, hasMore: total > parseInt(skip) + parseInt(limit) });
+    const attendanceWithEscalation = await Promise.all(
+      pendingAttendance.map(async (att) => {
+        const escalation = await AttendanceEscalation.findOne({
+          attendanceId: att._id,
+          status: 'active'
+        });
+
+        return {
+          ...att.toObject(),
+          escalation: escalation ? {
+            isEscalated: true,
+            originalManagerName: escalation.originalManagerName,
+            reason: escalation.reason,
+            escalatedToManagerName: escalation.escalatedToManagerName,
+            escalatedToManagerDepartment: escalation.escalatedToManagerDepartment
+          } : null
+        };
+      })
+    );
+
+    res.json({ attendance: attendanceWithEscalation, total, hasMore: total > parseInt(skip) + parseInt(limit) });
   } catch (error) {
+    console.error('Pending approvals error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
@@ -281,6 +465,11 @@ async function canActOnAttendance(actorUser, attendance) {
   if (actorUser.role === 'hr') return true;
   if (actorUser.role === 'manager') {
     const managerId = (actorUser._id || actorUser.id).toString();
+    
+    if (attendance.assignedManagerId && attendance.assignedManagerId.toString() === managerId) {
+      return true;
+    }
+    
     const reportIds = await getDirectReportIds(managerId);
     return reportIds.includes(attendance.employeeId.toString());
   }
@@ -313,6 +502,12 @@ router.post('/approve/:attendanceId', authenticateToken, isManagerOrHR, async (r
     });
 
     await attendance.save();
+
+    await AttendanceEscalation.updateMany(
+      { attendanceId: attendance._id, status: 'active' },
+      { status: 'resolved', resolvedAt: new Date() }
+    );
+
     res.json({ message: 'Attendance approved', attendance });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -346,6 +541,12 @@ router.post('/decline/:attendanceId', authenticateToken, isManagerOrHR, async (r
     });
 
     await attendance.save();
+
+    await AttendanceEscalation.updateMany(
+      { attendanceId: attendance._id, status: 'active' },
+      { status: 'resolved', resolvedAt: new Date() }
+    );
+
     res.json({ message: 'Attendance declined', attendance });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -379,6 +580,12 @@ router.post('/mark-late/:attendanceId', authenticateToken, isManagerOrHR, async 
     });
 
     await attendance.save();
+
+    await AttendanceEscalation.updateMany(
+      { attendanceId: attendance._id, status: 'active' },
+      { status: 'resolved', resolvedAt: new Date() }
+    );
+
     res.json({ message: 'Attendance marked as late', attendance });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -609,6 +816,77 @@ router.get('/approval-history', authenticateToken, isManagerOrHR, async (req, re
       .skip(parseInt(skip));
 
     res.json(history);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.get('/escalation-log', authenticateToken, async (req, res) => {
+  try {
+    const { employeeId, managerId, startDate, endDate, limit = 30, skip = 0 } = req.query;
+    const query = {};
+
+    if (req.user.role === 'employee') {
+      query.employeeId = req.user._id || req.user.id;
+    } else if (req.user.role === 'manager') {
+      const mgrId = req.user._id || req.user.id;
+      query.$or = [
+        { originalManagerId: mgrId },
+        { escalatedToManagerId: mgrId }
+      ];
+    } else if (employeeId) {
+      query.employeeId = employeeId;
+    } else if (managerId) {
+      query.$or = [
+        { originalManagerId: managerId },
+        { escalatedToManagerId: managerId }
+      ];
+    }
+
+    if (startDate || endDate) {
+      query.checkInDate = {};
+      if (startDate) query.checkInDate.$gte = new Date(startDate);
+      if (endDate) query.checkInDate.$lte = new Date(endDate);
+    }
+
+    const [escalations, total] = await Promise.all([
+      AttendanceEscalation.find(query)
+        .populate('attendanceId')
+        .populate('employeeId', 'firstName lastName email employeeId department')
+        .sort({ escalationDate: -1 })
+        .limit(parseInt(limit))
+        .skip(parseInt(skip)),
+      AttendanceEscalation.countDocuments(query)
+    ]);
+
+    res.json({ escalations, total, hasMore: total > parseInt(skip) + parseInt(limit) });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+router.get('/my-escalations', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user._id || req.user.id;
+    const { limit = 30 } = req.query;
+
+    let query = {};
+    if (req.user.role === 'employee') {
+      query.employeeId = userId;
+    } else if (req.user.role === 'manager') {
+      query.$or = [
+        { originalManagerId: userId },
+        { escalatedToManagerId: userId }
+      ];
+    }
+
+    const escalations = await AttendanceEscalation.find(query)
+      .populate('attendanceId')
+      .populate('employeeId', 'firstName lastName email employeeId department')
+      .sort({ escalationDate: -1 })
+      .limit(parseInt(limit));
+
+    res.json(escalations);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
