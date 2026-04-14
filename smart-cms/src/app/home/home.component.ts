@@ -595,8 +595,14 @@ export class HomeComponent implements OnInit {
         };
 
         this.isProcessingAttendance = false;
-        this.attendanceMessage = `Checked in successfully at ${officeName}! Status: Pending Approval`;
-        setTimeout(() => this.attendanceMessage = '', 5000);
+        
+        if (response.escalation) {
+          this.attendanceMessage = `Checked in successfully at ${officeName}! Your reporting manager is unavailable. Request assigned to ${response.escalation.managerName} (${response.escalation.managerDepartment}) - ${response.escalation.managerEmail}`;
+        } else {
+          this.attendanceMessage = `Checked in successfully at ${officeName}! Status: Pending Approval`;
+        }
+        
+        setTimeout(() => this.attendanceMessage = '', 8000);
       },
       error: (error) => {
         this.isProcessingAttendance = false;

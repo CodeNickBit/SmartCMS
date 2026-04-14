@@ -79,6 +79,10 @@ const attendanceSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'declined', 'auto_closed'],
     default: 'pending'
   },
+  assignedManagerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Manager'
+  },
   approvedBy: { type: String },
   approvedAt: { type: Date },
   managerNotes: { type: String, trim: true, maxlength: 500 },

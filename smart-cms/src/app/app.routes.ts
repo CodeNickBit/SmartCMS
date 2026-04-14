@@ -115,6 +115,11 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboard/my-team/my-team.component').then(m => m.MyTeamComponent),
     canActivate: [managerHrGuard]
   },
+  {
+    path: 'dashboard/escalation-log',
+    loadComponent: () => import('./dashboard/escalation-log/escalation-log.component').then(m => m.EscalationLogComponent),
+    canActivate: [authGuard]
+  },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
   { path: 'projects', component: ProjectListComponent, canActivate: [authGuard] },
