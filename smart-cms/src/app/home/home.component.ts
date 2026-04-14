@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { LeavePolicyService, LeavePolicy } from '../services/leave-policy.service';
 import { ConfirmationModalService } from '../shared/confirmation-modal.service';
@@ -68,7 +68,7 @@ interface OfficeLocation {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProfileModalComponent],
+  imports: [CommonModule, FormsModule, ProfileModalComponent, RouterModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })

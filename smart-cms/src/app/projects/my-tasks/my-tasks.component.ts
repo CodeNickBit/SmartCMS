@@ -15,13 +15,14 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
   template: `
     <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
       <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
-      <app-shared-sidebar *ngIf="!isAdmin" class="flex-shrink-0"></app-shared-sidebar>
+      <app-shared-sidebar *ngIf="!isAdmin && userRole !== 'employee'" class="flex-shrink-0"></app-shared-sidebar>
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <app-shared-header title="My Tasks"></app-shared-header>
         <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-[#101935]">
           <div class="my-tasks-page">
             <div class="page-header">
         <div>
+          <button *ngIf="userRole === 'employee'" class="btn-back" style="margin-bottom: 16px;" (click)="router.navigate(['/home'])">← Back to Dashboard</button>
           <h1>My Tasks</h1>
           <p class="subtitle">All tasks assigned to you across all projects</p>
         </div>
@@ -125,6 +126,8 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     
     .my-tasks-page { max-width: 1200px; margin: 0 auto; width: 100%; }
     .page-header { margin-bottom: 24px; }
+    .btn-back { background: none; border: 1px solid rgba(30, 58, 138, 0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-size: 14px; transition: all 0.2s; }
+    .btn-back:hover { background: rgba(30, 58, 138, 0.2); color: white; }
     .page-header h1 { font-size: 28px; font-weight: 700; color: white; margin: 0; }
     .subtitle { color: #94a3b8; margin: 4px 0 0; font-size: 14px; }
     .summary-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
@@ -197,7 +200,7 @@ export class MyTasksComponent implements OnInit {
     this.loading = true;
     this.taskService.getMyTasks().subscribe({
       next: (data) => {
-        this.allTasks = data;
+        this.allTasks = data || [];
         this.buildSummary();
         this.applyFilters();
         this.loading = false;

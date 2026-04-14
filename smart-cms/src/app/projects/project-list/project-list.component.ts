@@ -16,7 +16,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
   template: `
     <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
       <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
-      <app-shared-sidebar *ngIf="!isAdmin" class="flex-shrink-0"></app-shared-sidebar>
+      <app-shared-sidebar *ngIf="!isAdmin && userRole !== 'employee'" class="flex-shrink-0"></app-shared-sidebar>
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <app-shared-header title="Projects"></app-shared-header>
         <main class="flex-1 overflow-y-auto p-6 lg:p-8 bg-[#101935] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#1B264F] [&::-webkit-scrollbar-thumb]:rounded-full">
@@ -24,6 +24,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
 
             <div class="flex justify-between items-start mb-7">
               <div>
+                <button *ngIf="userRole === 'employee'" class="mb-4" (click)="router.navigate(['/home'])" style="background: none; border: 1px solid rgba(30, 58, 138, 0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-size: 14px; transition: all 0.2s;">← Back to Dashboard</button>
                 <h1 class="text-3xl font-bold text-white m-0">Projects</h1>
                 <p class="text-slate-400 mt-1 text-sm">Manage and track all your projects</p>
               </div>
