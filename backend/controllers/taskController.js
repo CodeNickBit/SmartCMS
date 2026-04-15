@@ -50,10 +50,29 @@ const getUserId = (req) => String(req.user._id || req.user.id);
 const getUserRole = (req) => req.user.role?.toLowerCase();
 const getUserName = (req) => req.user.name || `${req.user.firstName} ${req.user.lastName}`;
 
-const canModifyTask = (task, userId, role) => {
+const getAllIdentities = async (req) => {
+  const userId = getUserId(req);
+  const email = req.user?.email || req.user?.emailAddress;
+  let allowedIds = [userId];
+  if (email) {
+    const [u, m, a] = await Promise.all([
+      User.findOne({ email: email.toLowerCase() }).select('_id').lean(),
+      Manager.findOne({ email: email.toLowerCase() }).select('_id').lean(),
+      Admin.findOne({ email: email.toLowerCase() }).select('_id').lean()
+    ]);
+    if (u) allowedIds.push(String(u._id));
+    if (m) allowedIds.push(String(m._id));
+    if (a) allowedIds.push(String(a._id));
+  }
+  return [...new Set(allowedIds)];
+};
+
+const canModifyTask = async (task, req) => {
+  const role = getUserRole(req);
   if (role === 'admin') return true;
   if (role === 'manager') return true;
-  if (String(task.assignedTo) === String(userId)) return true;
+  const allowedIds = await getAllIdentities(req);
+  if (allowedIds.includes(String(task.assignedTo))) return true;
   return false;
 };
 
@@ -104,9 +123,12 @@ exports.getProjectTasks = async (req, res) => {
 
     const role = getUserRole(req);
     const userId = getUserId(req);
+    const userEmail = req.user?.email;
+
     const isMember = String(project.createdBy) === String(userId) || 
       String(project.projectManager) === String(userId) || 
-      project.members.some(m => String(m.userId) === String(userId));
+      (userEmail && project.projectManagerEmail && project.projectManagerEmail.toLowerCase() === userEmail.toLowerCase()) ||
+      project.members.some(m => String(m.userId) === String(userId) || (userEmail && m.email && m.email.toLowerCase() === userEmail.toLowerCase()));
 
     if (!['admin', 'hr'].includes(role) && !isMember) {
       return res.status(403).json({ message: 'Access denied: Not a project member' });
@@ -129,9 +151,9 @@ exports.getProjectTasks = async (req, res) => {
 
 exports.getMyTasks = async (req, res) => {
   try {
-    const userId = getUserId(req);
+    const allowedIds = await getAllIdentities(req);
     const { status, priority } = req.query;
-    const filter = { assignedTo: userId };
+    const filter = { assignedTo: { $in: allowedIds } };
     if (status) filter.status = status;
     if (priority) filter.priority = priority;
 
@@ -158,11 +180,15 @@ exports.getTaskById = async (req, res) => {
 
     const role = getUserRole(req);
     const userId = getUserId(req);
+    const userEmail = req.user?.email;
 
     if (!['admin', 'hr'].includes(role)) {
+      const allowedIds = await getAllIdentities(req);
       const project = await Project.findById(task.projectId);
-      const isMember = project && (String(project.createdBy) === String(userId) || String(project.projectManager) === String(userId) || project.members.some(m => String(m.userId) === String(userId)));
-      if (!isMember) return res.status(403).json({ message: 'Access denied' });
+      const isProjectManager = project && ((userEmail && project.projectManagerEmail && project.projectManagerEmail.toLowerCase() === userEmail.toLowerCase()) || allowedIds.includes(String(project.projectManager)));
+      const isMember = project && (allowedIds.includes(String(project.createdBy)) || isProjectManager || project.members.some(m => allowedIds.includes(String(m.userId)) || (userEmail && m.email && m.email.toLowerCase() === userEmail.toLowerCase())));
+      const isAssigned = allowedIds.includes(String(task.assignedTo));
+      if (!isMember && !isAssigned) return res.status(403).json({ message: 'Access denied' });
     }
 
     const timeLogs = await TimeLog.find({ taskId: task._id }).sort({ date: -1 });
@@ -184,7 +210,7 @@ exports.updateTask = async (req, res) => {
     const userId = getUserId(req);
     const userName = getUserName(req);
 
-    if (!canModifyTask(task, userId, role)) {
+    if (!(await canModifyTask(task, req))) {
       return res.status(403).json({ message: 'Access denied: You cannot modify this task' });
     }
 
@@ -317,9 +343,9 @@ exports.getTimeLogs = async (req, res) => {
     const task = await Task.findById(req.params.id);
     if (!task) return res.status(404).json({ message: 'Task not found' });
 
-    const userId = getUserId(req);
     const role = getUserRole(req);
-    const canView = ['admin', 'manager'].includes(role) || String(task.assignedTo) === String(userId);
+    const allowedIds = await getAllIdentities(req);
+    const canView = ['admin', 'manager'].includes(role) || allowedIds.includes(String(task.assignedTo));
     if (!canView) return res.status(403).json({ message: 'Access denied' });
 
     const logs = await TimeLog.find({ taskId: task._id }).sort({ date: -1 });
