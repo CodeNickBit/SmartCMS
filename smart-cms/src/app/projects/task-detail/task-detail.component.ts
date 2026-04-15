@@ -17,13 +17,16 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
   template: `
     <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
       <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
-      <app-shared-sidebar *ngIf="!isAdmin" class="flex-shrink-0"></app-shared-sidebar>
+      <app-shared-sidebar *ngIf="!isAdmin && userRole !== 'employee'" class="flex-shrink-0"></app-shared-sidebar>
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <app-shared-header title="Task Details"></app-shared-header>
         <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-[#101935]">
           <div class="task-detail-page" *ngIf="task">
             <div class="page-header">
-        <button class="btn-back" (click)="router.navigate(['/projects', task.projectId?.toString ? task.projectId.toString() : task.projectId])">← Back to Project</button>
+        <div class="flex gap-3">
+          <button *ngIf="userRole === 'employee'" class="btn-back" (click)="router.navigate(['/home'])">← Back to Dashboard</button>
+          <button class="btn-back" (click)="router.navigate(['/projects', task.projectId?.toString ? task.projectId.toString() : task.projectId])">← Back to Project</button>
+        </div>
         <div class="status-select">
           <label>Status</label>
           <select [ngModel]="task.status" (ngModelChange)="updateStatus($event)" [disabled]="!canUpdate">
@@ -266,6 +269,7 @@ export class TaskDetailComponent implements OnInit {
   isAdmin: boolean = false;
   canManage: boolean = false;
   projectMembers: any[] = [];
+  taskId: string = '';
 
   constructor(
     public router: Router,
@@ -279,8 +283,9 @@ export class TaskDetailComponent implements OnInit {
     this.currentUser = this.auth.getUser();
     this.userRole = this.currentUser?.role?.toLowerCase() || '';
     this.isAdmin = this.userRole === 'admin';
-    const id = this.route.snapshot.paramMap.get('id')!;
-    this.taskService.getById(id).subscribe({
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id')!;
+      this.taskService.getById(id).subscribe({
       next: (data: any) => {
         this.task = data.task;
         this.projectMembers = data.projectMembers || [];
@@ -299,6 +304,7 @@ export class TaskDetailComponent implements OnInit {
         this.snackBar.open('Failed to load task details', 'Close', { duration: 3000 });
       }
     });
+  });
   }
 
   fetchTimeLogs(taskId: string) {
