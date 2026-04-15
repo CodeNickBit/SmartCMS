@@ -15,12 +15,12 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
   standalone: true,
   imports: [CommonModule, FormsModule, MatSnackBarModule, RouterModule, SharedSidebarComponent, AdminSidebarComponent, SharedHeaderComponent],
   template: `
-    <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+    <div class="flex h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white font-sans overflow-hidden">
       <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
       <app-shared-sidebar *ngIf="!isAdmin && userRole !== 'employee'" class="flex-shrink-0"></app-shared-sidebar>
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <app-shared-header title="Task Details"></app-shared-header>
-        <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-[#101935]">
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935]">
           <div class="task-detail-page" *ngIf="task">
             <div class="page-header">
         <div class="flex gap-3">
