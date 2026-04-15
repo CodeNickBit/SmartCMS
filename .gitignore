@@ -65,3 +65,4 @@ backend/uploads/*
 /backend/node_modules
 backend/package-lock.json
 backend/node_modules/node-cron/package.json
+Kakashi.docx
