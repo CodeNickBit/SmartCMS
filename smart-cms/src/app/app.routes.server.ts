@@ -14,6 +14,14 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client
   },
   {
+    path: 'projects/:id/workload',
+    renderMode: RenderMode.Client
+  },
+  {
+    path: 'timesheets/:employeeId',
+    renderMode: RenderMode.Client
+  },
+  {
     path: '**',
     renderMode: RenderMode.Prerender
   }

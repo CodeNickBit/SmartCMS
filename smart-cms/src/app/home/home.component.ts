@@ -135,6 +135,13 @@ export class HomeComponent implements OnInit {
   isSubmittingLeave = false;
 
   myLeaves: any[] = [];
+  showAllLeaves: boolean = false;
+
+  get displayedLeaves(): any[] {
+    if (!this.myLeaves) return [];
+    return this.showAllLeaves ? this.myLeaves : this.myLeaves.slice(0, 5);
+  }
+
   managerOnLeave = false;
   managerProxyName: string | null = null;
 
