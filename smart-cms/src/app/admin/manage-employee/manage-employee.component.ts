@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { DepartmentService, Department } from '../../services/department.service';
 import { DesignationService, Designation } from '../../services/designation.service';
 import { ManagerService, Manager } from '../../services/manager.service';
+import { PayrollService, SalaryTemplate } from '../../services/payroll.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
 import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
@@ -32,6 +33,7 @@ export class ManageEmployeeComponent implements OnInit {
 
   dbDepartments: Department[] = [];
   dbDesignations: Designation[] = [];
+  dbSalaryTemplates: SalaryTemplate[] = [];
   activeManagers: Manager[] = [];
 
   constructor(
@@ -41,7 +43,8 @@ export class ManageEmployeeComponent implements OnInit {
     private departmentService: DepartmentService,
     private designationService: DesignationService,
     private confirmationModal: ConfirmationModalService,
-    private managerService: ManagerService
+    private managerService: ManagerService,
+    private payrollService: PayrollService
   ) {
     afterNextRender(() => {
       this.loadEmployees();
@@ -57,7 +60,19 @@ export class ManageEmployeeComponent implements OnInit {
       this.loadDepartments();
       this.loadDesignations();
       this.loadManagers();
+      this.loadSalaryTemplates();
     }
+  }
+
+  loadSalaryTemplates() {
+    this.payrollService.getTemplates().subscribe({
+      next: (data) => {
+        this.dbSalaryTemplates = data;
+      },
+      error: (error) => {
+        console.error('Error fetching templates:', error);
+      }
+    });
   }
 
   loadEmployees() {
@@ -106,6 +121,9 @@ export class ManageEmployeeComponent implements OnInit {
 
   onDepartmentChange() {
     if (this.editingEmployee && this.editingEmployee.department) {
+      // Only reset manager selections when user explicitly changes department
+      this.editingEmployee.reportingManager = '';
+      this.editingEmployee.backupManager = '';
       this.loadManagersByDepartment(this.editingEmployee.department);
     }
   }
@@ -114,8 +132,22 @@ export class ManageEmployeeComponent implements OnInit {
     this.managerService.getActiveManagers(department).subscribe({
       next: (data) => {
         this.activeManagers = data;
-        if (this.editingEmployee && !data.find((m: Manager) => m._id === this.editingEmployee.reportingManager)) {
-          this.editingEmployee.reportingManager = '';
+        
+        // Ensure current assigned manager stays in list even if not from matching department
+        if (this.editingEmployee && this.editingEmployee.reportingManager) {
+           const rmFound = this.activeManagers.find((m: any) => m._id === this.editingEmployee.reportingManager);
+           if (!rmFound && this.editingEmployee.reportingManager !== '') {
+               // We don't have the manager details since it's just an ID from the backend,
+               // but we can push a stub option to allow the dropdown to reflect the current value.
+               this.activeManagers.push({ _id: this.editingEmployee.reportingManager, name: 'Assigned RM', department: 'Other' } as Manager);
+           }
+        }
+        
+        if (this.editingEmployee && this.editingEmployee.backupManager) {
+           const bmFound = this.activeManagers.find((m: any) => m._id === this.editingEmployee.backupManager);
+           if (!bmFound && this.editingEmployee.backupManager !== '') {
+               this.activeManagers.push({ _id: this.editingEmployee.backupManager, name: 'Assigned BM', department: 'Other' } as Manager);
+           }
         }
       },
       error: (error) => {
@@ -151,6 +183,11 @@ export class ManageEmployeeComponent implements OnInit {
     this.authService.getUserById(emp._id).subscribe({
       next: (fullUser) => {
         this.editingEmployee = { ...fullUser };
+        
+        if (!this.editingEmployee.reportingManager) this.editingEmployee.reportingManager = '';
+        if (!this.editingEmployee.backupManager) this.editingEmployee.backupManager = '';
+        if (!this.editingEmployee.salaryTemplate) this.editingEmployee.salaryTemplate = '';
+        
         if (this.editingEmployee.joiningDate) {
           const date = new Date(this.editingEmployee.joiningDate);
           if (!isNaN(date.getTime())) {
