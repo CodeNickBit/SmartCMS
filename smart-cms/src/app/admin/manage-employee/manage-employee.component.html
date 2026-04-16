@@ -36,81 +36,95 @@
         </div>
       </div>
 
-      <!-- Edit Employee Form (Conditional) -->
-      <div *ngIf="isEditing" class="bg-[#1B264F] text-white rounded-2xl shadow-xl p-8 border border-blue-900/30 animate-in fade-in slide-in-from-top-4 duration-300">
-        <div class="flex items-center justify-between mb-8">
-          <h2 class="text-2xl font-bold text-white">Edit Employee Details</h2>
-          <button (click)="cancelEdit()" class="text-slate-400 hover:text-red-500 transition-colors">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+      <!-- Edit Employee Modal -->
+      <div *ngIf="isEditing" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div class="bg-[#1B264F] text-white rounded-2xl shadow-2xl border border-blue-900/50 w-full max-w-5xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300">
+          
+          <div class="flex items-center justify-between p-6 border-b border-blue-900/30 flex-shrink-0">
+            <h2 class="text-2xl font-bold text-white tracking-tight">Edit Employee Details</h2>
+            <button (click)="cancelEdit()" class="text-slate-400 hover:text-red-500 hover:bg-slate-800/50 p-2 rounded-xl transition-all">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">First Name</label>
-            <input type="text" [(ngModel)]="editingEmployee.firstName"
-              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
-          </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Last Name</label>
-            <input type="text" [(ngModel)]="editingEmployee.lastName"
-              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
-          </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Phone Number</label>
-            <input type="text" [(ngModel)]="editingEmployee.phone"
-              class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
-          </div>
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Department</label>
-              <select [(ngModel)]="editingEmployee.department" (ngModelChange)="onDepartmentChange()"
-                class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
-                <option *ngFor="let dept of dbDepartments" [value]="dept.name">{{dept.name | titlecase}}</option>
-              </select>
+          <div class="p-6 md:p-8 overflow-y-auto flex-1 space-y-8 scroll-smooth" style="scrollbar-width: thin; scrollbar-color: #3083DC transparent;">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Basic fields... -->
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">First Name</label>
+                <input type="text" [(ngModel)]="editingEmployee.firstName"
+                  class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Last Name</label>
+                <input type="text" [(ngModel)]="editingEmployee.lastName"
+                  class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Phone Number</label>
+                <input type="text" [(ngModel)]="editingEmployee.phone"
+                  class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none">
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Department</label>
+                <select [(ngModel)]="editingEmployee.department" (ngModelChange)="onDepartmentChange()"
+                  class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+                  <option *ngFor="let dept of dbDepartments" [value]="dept.name">{{dept.name | titlecase}}</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Designation</label>
+                <select [(ngModel)]="editingEmployee.designation"
+                  class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+                  <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Reporting Manager</label>
+                <select [(ngModel)]="editingEmployee.reportingManager"
+                  class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+                  <option value="">No Manager</option>
+                  <option *ngFor="let manager of activeManagers" [value]="manager._id">{{manager.name}} ({{manager.department}})</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Backup Manager</label>
+                <select [(ngModel)]="editingEmployee.backupManager"
+                  class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+                  <option value="">None</option>
+                  <option *ngFor="let manager of activeManagers" [value]="manager._id">{{manager.name}} ({{manager.department}})</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Employment Type</label>
+                <select [(ngModel)]="editingEmployee.employmentType"
+                  class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+                  <option value="full-time">Full-time</option>
+                  <option value="contract">Contract</option>
+                  <option value="intern">Intern</option>
+                  <option value="part-time">Part-time</option>
+                </select>
+              </div>
             </div>
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Designation</label>
-              <select [(ngModel)]="editingEmployee.designation"
-                class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
-                <option *ngFor="let desig of dbDesignations" [value]="desig.title">{{desig.title | titlecase}}</option>
-              </select>
-            </div>
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Reporting Manager</label>
-              <select [(ngModel)]="editingEmployee.reportingManager"
-                class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
-                <option value="">No Manager</option>
-                <option *ngFor="let manager of activeManagers" [value]="manager._id">{{manager.name}} ({{manager.department}})</option>
-              </select>
-            </div>
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Backup Manager
-                <span class="text-slate-500 normal-case font-normal ml-1">(covers when primary is on leave)</span>
-              </label>
-              <select [(ngModel)]="editingEmployee.backupManager"
-                class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
-                <option value="">None</option>
-                <option *ngFor="let manager of activeManagers" [value]="manager._id">{{manager.name}} ({{manager.department}})</option>
-              </select>
-            </div>
-            <div class="space-y-2">
-              <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Employment Type</label>
-              <select [(ngModel)]="editingEmployee.employmentType"
-                class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
-                <option value="full-time">Full-time</option>
-                <option value="contract">Contract</option>
-                <option value="intern">Intern</option>
-                <option value="part-time">Part-time</option>
-              </select>
-            </div>
-          </div>
 
           <!-- Work & Pay Details Section in Edit Form -->
           <div class="mt-8 pt-8 border-t border-slate-700">
             <h3 class="text-lg font-bold text-[#3083DC] mb-6 uppercase tracking-tight">Work & Pay Details</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              
+              <div class="space-y-2 lg:col-span-3 bg-blue-900/10 border border-blue-500/20 p-4 rounded-xl">
+                <label class="text-xs font-bold text-blue-300 uppercase tracking-wider">Salary Template</label>
+                <p class="text-xs text-slate-400 mb-2">Controls basic pay, DA, HRA, and standard components.</p>
+                <select [(ngModel)]="editingEmployee.salaryTemplate"
+                  class="w-full bg-[#101935] border border-blue-500/30 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all outline-none appearance-none shadow-inner">
+                  <option value="">-- Custom / Manual Configuration --</option>
+                  <option *ngFor="let tmpl of dbSalaryTemplates" [value]="tmpl._id">{{tmpl.name}}</option>
+                </select>
+              </div>
+
               <div class="space-y-2">
                 <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Working Hours Start</label>
                 <input type="time" [(ngModel)]="editingEmployee.workingHoursStart"
@@ -126,70 +140,46 @@
                 <input type="number" [(ngModel)]="editingEmployee.weeklyWorkingDays" min="1" max="7"
                   class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
               </div>
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Wage Type</label>
-                <select [(ngModel)]="editingEmployee.wageType"
-                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none appearance-none">
-                  <option value="monthly">Monthly</option>
-                  <option value="hourly">Hourly</option>
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                </select>
-              </div>
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Salary Amount</label>
-                <input type="number" [(ngModel)]="editingEmployee.salaryAmount"
-                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
-              </div>
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Allowances</label>
-                <input type="number" [(ngModel)]="editingEmployee.allowances"
-                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
-              </div>
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Bank Account Number</label>
-                <input type="text" [(ngModel)]="editingEmployee.bankAccountNumber"
-                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
-              </div>
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Bank Name</label>
-                <input type="text" [(ngModel)]="editingEmployee.bankName"
-                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
-              </div>
-              <div class="space-y-2">
-                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Bank IFSC</label>
-                <input type="text" [(ngModel)]="editingEmployee.bankIFSC"
-                  class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none placeholder-slate-500">
-              </div>
-              <div class="flex items-center gap-3 pt-4">
-                <input type="checkbox" [(ngModel)]="editingEmployee.overtimeEligible" id="editOvertime"
-                  class="w-4 h-4 bg-[#101935] border border-slate-600 rounded text-[#3083DC] focus:ring-[#3083DC]/20 transition-all">
-                <label for="editOvertime" class="text-sm font-bold text-slate-300">Overtime Eligible</label>
-              </div>
-              <div class="flex items-center gap-3 pt-4">
-                <input type="checkbox" [(ngModel)]="editingEmployee.pfApplicable" id="editPF"
-                  class="w-4 h-4 bg-[#101935] border border-slate-600 rounded text-[#3083DC] focus:ring-[#3083DC]/20 transition-all">
-                <label for="editPF" class="text-sm font-bold text-slate-300">PF Applicable</label>
-              </div>
-              <div class="flex items-center gap-3 pt-4">
-                <input type="checkbox" [(ngModel)]="editingEmployee.esicApplicable" id="editESIC"
-                  class="w-4 h-4 bg-[#101935] border border-slate-600 rounded text-[#3083DC] focus:ring-[#3083DC]/20 transition-all">
-                <label for="editESIC" class="text-sm font-bold text-slate-300">ESIC Applicable</label>
+              
+              <div class="space-y-2 lg:col-span-3 border-t border-slate-700 pt-4 mt-2">
+                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 block">Bank Details</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div class="space-y-2">
+                    <label class="text-xs font-semibold text-slate-400">Account Number</label>
+                    <input type="text" [(ngModel)]="editingEmployee.bankAccountNumber" placeholder="Account number"
+                      class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+                  </div>
+                  <div class="space-y-2">
+                    <label class="text-xs font-semibold text-slate-400">Bank Name</label>
+                    <input type="text" [(ngModel)]="editingEmployee.bankName" placeholder="Bank name"
+                      class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+                  </div>
+                  <div class="space-y-2">
+                    <label class="text-xs font-semibold text-slate-400">IFSC Code</label>
+                    <input type="text" [(ngModel)]="editingEmployee.bankIFSC" placeholder="IFSC code"
+                      class="w-full bg-[#101935] border border-slate-600 text-white rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all outline-none">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-        <div class="mt-8 flex items-center justify-end gap-3 border-t border-slate-700 pt-6">
-          <button (click)="cancelEdit()"
-            class="px-6 py-2.5 border border-slate-600 text-slate-300 text-sm font-bold rounded-lg hover:bg-[#101935] transition-all">
-            Cancel
-          </button>
-          <button (click)="saveEmployee()"
-            class="px-6 py-2.5 bg-[#3083DC] hover:bg-blue-600 text-white text-sm font-bold rounded-lg shadow-lg shadow-blue-500/20 transition-all">
-            Save Changes
-          </button>
-        </div>
-      </div>
+          </div> <!-- Closes p-6 md:p-8 overflow-y-auto flex-1 -->
+
+          <!-- Sticky Footer Actions -->
+          <div class="flex items-center justify-end gap-3 p-6 border-t border-blue-900/30 bg-[#151f42] rounded-b-2xl flex-shrink-0">
+            <button (click)="cancelEdit()"
+              class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:text-white bg-[#101935] hover:bg-slate-800 transition-all border border-blue-900/50">
+              Cancel
+            </button>
+            <button (click)="saveEmployee()"
+              class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/25 text-white rounded-xl text-sm font-bold transition-all border border-blue-500/50">
+              Save Changes
+            </button>
+          </div>
+
+        </div> <!-- Closes modal container -->
+      </div> <!-- Closes modal overlay -->
 
       <!-- Employee Table -->
       <div class="bg-[#1B264F] text-white rounded-2xl shadow-xl overflow-hidden border border-blue-900/30">
