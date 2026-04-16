@@ -138,3 +138,104 @@ exports.executeYearEnd = async (req, res) => {
         res.status(500).json({ message: 'Error executing year-end process' });
     }
 };
+
+// Employee can view their own year-end balance history
+exports.getBalanceHistory = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const records = await LeaveBalance.find({ userId }).sort({ year: -1, leaveType: 1 });
+        res.json(records);
+    } catch (error) {
+        console.error('Balance history error', error);
+        res.status(500).json({ message: 'Error fetching balance history' });
+    }
+};
+
+// Admin: Aggregated leave report across all employees
+exports.getLeaveReport = async (req, res) => {
+    try {
+        const { year } = req.query;
+        const targetYear = parseInt(year) || new Date().getFullYear();
+
+        const startOfYear = new Date(targetYear, 0, 1);
+        const endOfYear = new Date(targetYear, 11, 31, 23, 59, 59);
+
+        // 1. Leave request breakdown by type and status
+        const leaveTypeBreakdown = await LeaveRequest.aggregate([
+            { $match: { startDate: { $gte: startOfYear, $lte: endOfYear } } },
+            { $group: { _id: { leaveType: '$leaveType', status: '$status' }, count: { $sum: 1 } } },
+            { $sort: { '_id.leaveType': 1 } }
+        ]);
+
+        // 2. Top leave takers
+        const topLeaveTakers = await LeaveRequest.aggregate([
+            { $match: { startDate: { $gte: startOfYear, $lte: endOfYear }, status: 'Approved' } },
+            { $group: { _id: '$userId', totalLeaves: { $sum: 1 } } },
+            { $sort: { totalLeaves: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+            {
+                $project: {
+                    _id: 1,
+                    totalLeaves: 1,
+                    name: {
+                        $concat: [
+                            { $ifNull: ['$user.firstName', ''] },
+                            ' ',
+                            { $ifNull: ['$user.lastName', ''] }
+                        ]
+                    },
+                    department: '$user.department'
+                }
+            }
+        ]);
+
+        // 3. Monthly leave volume trend
+        const monthlyTrend = await LeaveRequest.aggregate([
+            { $match: { startDate: { $gte: startOfYear, $lte: endOfYear } } },
+            {
+                $group: {
+                    _id: { month: { $month: '$startDate' }, status: '$status' },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { '_id.month': 1 } }
+        ]);
+
+        // 4. Department-wise leave summary
+        const deptSummary = await LeaveRequest.aggregate([
+            { $match: { startDate: { $gte: startOfYear, $lte: endOfYear }, status: 'Approved' } },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user'
+                }
+            },
+            { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+            { $group: { _id: { $ifNull: ['$user.department', 'Unassigned'] }, totalApproved: { $sum: 1 } } },
+            { $sort: { totalApproved: -1 } }
+        ]);
+
+        // 5. Overall counts
+        const totals = await LeaveRequest.aggregate([
+            { $match: { startDate: { $gte: startOfYear, $lte: endOfYear } } },
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+
+        res.json({ year: targetYear, leaveTypeBreakdown, topLeaveTakers, monthlyTrend, deptSummary, totals });
+    } catch (error) {
+        console.error('Leave report error', error);
+        res.status(500).json({ message: 'Error generating leave report' });
+    }
+};
+
