@@ -97,9 +97,29 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/year-end-processing/year-end-processing.component').then(m => m.YearEndProcessingComponent),
     canActivate: [adminGuard]
   },
+  {
+    path: 'admin/payroll-settings',
+    loadComponent: () => import('./admin/payroll-settings/payroll-settings.component').then(m => m.PayrollSettingsComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/payroll-dashboard',
+    loadComponent: () => import('./admin/payroll-dashboard/payroll-dashboard.component').then(m => m.PayrollDashboardComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/reports',
+    loadComponent: () => import('./admin/reports/reports.component').then(m => m.ReportsComponent),
+    canActivate: [adminGuard]
+  },
   { path: 'dashboard/add-users', component: AddUserComponent },
   { path: 'dashboard/leave-approvals', component: LeaveApprovalsComponent },
   { path: 'dashboard/team-calendar', component: TeamCalendarComponent },
+  {
+    path: 'dashboard/my-payroll',
+    loadComponent: () => import('./dashboard/my-payroll/my-payroll.component').then(m => m.MyPayrollComponent),
+    canActivate: [authGuard]
+  },
   {
     path: 'dashboard/attendance',
     loadComponent: () => import('./dashboard/attendance/attendance.component').then(m => m.AttendanceComponent),
