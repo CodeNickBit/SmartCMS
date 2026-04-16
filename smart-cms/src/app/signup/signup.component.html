@@ -264,6 +264,16 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-2 lg:col-span-3 bg-blue-900/10 border border-[#3083DC]/30 p-4 rounded-lg">
+              <label for="salaryTemplate" class="text-xs font-bold text-blue-300 uppercase tracking-wider">Salary Template</label>
+              <p class="text-xs text-slate-400 mb-1">Controls basic pay, DA, HRA, and standard components.</p>
+              <select id="salaryTemplate" formControlName="salaryTemplate"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="">-- Custom / Manual Configuration --</option>
+                <option *ngFor="let tmpl of dbSalaryTemplates" [value]="tmpl._id">{{tmpl.name}}</option>
+              </select>
+            </div>
+
             <div class="flex flex-col gap-2">
               <label for="workingHoursStart" class="text-sm font-medium text-gray-300">Working Hours Start</label>
               <input type="time" id="workingHoursStart" formControlName="workingHoursStart"
@@ -283,30 +293,6 @@
             </div>
 
             <div class="flex flex-col gap-2">
-              <label for="wageType" class="text-sm font-medium text-gray-300">Wage Type</label>
-              <select id="wageType" formControlName="wageType"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <option value="">Select Wage Type</option>
-                <option value="monthly">Monthly</option>
-                <option value="hourly">Hourly</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-              </select>
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <label for="salaryAmount" class="text-sm font-medium text-gray-300">Salary / Wage Amount</label>
-              <input type="number" id="salaryAmount" formControlName="salaryAmount" min="0" placeholder="0.00"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <label for="allowances" class="text-sm font-medium text-gray-300">Allowances</label>
-              <input type="number" id="allowances" formControlName="allowances" min="0" placeholder="0.00"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-            </div>
-
-            <div class="flex flex-col gap-2">
               <label for="bankAccountNumber" class="text-sm font-medium text-gray-300">Bank Account Number</label>
               <input type="text" id="bankAccountNumber" formControlName="bankAccountNumber" placeholder="Account number"
                 class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
@@ -322,36 +308,6 @@
               <label for="bankIFSC" class="text-sm font-medium text-gray-300">Bank IFSC</label>
               <input type="text" id="bankIFSC" formControlName="bankIFSC" placeholder="IFSC code"
                 class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="overtimeEligible" formControlName="overtimeEligible"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="overtimeEligible" class="text-sm font-medium text-gray-300">Overtime Eligible</label>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="pfApplicable" formControlName="pfApplicable"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="pfApplicable" class="text-sm font-medium text-gray-300">PF Applicable</label>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="esicApplicable" formControlName="esicApplicable"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="esicApplicable" class="text-sm font-medium text-gray-300">ESIC Applicable</label>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="maternityEligible" formControlName="maternityEligible"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="maternityEligible" class="text-sm font-medium text-gray-300">Maternity Eligible</label>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="flexibleWorkingHours" formControlName="flexibleWorkingHours"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="flexibleWorkingHours" class="text-sm font-medium text-gray-300">Flexible Working Hours</label>
             </div>
           </div>
 
