@@ -113,4 +113,12 @@ export class LeavePolicyService {
     getReturnDigest(managerId: string): Observable<any[]> {
         return this.http.get<any[]>(`${this.leaveUrl}/return-digest/${managerId}`);
     }
+
+    getBalanceHistory(userId: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.leaveUrl}/balance-history/${userId}`);
+    }
+
+    getLeaveReport(year: number): Observable<any> {
+        return this.http.get<any>(`${this.leaveUrl}/reports/summary?year=${year}`);
+    }
 }

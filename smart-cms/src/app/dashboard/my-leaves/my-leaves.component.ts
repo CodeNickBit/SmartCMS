@@ -17,8 +17,10 @@ import { ConfirmationModalService } from '../../shared/confirmation-modal.servic
 export class MyLeavesComponent implements OnInit {
   myLeaves: LeaveRequest[] = [];
   leaveBalances: any[] = [];
+  balanceHistory: any[] = [];
   currentUser: any;
   showApplyModal = false;
+  showHistory = false;
 
   leaveForm = {
     leaveType: '',
@@ -48,7 +50,16 @@ export class MyLeavesComponent implements OnInit {
       this.loadPolicies();
       this.loadPendingLeavesCount();
       this.loadManagers();
+      this.loadBalanceHistory();
     }
+  }
+
+  loadBalanceHistory() {
+    const userId = this.currentUser._id ?? this.currentUser.id;
+    this.leaveService.getBalanceHistory(userId).subscribe({
+      next: (data) => { this.balanceHistory = data || []; },
+      error: (err) => console.error('Failed to load balance history', err)
+    });
   }
 
   loadPendingLeavesCount() {

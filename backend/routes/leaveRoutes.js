@@ -20,4 +20,11 @@ router.put('/:id', leaveController.updateLeaveRequest);
 router.get('/year-end/preview', protect, checkRole(['admin', 'hr']), leaveBalanceController.previewYearEnd);
 router.post('/year-end/execute', protect, checkRole(['admin']), leaveBalanceController.executeYearEnd);
 
+// ... Leave Balance History (Employee View)
+router.get('/balance-history/:userId', protect, leaveBalanceController.getBalanceHistory);
+
+// ... Admin Reports
+router.get('/reports/summary', protect, checkRole(['admin', 'hr']), leaveBalanceController.getLeaveReport);
+
 module.exports = router;
+
