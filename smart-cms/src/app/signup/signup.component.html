@@ -49,13 +49,7 @@
                 getFieldError('firstName') }}</p>
             </div>
 
-            <!-- Middle Name -->
-            <div class="flex flex-col gap-2">
-              <label for="middleName" class="text-sm font-medium text-gray-300">Middle Name</label>
-              <input type="text" id="middleName" formControlName="middleName" autocomplete="additional-name"
-                placeholder="Kumar"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-            </div>
+
 
             <!-- Last Name -->
             <div class="flex flex-col gap-2">
@@ -100,32 +94,7 @@
                 class="w-full bg-[#1B264F]/50 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-400 cursor-not-allowed">
             </div>
 
-            <!-- Marital Status (shown only for Female) -->
-            <div class="flex flex-col gap-2" *ngIf="shouldShowMaritalStatus()">
-              <label for="maritalStatus" class="text-sm font-medium text-gray-300">Marital Status</label>
-              <select id="maritalStatus" formControlName="maritalStatus"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <option value="">Select Marital Status</option>
-                <option value="Single">Single</option>
-                <option value="Married">Married</option>
-                <option value="Divorced">Divorced</option>
-                <option value="Widowed">Widowed</option>
-              </select>
-            </div>
 
-            <!-- Preferred Name (for Other gender) -->
-            <div class="flex flex-col gap-2" *ngIf="isOtherGender()">
-              <label for="preferredName" class="text-sm font-medium text-gray-300">Preferred Name</label>
-              <input type="text" id="preferredName" formControlName="preferredName" placeholder="Preferred name"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-            </div>
-
-            <!-- Pronouns (for Other gender) -->
-            <div class="flex flex-col gap-2" *ngIf="isOtherGender()">
-              <label for="pronouns" class="text-sm font-medium text-gray-300">Pronouns</label>
-              <input type="text" id="pronouns" formControlName="pronouns" placeholder="e.g., they/them"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-            </div>
 
             <!-- Phone Number -->
             <div class="flex flex-col gap-2">
@@ -194,61 +163,7 @@
             </div>
           </div>
 
-          <!-- Gender-based Conditional Fields: Unmarried Female -->
-          <div *ngIf="isUnmarriedFemale()" class="mt-6 pt-6 border-t border-gray-700">
-            <h4 class="!text-[#3083DC] font-semibold text-sm uppercase mb-4">Guardian Information (Unmarried Female)
-            </h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-2">
-                <label for="fatherGuardianName" class="text-sm font-medium text-gray-300">Father/Guardian Name <span
-                    class="!text-[#EE964B]">*</span></label>
-                <input type="text" id="fatherGuardianName" formControlName="fatherGuardianName"
-                  placeholder="Guardian name"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="getFieldError('fatherGuardianName')" class="!text-[#EE964B] text-xs font-medium">{{
-                  getFieldError('fatherGuardianName') }}</p>
-              </div>
-              <div class="flex flex-col gap-2">
-                <label for="guardianContact" class="text-sm font-medium text-gray-300">Guardian Contact <span
-                    class="!text-[#EE964B]">*</span></label>
-                <input type="tel" id="guardianContact" formControlName="guardianContact"
-                  (input)="onPhoneInput($event, 'guardianContact')" placeholder="1234567890" maxlength="10"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="getFieldError('guardianContact')" class="!text-[#EE964B] text-xs font-medium">{{
-                  getFieldError('guardianContact') }}</p>
-              </div>
-            </div>
-          </div>
 
-          <!-- Gender-based Conditional Fields: Married Female -->
-          <div *ngIf="isMarriedFemale()" class="mt-6 pt-6 border-t border-gray-700">
-            <h4 class="!text-[#3083DC] font-semibold text-sm uppercase mb-4">Spouse Information (Married Female)</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="flex flex-col gap-2">
-                <label for="spouseName" class="text-sm font-medium text-gray-300">Spouse Name <span
-                    class="!text-[#EE964B]">*</span></label>
-                <input type="text" id="spouseName" formControlName="spouseName" placeholder="Spouse name"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="getFieldError('spouseName')" class="!text-[#EE964B] text-xs font-medium">{{
-                  getFieldError('spouseName') }}</p>
-              </div>
-
-              <div class="flex flex-col gap-2">
-                <label for="spouseContactNumber" class="text-sm font-medium text-gray-300">Spouse Contact Number <span
-                    class="!text-[#EE964B]">*</span></label>
-                <input type="tel" id="spouseContactNumber" formControlName="spouseContactNumber"
-                  (input)="onPhoneInput($event, 'spouseContactNumber')" placeholder="1234567890" maxlength="10"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <p *ngIf="getFieldError('spouseContactNumber')" class="!text-[#EE964B] text-xs font-medium">{{
-                  getFieldError('spouseContactNumber') }}</p>
-              </div>
-              <div class="flex flex-col gap-2">
-                <label for="marriageDate" class="text-sm font-medium text-gray-300">Marriage Date</label>
-                <input type="date" id="marriageDate" formControlName="marriageDate"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Professional Details Section -->
@@ -349,6 +264,16 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-2 lg:col-span-3 bg-blue-900/10 border border-[#3083DC]/30 p-4 rounded-lg">
+              <label for="salaryTemplate" class="text-xs font-bold text-blue-300 uppercase tracking-wider">Salary Template</label>
+              <p class="text-xs text-slate-400 mb-1">Controls basic pay, DA, HRA, and standard components.</p>
+              <select id="salaryTemplate" formControlName="salaryTemplate"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+                <option value="">-- Custom / Manual Configuration --</option>
+                <option *ngFor="let tmpl of dbSalaryTemplates" [value]="tmpl._id">{{tmpl.name}}</option>
+              </select>
+            </div>
+
             <div class="flex flex-col gap-2">
               <label for="workingHoursStart" class="text-sm font-medium text-gray-300">Working Hours Start</label>
               <input type="time" id="workingHoursStart" formControlName="workingHoursStart"
@@ -368,30 +293,6 @@
             </div>
 
             <div class="flex flex-col gap-2">
-              <label for="wageType" class="text-sm font-medium text-gray-300">Wage Type</label>
-              <select id="wageType" formControlName="wageType"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                <option value="">Select Wage Type</option>
-                <option value="monthly">Monthly</option>
-                <option value="hourly">Hourly</option>
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-              </select>
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <label for="salaryAmount" class="text-sm font-medium text-gray-300">Salary / Wage Amount</label>
-              <input type="number" id="salaryAmount" formControlName="salaryAmount" min="0" placeholder="0.00"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-            </div>
-
-            <div class="flex flex-col gap-2">
-              <label for="allowances" class="text-sm font-medium text-gray-300">Allowances</label>
-              <input type="number" id="allowances" formControlName="allowances" min="0" placeholder="0.00"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-            </div>
-
-            <div class="flex flex-col gap-2">
               <label for="bankAccountNumber" class="text-sm font-medium text-gray-300">Bank Account Number</label>
               <input type="text" id="bankAccountNumber" formControlName="bankAccountNumber" placeholder="Account number"
                 class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
@@ -408,68 +309,9 @@
               <input type="text" id="bankIFSC" formControlName="bankIFSC" placeholder="IFSC code"
                 class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
             </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="overtimeEligible" formControlName="overtimeEligible"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="overtimeEligible" class="text-sm font-medium text-gray-300">Overtime Eligible</label>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="pfApplicable" formControlName="pfApplicable"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="pfApplicable" class="text-sm font-medium text-gray-300">PF Applicable</label>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input type="checkbox" id="esicApplicable" formControlName="esicApplicable"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="esicApplicable" class="text-sm font-medium text-gray-300">ESIC Applicable</label>
-            </div>
-
-            <div class="flex items-center gap-2" *ngIf="isMarriedFemale()">
-              <input type="checkbox" id="maternityEligible" formControlName="maternityEligible"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="maternityEligible" class="text-sm font-medium text-gray-300">Maternity Eligible</label>
-            </div>
-
-            <div class="flex items-center gap-2" *ngIf="isMarriedFemale()">
-              <input type="checkbox" id="flexibleWorkingHours" formControlName="flexibleWorkingHours"
-                class="w-4 h-4 text-[#3083DC] bg-[#1B264F] border-gray-600 rounded focus:ring-[#3083DC]">
-              <label for="flexibleWorkingHours" class="text-sm font-medium text-gray-300">Flexible Working Hours</label>
-            </div>
           </div>
 
-          <!-- Pregnancy Tracking Section (Conditional for Married Female) -->
-          <div *ngIf="isMarriedFemale()" class="mt-6 pt-6 border-t border-gray-700">
-            <h4 class="!text-[#3083DC] font-semibold text-sm uppercase mb-4">Pregnancy & Maternity Tracking</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div class="flex flex-col gap-2">
-                <label for="pregnancyStatus" class="text-sm font-medium text-gray-300">Pregnancy Status</label>
-                <select id="pregnancyStatus" formControlName="pregnancyStatus"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-                  <option value="Not Pregnant">Not Pregnant</option>
-                  <option value="Pregnant">Pregnant</option>
-                  <option value="Post-Delivery">Post-Delivery</option>
-                </select>
-              </div>
 
-              <div class="flex flex-col gap-2" *ngIf="registrationForm.get('pregnancyStatus')?.value === 'Pregnant'">
-                <label for="expectedDeliveryDate" class="text-sm font-medium text-gray-300">Expected Delivery
-                  Date</label>
-                <input type="date" id="expectedDeliveryDate" formControlName="expectedDeliveryDate"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-              </div>
-
-              <div class="flex flex-col gap-2" *ngIf="registrationForm.get('pregnancyStatus')?.value === 'Pregnant'">
-                <label for="medicalFitnessCertificate" class="text-sm font-medium text-gray-300">Medical Certificate
-                  Link</label>
-                <input type="text" id="medicalFitnessCertificate" formControlName="medicalFitnessCertificate"
-                  placeholder="URL to certificate"
-                  class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- Authentication Section -->
