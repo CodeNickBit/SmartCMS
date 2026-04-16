@@ -248,7 +248,7 @@
 
 
     <!-- Quick Actions / Payslip -->
-    <div class="glass-card rounded-2xl p-6 animate-fade-in-up animate-delay-300 flex flex-col justify-between">
+    <div class="glass-card rounded-2xl p-6 animate-fade-in-up animate-delay-300 flex flex-col justify-between min-h-[320px]">
       <div>
         <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
           <span class="p-2 bg-[#10B981]/20 rounded-lg text-[#10B981]">
@@ -261,30 +261,51 @@
           Latest Payslip
         </h2>
 
-        <div
+        <!-- Loading State -->
+        <div *ngIf="isLoadingPayroll" class="text-center py-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+          <p class="text-slate-500 text-xs mt-3">Fetching latest slip...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!isLoadingPayroll && !recentPayslip"
+          class="text-center py-8 bg-slate-50/50 dark:bg-[#1B264F]/30 rounded-xl border border-dashed border-slate-300 dark:border-blue-900/30 mb-4">
+          <svg class="h-10 w-10 mx-auto text-slate-600 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-slate-500 text-xs font-medium">No payslips yet.</p>
+        </div>
+
+        <!-- Data State -->
+        <div *ngIf="!isLoadingPayroll && recentPayslip"
           class="text-center py-6 bg-gradient-to-b from-slate-100 to-transparent dark:from-[#1B264F] dark:to-transparent rounded-xl border border-dashed border-slate-300 light:border-[#A8C4DF] dark:border-gray-600 mb-4">
-          <p class="text-slate-500 light:text-[#7A96B2] dark:text-gray-400 text-sm mb-1">{{ recentPayslip.month }} {{
-            recentPayslip.year }}
+          <p class="text-slate-500 light:text-[#7A96B2] dark:text-gray-400 text-sm mb-1">
+            {{ recentPayslip.month }} {{ recentPayslip.year }}
           </p>
           <h3
-            class="text-[#246bb6] light:text-[#1A6DC2] dark:text-[#3083DC]xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white mb-2">
-            {{
-            recentPayslip.netPay | currency:'INR' }}</h3>
+            class="text-2xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white mb-2">
+            {{ recentPayslip.netPay | currency:'INR' }}
+          </h3>
           <span
-            class="inline-block px-3 py-1 bg-[#10B981]/20 text-[#10B981] text-xs rounded-full font-medium">Credited</span>
+            class="inline-block px-3 py-1 text-xs rounded-full font-bold uppercase tracking-wider"
+            [ngClass]="recentPayslip.status === 'locked' ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-400'">
+            {{ recentPayslip.status === 'locked' ? 'Approved' : 'Draft' }}
+          </span>
         </div>
       </div>
 
       <div class="space-y-3">
-        <button (click)="downloadPayslip(recentPayslip.id)"
-          class="w-full py-3 bg-slate-50 light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 dark:border-transparent hover:bg-slate-100 dark:hover:bg-[#233060] text-slate-700 light:text-[#2E4A6B] dark:text-gray-300 rounded-xl transition-colors flex items-center justify-center gap-2">
+        <button [routerLink]="['/dashboard/my-payroll']"
+          class="w-full py-3 bg-[#3083DC] hover:bg-[#2563EB] text-white rounded-xl transition-all font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 active:scale-[0.98]">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
-          Download Slip
+          Detailed View
         </button>
-        <!-- View Profile button moved to Top Bar -->
+        <button [routerLink]="['/dashboard/my-payroll']" class="text-xs text-[#3083DC] hover:text-[#2563EB] font-bold w-full text-center py-1 transition-colors">
+          View All History →
+        </button>
       </div>
     </div>
   </div>

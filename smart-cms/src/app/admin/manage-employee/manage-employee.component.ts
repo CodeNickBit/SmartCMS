@@ -148,17 +148,24 @@ export class ManageEmployeeComponent implements OnInit {
 
   // Actions
   editEmployee(emp: any) {
-    this.editingEmployee = { ...emp };
-    if (this.editingEmployee.joiningDate) {
-      const date = new Date(this.editingEmployee.joiningDate);
-      if (!isNaN(date.getTime())) {
-        this.editingEmployee.joiningDate = date.toISOString().split('T')[0];
+    this.authService.getUserById(emp._id).subscribe({
+      next: (fullUser) => {
+        this.editingEmployee = { ...fullUser };
+        if (this.editingEmployee.joiningDate) {
+          const date = new Date(this.editingEmployee.joiningDate);
+          if (!isNaN(date.getTime())) {
+            this.editingEmployee.joiningDate = date.toISOString().split('T')[0];
+          }
+        }
+        this.isEditing = true;
+        if (this.editingEmployee.department) {
+          this.loadManagersByDepartment(this.editingEmployee.department);
+        }
+      },
+      error: (err) => {
+        console.error('Failed to fetch full employee details', err);
       }
-    }
-    this.isEditing = true;
-    if (this.editingEmployee.department) {
-      this.loadManagersByDepartment(this.editingEmployee.department);
-    }
+    });
   }
 
   cancelEdit() {

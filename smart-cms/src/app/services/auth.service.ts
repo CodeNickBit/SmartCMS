@@ -174,6 +174,12 @@ export class AuthService {
     return this.http.get<any[]>(`${API_URL}/users`, { headers });
   }
 
+  getUserById(id: string): Observable<any> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const headers = new HttpHeaders(token ? { Authorization: `Bearer ${token}` } : {});
+    return this.http.get<any>(`${API_URL}/users/${id}`, { headers });
+  }
+
   updateUser(id: string, data: any): Observable<any> {
     return this.http.put(`${API_URL}/users/${id}`, data);
   }

@@ -108,4 +108,10 @@ export class AttendanceService {
       params: { limit: limit.toString() }
     });
   }
+
+  getTeamAttendance(year: number, month: number): Observable<any[]> {
+    return this.http.get<any[]>(`${API_URL}/team-attendance`, {
+      params: { year: year.toString(), month: month.toString() }
+    });
+  }
 }

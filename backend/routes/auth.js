@@ -148,7 +148,7 @@ router.post('/login', async (req, res) => {
     let user = null;
     let role = null;
 
-    const emp = await User.findOne({ email: normalizedEmail });
+    const emp = await User.findOne({ email: normalizedEmail }).populate('reportingManager', 'name firstName lastName department');
     if (emp) {
       if (emp.active_inactive === false) return res.status(401).json({ message: 'Account deactivated' });
       if (await emp.comparePassword(password)) { user = emp; role = 'employee'; }
@@ -378,10 +378,35 @@ router.get('/my-team', protect, async (req, res) => {
   }
 });
 
+router.get('/users/:id', protect, async (req, res) => {
+  try {
+    const { id } = req.params;
+    let user = await User.findById(id).select('-password').lean();
+    if (user) {
+      return res.json({ ...user, role: 'employee' });
+    }
+    
+    // Fallback to checking other models if necessary, though mostly used for employees now
+    const HrModel = require('../models/Hr');
+    user = await HrModel.findById(id).select('-password').lean();
+    if (user) return res.json({ ...user, role: 'hr' });
+
+    user = await Manager.findById(id).select('-password').lean();
+    if (user) return res.json({ ...user, role: 'manager' });
+
+    user = await Admin.findById(id).select('-password').lean();
+    if (user) return res.json({ ...user, role: 'admin' });
+
+    return res.status(404).json({ message: 'User not found' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch user details', error: error.message });
+  }
+});
+
 router.get('/users', protect, async (req, res) => {
   try {
     const [employees, managers, admins] = await Promise.all([
-      User.find({}).select('_id firstName lastName email role employeeId department designation').lean(),
+      User.find({}).select('_id firstName lastName email role employeeId department designation salaryTemplate salaryOverrides').lean(),
       require('../models/Manager').find({}).select('_id name email role department designation').lean(),
       require('../models/Admin').find({}).select('_id name email role').lean()
     ]);
@@ -397,7 +422,9 @@ router.get('/users', protect, async (req, res) => {
       role: u.role || role,
       employeeId: u.employeeId || null,
       department: u.department || null,
-      designation: u.designation || null
+      designation: u.designation || null,
+      salaryTemplate: u.salaryTemplate || null,
+      salaryOverrides: u.salaryOverrides || null
     });
 
     const result = [

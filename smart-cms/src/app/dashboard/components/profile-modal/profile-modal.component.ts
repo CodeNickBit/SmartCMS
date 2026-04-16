@@ -136,7 +136,7 @@ import { EmailVerificationModalComponent } from '../../../components/email-verif
                   </div>
                   <div class="space-y-1">
                     <label class="text-xs font-semibold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase">Reporting Manager</label>
-                    <div class="p-3 rounded-lg bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-blue-900/20 text-slate-800 light:text-[#0D1B35] dark:text-white font-medium">{{ user?.reportingManager || 'N/A' }}</div>
+                    <div class="p-3 rounded-lg bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-blue-900/20 text-slate-800 light:text-[#0D1B35] dark:text-white font-medium">{{ user?.reportingManager?.name || (user?.reportingManager?.firstName ? user.reportingManager.firstName + ' ' + (user.reportingManager.lastName || '') : null) || user?.reportingManager || 'N/A' }}</div>
                   </div>
                   
                   <div class="space-y-1">
