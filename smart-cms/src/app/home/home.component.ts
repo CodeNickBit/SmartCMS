@@ -445,8 +445,12 @@ export class HomeComponent implements OnInit {
   }
 
   formatWorkingHours(hours: number): string {
-    const h = Math.floor(hours);
-    const m = Math.round((hours - h) * 60);
+    let h = Math.floor(hours);
+    let m = Math.round((hours - h) * 60);
+    if (m === 60) {
+      h += 1;
+      m = 0;
+    }
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
   }
 

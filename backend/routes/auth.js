@@ -302,15 +302,19 @@ router.put('/users/:id', async (req, res) => {
     const updates = { ...req.body };
     delete updates.password;
 
-    if (updates.reportingManager !== undefined && String(updates.reportingManager).trim()) {
-      const rm = String(updates.reportingManager).trim();
-      let manager = null;
-      if (/^[0-9a-fA-F]{24}$/.test(rm)) manager = await Manager.findById(rm);
-      if (!manager) manager = await Manager.findOne({ email: rm.toLowerCase() });
-      if (manager) {
-        updates.reportingManager = manager._id;
+    if (updates.reportingManager !== undefined) {
+      if (!updates.reportingManager || !String(updates.reportingManager).trim()) {
+        updates.reportingManager = null;
       } else {
-        return res.status(400).json({ message: 'Reporting manager not found.' });
+        const rm = String(updates.reportingManager).trim();
+        let manager = null;
+        if (/^[0-9a-fA-F]{24}$/.test(rm)) manager = await Manager.findById(rm);
+        if (!manager) manager = await Manager.findOne({ email: rm.toLowerCase() });
+        if (manager) {
+          updates.reportingManager = manager._id;
+        } else {
+          return res.status(400).json({ message: 'Reporting manager not found.' });
+        }
       }
     }
 
@@ -405,15 +409,34 @@ router.get('/users/:id', protect, async (req, res) => {
 
 router.get('/users', protect, async (req, res) => {
   try {
+    const ManagerModel = require('../models/Manager');
+    const AdminModel = require('../models/Admin');
+    
     const [employees, managers, admins] = await Promise.all([
-      User.find({}).select('_id firstName lastName email role employeeId department designation salaryTemplate salaryOverrides').lean(),
-      require('../models/Manager').find({}).select('_id name email role department designation').lean(),
-      require('../models/Admin').find({}).select('_id name email role').lean()
+      User.find({}).select('_id firstName lastName email role employeeId department designation salaryTemplate salaryOverrides reportingManager backupManager active_inactive').lean(),
+      ManagerModel.find({}).select('_id name email role department designation isActive').lean(),
+      AdminModel.find({}).select('_id name email role').lean()
     ]);
 
     let HrModel;
     try { HrModel = require('../models/Hr'); } catch (e) { HrModel = null; }
-    const hrs = HrModel ? await HrModel.find({}).select('_id name email role department').lean() : [];
+    const hrs = HrModel ? await HrModel.find({}).select('_id name email role department isActive').lean() : [];
+
+    const resolveManagerName = (managerRef) => {
+      if (!managerRef) return null;
+      const refString = String(managerRef).trim();
+      if (!refString) return null;
+      
+      // Look up by exact ID first
+      let found = managers.find(m => String(m._id) === refString);
+      if (found) return found.name;
+      
+      // Fallback for corrupted data holding plain names directly (e.g. "Atik")
+      found = managers.find(m => m.name.toLowerCase() === refString.toLowerCase());
+      if (found) return found.name;
+      
+      return refString; // Give back the raw corrupted value so it's not invisible
+    };
 
     const normalize = (u, role) => ({
       _id: String(u._id),
@@ -424,7 +447,10 @@ router.get('/users', protect, async (req, res) => {
       department: u.department || null,
       designation: u.designation || null,
       salaryTemplate: u.salaryTemplate || null,
-      salaryOverrides: u.salaryOverrides || null
+      salaryOverrides: u.salaryOverrides || null,
+      reportingManager: resolveManagerName(u.reportingManager),
+      backupManager: resolveManagerName(u.backupManager),
+      active_inactive: u.active_inactive ?? (u.isActive ?? true)
     });
 
     const result = [

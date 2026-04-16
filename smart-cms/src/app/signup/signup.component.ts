@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { DepartmentService, Department } from '../services/department.service';
 import { DesignationService, Designation } from '../services/designation.service';
 import { ManagerService, Manager } from '../services/manager.service';
+import { PayrollService, SalaryTemplate } from '../services/payroll.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
 import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 
@@ -40,6 +41,7 @@ export class SignupComponent implements OnInit {
   dbDesignations: Designation[] = [];
   dbManagers: { _id: string; name: string; email: string }[] = [];
   activeManagers: Manager[] = [];
+  dbSalaryTemplates: SalaryTemplate[] = [];
 
   constructor(
     private router: Router,
@@ -48,7 +50,8 @@ export class SignupComponent implements OnInit {
     private departmentService: DepartmentService,
     private designationService: DesignationService,
     private managerService: ManagerService,
-    private confirmationModal: ConfirmationModalService
+    private confirmationModal: ConfirmationModalService,
+    private payrollService: PayrollService
   ) { }
 
   ngOnInit(): void {
@@ -57,6 +60,7 @@ export class SignupComponent implements OnInit {
     this.loadDepartments();
     this.loadDesignations();
     this.loadManagers();
+    this.loadSalaryTemplates();
 
     // Removed conditional fields logic for simplicity
 
@@ -115,6 +119,13 @@ export class SignupComponent implements OnInit {
     });
   }
 
+  loadSalaryTemplates() {
+    this.payrollService.getTemplates().subscribe({
+      next: (data) => this.dbSalaryTemplates = data,
+      error: (error) => console.error('Error fetching templates', error)
+    });
+  }
+
   onDepartmentChange() {
     const department = this.registrationForm.get('department')?.value;
     if (department) {
@@ -165,18 +176,13 @@ export class SignupComponent implements OnInit {
       shiftType: [''],
 
       // Work & Pay Details
+      salaryTemplate: [''],
       workingHoursStart: [''],
       workingHoursEnd: [''],
       weeklyWorkingDays: [5, [Validators.min(1), Validators.max(7)]],
-      wageType: [''],
-      salaryAmount: ['', [Validators.min(0)]],
-      allowances: [0, [Validators.min(0)]],
-      overtimeEligible: [false],
       bankAccountNumber: [''],
       bankName: [''],
       bankIFSC: [''],
-      pfApplicable: [false],
-      esicApplicable: [false],
 
       // Maternity & Flexible Hours
       maternityEligible: [false],
