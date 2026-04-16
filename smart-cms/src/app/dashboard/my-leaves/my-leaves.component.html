@@ -89,6 +89,47 @@
         </div>
       </div>
 
+      <!-- Year-End Balance History -->
+      <div *ngIf="balanceHistory.length > 0" class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-2xl overflow-hidden shadow-lg">
+        <div class="p-6 border-b border-blue-900/20 flex justify-between items-center cursor-pointer" (click)="showHistory = !showHistory">
+          <h3 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center gap-2">
+            <span class="h-2 w-2 bg-indigo-400 rounded-full"></span>
+            Year-End Balance History
+          </h3>
+          <svg class="h-5 w-5 text-slate-400 transition-transform" [class.rotate-180]="showHistory" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+        <div *ngIf="showHistory" class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-slate-50 dark:bg-[#101935] text-xs uppercase text-slate-500 font-semibold border-b border-blue-900/30">
+              <tr>
+                <th class="px-6 py-3">Year</th>
+                <th class="px-6 py-3">Leave Type</th>
+                <th class="px-6 py-3 text-center">Opening</th>
+                <th class="px-6 py-3 text-center">Used</th>
+                <th class="px-6 py-3 text-center">Remaining</th>
+                <th class="px-6 py-3 text-center text-white">Carry Fwd →</th>
+                <th class="px-6 py-3 text-center text-yellow-500">Encashed</th>
+                <th class="px-6 py-3 text-center text-rose-500">Lapsed</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-blue-900/20">
+              <tr *ngFor="let rec of balanceHistory" class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-3 font-bold text-indigo-400">{{ rec.year }}</td>
+                <td class="px-6 py-3 text-slate-300">{{ rec.leaveType }}</td>
+                <td class="px-6 py-3 text-center text-slate-400">{{ rec.openingBalance }}</td>
+                <td class="px-6 py-3 text-center text-amber-400 font-mono">{{ rec.used }}</td>
+                <td class="px-6 py-3 text-center text-emerald-400 font-mono">{{ rec.closingBalance }}</td>
+                <td class="px-6 py-3 text-center font-bold text-white">{{ rec.carryForward }}</td>
+                <td class="px-6 py-3 text-center text-yellow-400">{{ rec.encashed }}</td>
+                <td class="px-6 py-3 text-center" [class.text-rose-400]="rec.lapsed > 0" [class.text-slate-500]="rec.lapsed === 0">{{ rec.lapsed }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </main>
   </div>
 </div>

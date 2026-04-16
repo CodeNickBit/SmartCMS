@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { LeavePolicyService, LeavePolicy } from '../services/leave-policy.service';
 import { ConfirmationModalService } from '../shared/confirmation-modal.service';
@@ -9,6 +9,7 @@ import { OfficeLocationService } from '../services/office-location.service';
 import { AttendanceService, AttendanceRecord } from '../services/attendance.service';
 import { ProfileModalComponent } from '../dashboard/components/profile-modal/profile-modal.component';
 import { TaskService } from '../services/task.service';
+import { PayrollService, Payslip as RealPayslip } from '../services/payroll.service';
 
 export interface Task {
   id: number;
@@ -55,6 +56,7 @@ export interface Payslip {
   year: number;
   netPay: number;
   downloadUrl: string;
+  status?: string;
 }
 
 interface OfficeLocation {
@@ -68,7 +70,7 @@ interface OfficeLocation {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProfileModalComponent],
+  imports: [CommonModule, FormsModule, ProfileModalComponent, RouterModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -99,13 +101,8 @@ export class HomeComponent implements OnInit {
 
   tasks: Task[] = [];
 
-  recentPayslip: Payslip = {
-    id: 'PAY-JAN-2025',
-    month: 'January',
-    year: 2025,
-    netPay: 45000,
-    downloadUrl: '#'
-  };
+  recentPayslip: Payslip | null = null;
+  isLoadingPayroll = false;
 
   // Policy Modal
 
@@ -171,7 +168,8 @@ export class HomeComponent implements OnInit {
     private confirmationModal: ConfirmationModalService,
     private officeLocationService: OfficeLocationService,
     private attendanceService: AttendanceService,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private payrollService: PayrollService
   ) { }
 
   ngOnInit(): void {
@@ -200,6 +198,7 @@ export class HomeComponent implements OnInit {
     }
     this.loadAttendanceData();
     this.loadRealTasks();
+    this.loadLatestPayslip();
   }
   // ngOnDestroy removed as polling is removed
 
@@ -288,6 +287,45 @@ export class HomeComponent implements OnInit {
         this.notifications = [...newNotifications, ...existingNonLeave];
       },
       error: (err) => console.error('Error loading my leaves', err)
+    });
+  }
+
+  private loadLatestPayslip(): void {
+    const userId = this.userProfile?._id || this.userProfile?.employeeId || this.userProfile?.id;
+    if (!userId) return;
+
+    this.isLoadingPayroll = true;
+    const MONTH_NAMES = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    this.payrollService.getEmployeePayslips(userId).subscribe({
+      next: (payslips) => {
+        const approved = (payslips || [])
+          .filter((p: any) => p.status === 'locked' || p.status === 'approved')
+          .sort((a: any, b: any) => {
+            if (a.payPeriod.year !== b.payPeriod.year) return b.payPeriod.year - a.payPeriod.year;
+            return b.payPeriod.month - a.payPeriod.month;
+          });
+
+        if (approved.length > 0) {
+          const latest = approved[0];
+          this.recentPayslip = {
+            id: latest._id!,
+            month: MONTH_NAMES[latest.payPeriod.month - 1],
+            year: latest.payPeriod.year,
+            netPay: latest.netPay,
+            downloadUrl: `/dashboard/my-payroll`, // Redirect to detail view
+            status: latest.status
+          };
+        }
+        this.isLoadingPayroll = false;
+      },
+      error: (err) => {
+        console.error('Error loading latest payslip', err);
+        this.isLoadingPayroll = false;
+      }
     });
   }
 
@@ -407,8 +445,12 @@ export class HomeComponent implements OnInit {
   }
 
   formatWorkingHours(hours: number): string {
-    const h = Math.floor(hours);
-    const m = Math.round((hours - h) * 60);
+    let h = Math.floor(hours);
+    let m = Math.round((hours - h) * 60);
+    if (m === 60) {
+      h += 1;
+      m = 0;
+    }
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
   }
 

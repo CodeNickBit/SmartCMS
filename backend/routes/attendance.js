@@ -892,4 +892,38 @@ router.get('/my-escalations', authenticateToken, async (req, res) => {
   }
 });
 
+router.get('/team-attendance', authenticateToken, isManagerOrHR, async (req, res) => {
+  try {
+    const { year, month } = req.query;
+    const y = parseInt(year) || new Date().getFullYear();
+    const m = parseInt(month) || (new Date().getMonth() + 1);
+
+    const startDate = new Date(y, m - 1, 1);
+    const endDate = new Date(y, m, 0, 23, 59, 59, 999);
+
+    let employeeIds = [];
+    if (req.user.role === 'manager') {
+      const managerId = req.user._id || req.user.id;
+      employeeIds = await getDirectReportIds(managerId);
+    } else {
+      const users = await User.find({ role: 'employee' }).select('_id');
+      employeeIds = users.map(u => u._id.toString());
+    }
+
+    const records = await Attendance.find({
+      employeeId: { $in: employeeIds },
+      date: { $gte: startDate, $lte: endDate },
+      approvalStatus: { $in: ['approved', 'declined'] }
+    })
+      .populate('employeeId', 'firstName lastName employeeId department')
+      .select('employeeId date status workingHours approvalStatus')
+      .lean();
+
+    res.json(records);
+  } catch (error) {
+    console.error('Team attendance error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 module.exports = router;

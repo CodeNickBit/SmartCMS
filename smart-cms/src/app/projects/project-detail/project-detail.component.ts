@@ -16,17 +16,24 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
   template: `
     <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
       <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
-      <app-shared-sidebar *ngIf="!isAdmin" class="flex-shrink-0"></app-shared-sidebar>
+      <app-shared-sidebar *ngIf="!isAdmin && userRole !== 'employee'" class="flex-shrink-0"></app-shared-sidebar>
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <app-shared-header title="Project Board"></app-shared-header>
         <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-[#101935]">
           <div class="detail-page" *ngIf="project">
 
-            <button
-              (click)="router.navigate(['/projects'])"
-              class="inline-flex items-center gap-1.5 bg-transparent border border-blue-900/30 text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer mb-5 hover:bg-blue-900/20 hover:text-white transition-all">
-              ← All Projects
-            </button>
+            <div class="flex gap-3 mb-5">
+              <button *ngIf="userRole === 'employee'"
+                (click)="router.navigate(['/home'])"
+                class="inline-flex items-center gap-1.5 bg-transparent border border-blue-900/30 text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-blue-900/20 hover:text-white transition-all">
+                ← Back to Dashboard
+              </button>
+              <button
+                (click)="router.navigate(['/projects'])"
+                class="inline-flex items-center gap-1.5 bg-transparent border border-blue-900/30 text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-blue-900/20 hover:text-white transition-all">
+                ← All Projects
+              </button>
+            </div>
 
             <div class="bg-[#1B264F] border border-blue-900/30 rounded-2xl p-6 mb-6 shadow-md">
               <div class="flex flex-col gap-4">
@@ -230,6 +237,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
           <div class="form-group"><label>Assign To</label>
             <select [(ngModel)]="newTask.assignedTo">
               <option value="">Unassigned</option>
+              <option *ngIf="getProjectManager() as pm" [value]="pm.userId">{{ pm.name }} (Project Manager)</option>
               <option *ngFor="let m of project.members" [value]="m.userId">{{ m.name || m.email }} ({{ m.role }})</option>
             </select>
           </div>
@@ -328,7 +336,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
     .optional-hint { font-size: 11px; color: #64748b; font-weight: 400; }
     .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
     .form-group label { font-size: 13px; font-weight: 600; color: #cbd5e1; }
-    .form-group input, .form-group textarea, .form-group select { padding: 10px 14px; border: 1px solid rgba(30, 58, 138, 0.3); background: #101935; color: white; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .form-group input, .form-group textarea, .form-group select { padding: 10px 14px; border: 1px solid rgba(30, 58, 138, 0.3); background: #101935; color: white; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; max-width: 100%; box-sizing: border-box; width: 100%; text-overflow: ellipsis; }
     .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #3b82f6; }
     .form-group textarea { resize: none; font-family: inherit; }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
@@ -445,10 +453,14 @@ export class ProjectDetailComponent implements OnInit {
     this.creatingTask = true;
 
     if (this.newTask.assignedTo) {
+      const pm = this.getProjectManager();
       const member = this.project.members.find((m: any) => m.userId === this.newTask.assignedTo);
       if (member) {
         this.newTask.assignedToName = member.name || member.email || '';
         this.newTask.assignedToModel = member.userModel;
+      } else if (pm && pm.userId === this.newTask.assignedTo) {
+        this.newTask.assignedToName = pm.name;
+        this.newTask.assignedToModel = 'Manager';
       }
     }
 

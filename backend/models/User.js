@@ -198,6 +198,7 @@ const userSchema = new mongoose.Schema({
     enum: ['monthly', 'hourly', 'daily', 'weekly'],
     trim: true
   },
+  // Legacy fixed amounts (Maintained for backward compatibility / migration)
   salaryAmount: {
     type: Number,
     min: 0
@@ -207,6 +208,15 @@ const userSchema = new mongoose.Schema({
     min: 0,
     default: 0
   },
+  // Payroll Phase 1: Configurable Components
+  salaryTemplate: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SalaryTemplate'
+  },
+  salaryOverrides: [{
+    component: { type: mongoose.Schema.Types.ObjectId, ref: 'SalaryComponent', required: true },
+    overrideAmount: { type: Number }
+  }],
   overtimeEligible: {
     type: Boolean,
     default: false
