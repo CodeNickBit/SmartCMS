@@ -11,6 +11,7 @@ export interface RegisterRequest {
   lastName: string;
   gender: 'Male' | 'Female' | 'Other';
   dateOfBirth: string;
+  age?: number;
   maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
   phone: string;
   email: string;
