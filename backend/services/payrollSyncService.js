@@ -79,6 +79,9 @@ async function computePayrollSync(employeeId, year, month) {
     const lopRules = payrollSettings.lopRules || {};
     const otRules = payrollSettings.overtimeRules || {};
 
+    // Default lopRules.enabled to true if not explicitly set to false
+    const lopEnabled = lopRules.enabled !== false;
+
     const { startDate, endDate } = computePayPeriod(year, month, payrollSettings);
     const totalWorkingDays = getWorkingDaysInRange(startDate, endDate);
 
@@ -125,7 +128,7 @@ async function computePayrollSync(employeeId, year, month) {
     // --- Compute LOP days ---
     let lopDays = 0;
 
-    if (lopRules.enabled) {
+    if (lopEnabled) {
         // Rule 1: 'Absent' status counts as LOP (they didn't arrive for work/no leave permission)
         lopDays += summary.absent;
 
@@ -133,15 +136,15 @@ async function computePayrollSync(employeeId, year, month) {
         if (lopRules.considerLateMarksAsLOP) {
             const threshold = lopRules.lateMarksThreshold || 3;
             if (summary.late >= threshold) {
-                // Each group of (threshold) late marks = 1 LOP day
                 lopDays += Math.floor(summary.late / threshold);
             }
         }
+
+        // Rule 3: Half-days count as 0.5 LOP days
+        lopDays += summary.halfDay * 0.5;
     }
 
-    // Half-days count as 0.5 LOP days
-    const halfDayLop = summary.halfDay * 0.5;
-    lopDays = Math.min(lopDays + halfDayLop, totalWorkingDays);
+    lopDays = Math.min(lopDays, totalWorkingDays);
 
     const paidDays = Math.max(0, totalWorkingDays - lopDays);
 
@@ -152,7 +155,8 @@ async function computePayrollSync(employeeId, year, month) {
         lopDays,
         paidDays,
         overtimeHours: summary.totalOvertimeHours,
-        presenceSummary: summary
+        presenceSummary: summary,
+        hasAttendanceRecords: attendanceRecords.length > 0
     };
 }
 

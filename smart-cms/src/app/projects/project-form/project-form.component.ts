@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } 
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
+import { DepartmentService, Department } from '../../services/department.service';
 import { SharedSidebarComponent } from '../../dashboard/components/sidebar/sidebar.component';
 import { SharedHeaderComponent } from '../../dashboard/components/header/header.component';
 import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.component';
@@ -46,8 +47,12 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
           </div>
           <div class="form-row">
             <div class="form-group">
-               <label>Department</label>
-               <input formControlName="department" placeholder="e.g. Engineering">
+               <label>Department *</label>
+               <select formControlName="department" [class.invalid]="isInvalid('department')">
+                 <option value="">Select a Department</option>
+                 <option *ngFor="let d of departments" [value]="d.name">{{ d.name }}</option>
+               </select>
+               <span class="error" *ngIf="isInvalid('department')">Department is required</span>
             </div>
             <div class="form-group">
               <label>Tags <span class="hint">(comma separated)</span></label>
@@ -273,13 +278,15 @@ export class ProjectFormComponent implements OnInit {
   pmSearchTerm: string = '';
   memberSearchTerm: string = '';
   showSearch: boolean = false;
+  departments: Department[] = [];
 
   constructor(
     private fb: FormBuilder,
     public router: Router,
     private route: ActivatedRoute,
     private projectService: ProjectService,
-    private auth: AuthService
+    private auth: AuthService,
+    private departmentService: DepartmentService
   ) {}
 
   ngOnInit() {
@@ -290,7 +297,7 @@ export class ProjectFormComponent implements OnInit {
     this.form = this.fb.group({
       title: ['', Validators.required],
       description: [''],
-      department: [''],
+      department: ['', Validators.required],
       status: ['planning'],
       priority: ['medium'],
       startDate: [''],
@@ -299,6 +306,10 @@ export class ProjectFormComponent implements OnInit {
       projectManager: ['', Validators.required],
       billable: [false],
       budget: [0]
+    });
+    
+    this.departmentService.getDepartments().subscribe({
+      next: (deps) => this.departments = deps.filter(d => d.isActive !== false)
     });
 
     this.projectId = this.route.snapshot.paramMap.get('id') || '';

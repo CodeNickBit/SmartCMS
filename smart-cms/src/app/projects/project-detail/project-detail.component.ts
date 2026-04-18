@@ -423,8 +423,20 @@ export class ProjectDetailComponent implements OnInit {
   isOverdue(t: any) { return t.isOverdue !== undefined ? t.isOverdue : (t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'done'); }
   canUpdateTask(t: any) {
     const uid = String(this.currentUser?._id || this.currentUser?.id);
-    const role = this.currentUser?.role;
-    return role === 'admin' || role === 'manager' || t.assignedTo === uid;
+    const role = this.userRole; // uses lowercased role from ngOnInit
+    const userEmail = this.currentUser?.email;
+
+    if (role === 'admin') return true;
+    
+    // Check if user is the project manager
+    const pmId = String(this.project?.projectManager);
+    const pmEmail = this.project?.projectManagerEmail?.toLowerCase();
+    const isPM = (uid === pmId) || (userEmail && pmEmail && userEmail.toLowerCase() === pmEmail);
+    
+    if (role === 'manager' && isPM) return true;
+
+    // Check if assignee
+    return String(t.assignedTo) === uid;
   }
 
   openTask(t: any) { this.router.navigate(['/tasks', t._id]); }
