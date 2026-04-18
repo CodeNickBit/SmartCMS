@@ -293,8 +293,14 @@ export class TaskDetailComponent implements OnInit {
 
         const uid = String(this.currentUser?._id || this.currentUser?.id);
         const role = this.userRole;
-        this.canUpdate = role === 'admin' || role === 'manager' || this.task.assignedTo === uid;
-        this.canManage = role === 'admin' || role === 'manager';
+        const userEmail = this.currentUser?.email;
+
+        const pmId = data.project ? String(data.project.projectManager) : '';
+        const pmEmail = data.project?.projectManagerEmail?.toLowerCase();
+        const isPM = (uid === pmId) || (userEmail && pmEmail && userEmail.toLowerCase() === pmEmail);
+
+        this.canUpdate = role === 'admin' || (role === 'manager' && isPM) || this.task.assignedTo === uid;
+        this.canManage = role === 'admin' || (role === 'manager' && isPM);
 
         this.fetchTimeLogs(id);
         this.fetchSubtasks(id);
