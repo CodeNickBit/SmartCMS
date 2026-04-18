@@ -12,33 +12,70 @@ exports.getHRPulse = async (req, res) => {
         const tonight = new Date(today);
         tonight.setHours(23, 59, 59, 999);
 
-        const [totalEmployees, onLeaveCount, attendanceDocs] = await Promise.all([
+        const [totalEmployees, onLeaveDocs, attendanceDocs, allActiveUsers] = await Promise.all([
             User.countDocuments({ active_inactive: true }),
-            LeaveRequest.countDocuments({
+            LeaveRequest.find({
                 status: 'Approved',
                 startDate: { $lte: tonight },
                 endDate: { $gte: today }
-            }),
+            }).populate('userId', 'firstName lastName department'),
             Attendance.find({
                 date: { $gte: today, $lte: tonight },
                 'checkIn.time': { $exists: true }
-            }).select('employeeId')
+            }).select('employeeId'),
+            User.find({ active_inactive: true }).select('firstName lastName dateOfBirth joiningDate department createdAt')
         ]);
 
         const presentCount = attendanceDocs.length;
+        const onLeaveCount = onLeaveDocs.length;
         const expectedPresent = Math.max(0, totalEmployees - onLeaveCount);
         
-        // Pulse: How many of the people NOT on leave have checked in today?
         const pulsePercentage = expectedPresent > 0 
             ? Math.min(100, Math.round((presentCount / expectedPresent) * 100)) 
             : 0;
+
+        // Calculate Celebrations (Today)
+        const month = today.getMonth() + 1;
+        const day = today.getDate();
+        
+        const celebrations = allActiveUsers.filter(u => {
+            if (!u.dateOfBirth && !u.joiningDate) return false;
+            const bday = u.dateOfBirth ? new Date(u.dateOfBirth) : null;
+            const anniv = u.joiningDate ? new Date(u.joiningDate) : null;
+            
+            return (bday && (bday.getMonth() + 1 === month && bday.getDate() === day)) ||
+                   (anniv && (anniv.getMonth() + 1 === month && anniv.getDate() === day));
+        }).map(u => ({
+            name: `${u.firstName} ${u.lastName || ''}`.trim(),
+            type: (new Date(u.dateOfBirth).getMonth() + 1 === month && new Date(u.dateOfBirth).getDate() === day) ? 'birthday' : 'anniversary',
+            department: u.department
+        }));
+
+        // Calculate New Joinees (Last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const newJoinees = allActiveUsers
+            .filter(u => u.joiningDate && new Date(u.joiningDate) >= thirtyDaysAgo)
+            .sort((a, b) => new Date(b.joiningDate) - new Date(a.joiningDate))
+            .slice(0, 5)
+            .map(u => ({
+                name: `${u.firstName} ${u.lastName || ''}`.trim(),
+                department: u.department,
+                joiningDate: u.joiningDate
+            }));
 
         res.json({
             totalEmployees,
             onLeaveToday: onLeaveCount,
             presentToday: presentCount,
             absentToday: Math.max(0, expectedPresent - presentCount),
-            pulsePercentage
+            pulsePercentage,
+            celebrations,
+            newJoinees,
+            onLeaveNames: onLeaveDocs.map(l => ({
+                name: l.userId ? `${l.userId.firstName} ${l.userId.lastName || ''}`.trim() : 'Unknown',
+                department: l.userId ? l.userId.department : 'General'
+            }))
         });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching HR pulse', error: error.message });

@@ -10,6 +10,7 @@ import { DepartmentService } from '../services/department.service';
 import { DesignationService } from '../services/designation.service';
 import { ProjectService } from '../services/project.service';
 import { TaskService } from '../services/task.service';
+import { DashboardService } from '../services/dashboard.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
@@ -30,7 +31,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
           <div class="max-w-7xl mx-auto">
             <!-- Welcome Section -->
             <div class="mb-8">
-              <h1 class="text-[#246bb6] light:text-[#1A6DC2] dark:text-[#3083DC]xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white tracking-tight">Dashboard Overview</h1>
+              <h1 class="text-2xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white tracking-tight">Dashboard Overview</h1>
               <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-2 font-medium">Welcome back, {{ userName }}! Here's what's happening today.</p>
             </div>
 
@@ -96,140 +97,216 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
             <!-- Role Based Features -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <!-- HR Section -->
-              <div *ngIf="userRole === 'hr'" class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
-                <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
-                  <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center space-x-2">
-                    <span class="h-2 w-2 bg-[#3083DC] rounded-full"></span>
-                    <span>HR Management Quick Actions</span>
-                  </h2>
-                </div>
-                <div class="p-8 grid grid-cols-2 gap-4">
-                  <button routerLink="/dashboard/employees" class="p-4 rounded-xl bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 hover:border-[#3083DC]/50 hover:bg-[#3083DC]/10 transition-all group text-left">
-                    <div class="h-10 w-10 rounded-lg bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 flex items-center justify-center mb-3 group-hover:text-[#3083DC] shadow-sm">
-                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
-                    </div>
-                    <p class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm">Manage Employees</p>
-                    <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-1">View & edit employees</p>
-                  </button>
-                  <button routerLink="/dashboard/leave-approvals" class="p-4 rounded-xl bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all group text-left">
-                    <div class="h-10 w-10 rounded-lg bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 flex items-center justify-center mb-3 group-hover:text-emerald-400 shadow-sm">
-                      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                    <p class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm">Approvals</p>
-                    <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-1">Review pending requests</p>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Manager Section: Project Progression -->
-              <div *ngIf="userRole === 'manager' || userRole === 'hr'" class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
-                <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
-                  <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center space-x-2">
-                    <span class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span>Latest Project Progression</span>
-                  </h2>
-                </div>
-                <div class="p-8">
-                  <div *ngIf="recentProjects.length > 0; else noProjects" class="space-y-6">
-                    <div *ngFor="let project of recentProjects" class="p-5 rounded-xl bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-blue-900/20 hover:border-[#3083DC]/40 transition-all group">
-                      <div class="flex items-center justify-between mb-3">
+              
+              <!-- SECTION: HR SPECIFIC VIEW -->
+              <ng-container *ngIf="userRole === 'hr'">
+                <!-- Widget 1: HR Management Quick Actions & Pulse -->
+                <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden flex flex-col">
+                  <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
+                    <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center space-x-2">
+                      <span class="h-2 w-2 bg-[#3083DC] rounded-full"></span>
+                      <span>HR Management Quick Actions & Pulse</span>
+                    </h2>
+                  </div>
+                  <div class="p-8 flex-1 flex flex-col">
+                    <!-- Attendance Pulse Gauge -->
+                    <div class="mb-8 p-6 rounded-2xl bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-blue-900/20 relative overflow-hidden group">
+                      <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                        <svg class="h-20 w-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                      </div>
+                      
+                      <div class="flex items-center justify-between mb-4">
                         <div>
-                          <h4 class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm group-hover:text-[#3083DC] transition-colors">{{ project.title }}</h4>
-                          <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500 light:text-[#7A96B2] dark:text-slate-400">
-                            {{ project.statusLabel }} • {{ project.priority }}
-                          </span>
+                          <p class="text-[10px] font-bold text-[#3083DC] uppercase tracking-widest mb-1">Daily Capacity Pulse</p>
+                          <h3 class="text-2xl font-black text-slate-800 dark:text-white">{{ hrPulseData?.pulsePercentage || 0 }}%</h3>
                         </div>
                         <div class="text-right">
-                          <span class="text-sm font-bold text-[#3083DC]">{{ project.progress }}%</span>
-                        </div>
-                      </div>
-                      
-                      <!-- Progress Bar Wrapper -->
-                      <div class="h-2 w-full bg-slate-200 light:bg-[#DDEAF8] dark:bg-slate-700/50 rounded-full overflow-hidden">
-                        <div 
-                          [class]="'h-full transition-all duration-1000 ease-out rounded-full ' + project.progressColor"
-                          [style.width.%]="project.progress">
-                        </div>
-                      </div>
-                      
-                      <div class="grid grid-cols-2 gap-4 mt-5">
-                        <div class="p-3 rounded-xl bg-slate-900/20 dark:bg-black/20 border border-white/5 shadow-inner">
-                          <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Tasks</p>
-                          <p class="text-xl font-bold text-slate-800 dark:text-white">{{ project.taskStats?.total || 0 }}</p>
-                        </div>
-                        <div class="p-3 rounded-xl bg-slate-900/20 dark:bg-black/20 border border-white/5 shadow-inner">
-                          <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Completed</p>
-                          <p class="text-xl font-bold text-emerald-500">{{ project.taskStats?.done || 0 }}</p>
+                          <span [class]="'px-2 py-1 rounded-full text-[10px] font-bold uppercase ' + (hrPulseData?.pulsePercentage > 80 ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500')">
+                            {{ hrPulseData?.pulsePercentage > 80 ? 'Healthy' : 'Average' }}
+                          </span>
                         </div>
                       </div>
 
-                      <div class="mt-4 pt-3 border-t border-slate-200 dark:border-white/5 flex items-center justify-between">
-                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Department</span>
-                        <span class="px-2 py-0.5 rounded-md bg-[#3083DC]/10 text-[#3083DC] text-[10px] font-bold">
-                          {{ project.department || 'General' }}
-                        </span>
+                      <div class="h-3 w-full bg-slate-200 dark:bg-slate-700/50 rounded-full overflow-hidden mb-4">
+                        <div class="h-full bg-gradient-to-r from-[#3083DC] to-emerald-400 transition-all duration-1000 ease-out" [style.width.%]="hrPulseData?.pulsePercentage || 0"></div>
+                      </div>
+
+                      <div class="grid grid-cols-3 gap-2">
+                         <div class="text-center">
+                           <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Present</p>
+                           <p class="text-sm font-bold text-slate-800 dark:text-white">{{ hrPulseData?.presentToday || 0 }}</p>
+                         </div>
+                         <div class="text-center border-x border-slate-200 dark:border-white/5">
+                           <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">On Leave</p>
+                           <p class="text-sm font-bold text-slate-800 dark:text-white">{{ hrPulseData?.onLeaveToday || 0 }}</p>
+                         </div>
+                         <div class="text-center">
+                           <p class="text-[9px] font-bold text-rose-500 uppercase">Missing</p>
+                           <p class="text-sm font-bold text-rose-500">{{ hrPulseData?.absentToday || 0 }}</p>
+                         </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <ng-template #noProjects>
-                    <div class="py-12 flex flex-col items-center justify-center text-center">
-                      <div class="h-16 w-16 bg-slate-100 dark:bg-[#101935] rounded-full flex items-center justify-center mb-4 text-2xl opacity-50">
-                        📁
-                      </div>
-                      <p class="text-slate-500 dark:text-slate-400 font-medium italic">No recent project activity tracked.</p>
-                      <button routerLink="/dashboard/projects" class="mt-4 text-xs font-bold text-[#3083DC] hover:underline uppercase tracking-widest">
-                        View All Projects
+
+                    <div class="grid grid-cols-2 gap-4">
+                      <button routerLink="/dashboard/employees" class="p-4 rounded-xl bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 hover:border-[#3083DC]/50 hover:bg-[#3083DC]/10 transition-all group text-left">
+                        <div class="h-10 w-10 rounded-lg bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 flex items-center justify-center mb-3 group-hover:text-[#3083DC] shadow-sm">
+                          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                        </div>
+                        <p class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm">Manage Employees</p>
+                      </button>
+                      <button routerLink="/dashboard/leave-approvals" class="p-4 rounded-xl bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 hover:border-emerald-500/50 hover:bg-emerald-500/10 transition-all group text-left">
+                        <div class="h-10 w-10 rounded-lg bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 flex items-center justify-center mb-3 group-hover:text-emerald-400 shadow-sm">
+                          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        </div>
+                        <p class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm">Approvals</p>
                       </button>
                     </div>
-                  </ng-template>
+                  </div>
                 </div>
-              </div>
 
-              <!-- Upcoming Deadlines & Milestones -->
-              <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
-                <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
-                  <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center space-x-2">
-                    <span class="h-2 w-2 bg-rose-500 rounded-full animate-pulse"></span>
-                    <span>Upcoming Deadlines & Milestones</span>
-                  </h2>
-                </div>
-                <div class="p-8">
-                  <div *ngIf="upcomingDeadlines.length > 0; else noDeadlines" class="space-y-6">
-                    <div *ngFor="let item of upcomingDeadlines" class="relative pl-6 border-l-2 border-blue-900/20 group pb-1">
-                      <div [class]="'absolute -left-[5px] top-0 h-2 w-2 rounded-full transition-colors ' + (item.isUrgent ? 'bg-rose-500 animate-ping' : 'bg-slate-500 group-hover:bg-[#3083DC]')"></div>
-                      <div class="absolute -left-[5px] top-0 h-2 w-2 rounded-full bg-rose-500" *ngIf="item.isUrgent"></div>
-                      
-                      <div class="flex items-center justify-between mb-1">
-                        <p [class]="'text-[10px] font-bold uppercase tracking-widest ' + (item.isUrgent ? 'text-rose-500' : 'text-[#3083DC]')">
-                          {{ item.formattedDate }}
-                        </p>
-                        <span [class]="'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-tight ' + (item.priority === 'critical' ? 'bg-rose-500/20 text-rose-500' : 'bg-[#3083DC]/10 text-[#3083DC]')">
-                          {{ item.priority }}
-                        </span>
-                      </div>
-                      
-                      <h4 class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm mb-1 group-hover:text-[#3083DC] transition-colors line-clamp-1 italic">
-                        {{ item.title }}
+                <!-- Widget 2: Hiring & Growth Highlights -->
+                <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden flex flex-col">
+                  <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
+                    <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center space-x-2">
+                      <span class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                      <span>Hiring & Growth Highlights</span>
+                    </h2>
+                  </div>
+                  <div class="p-8 flex-1 space-y-8">
+                    <!-- Celebrations Section -->
+                    <div class="space-y-4">
+                      <h4 class="text-[10px] font-bold text-[#3083DC] uppercase tracking-widest flex items-center justify-between">
+                        <span>Workforce Heartbeat</span>
+                        <span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 animate-bounce">🎂</span>
                       </h4>
-                      <p class="text-[10px] text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-medium">
-                        Project: {{ item.project?.title || 'General' }}
-                      </p>
+                      <div *ngIf="hrPulseData?.celebrations?.length > 0; else noCelebrations" class="space-y-3">
+                         <div *ngFor="let c of hrPulseData.celebrations" class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 dark:bg-[#101935] border border-white/5">
+                            <div class="h-8 w-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400 shadow-inner">
+                               {{ c.type === 'birthday' ? '🎂' : '🎗️' }}
+                            </div>
+                            <div>
+                               <p class="text-xs font-bold text-slate-800 dark:text-white">{{ c.name }}</p>
+                               <p class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter">{{ c.type === 'birthday' ? "Today's Birthday" : "Work Anniversary" }} • {{ c.department }}</p>
+                            </div>
+                         </div>
+                      </div>
+                      <ng-template #noCelebrations>
+                         <p class="text-[11px] text-slate-500 italic">No celebrations for today.</p>
+                      </ng-template>
+                    </div>
+
+                    <!-- New Joinees Section -->
+                    <div class="space-y-4">
+                       <h4 class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Recent Onboarding</h4>
+                       <div *ngIf="hrPulseData?.newJoinees?.length > 0; else noNewHires" class="space-y-3">
+                          <div *ngFor="let hire of hrPulseData.newJoinees" class="p-3 rounded-xl bg-slate-50 dark:bg-[#101935] border border-white/5 flex items-center justify-between group">
+                             <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-xs">
+                                   {{ hire.name.charAt(0) }}
+                                </div>
+                                <div>
+                                   <h4 class="text-xs font-bold text-slate-800 dark:text-white">{{ hire.name }}</h4>
+                                   <p class="text-[9px] text-slate-500 font-bold tracking-tight">{{ hire.department }}</p>
+                                </div>
+                             </div>
+                             <span class="text-[9px] font-bold text-slate-500 px-2 py-1 bg-white dark:bg-black/20 rounded shadow-sm">Joined {{ hire.joiningDate | date:'MMM d' }}</span>
+                          </div>
+                       </div>
+                       <ng-template #noNewHires>
+                          <p class="text-[11px] text-slate-500 italic">No recent hires detected.</p>
+                       </ng-template>
+                    </div>
+
+                    <!-- Availability Summary -->
+                    <div class="pt-4 border-t border-slate-200 dark:border-white/5">
+                       <h4 class="text-[10px] font-bold text-amber-500 uppercase tracking-widest mb-3">Availability Snapshot</h4>
+                       <div class="flex items-center gap-2 flex-wrap">
+                          <span *ngIf="hrPulseData?.onLeaveToday === 0" class="text-[11px] text-slate-500 italic">Full house today! 🚀</span>
+                          <span *ngFor="let person of hrPulseData?.onLeaveNames" class="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/20 text-[10px] font-medium text-amber-600">
+                             {{ person.name }} (OOO)
+                          </span>
+                       </div>
                     </div>
                   </div>
-                  
-                  <ng-template #noDeadlines>
-                    <div class="py-12 flex flex-col items-center justify-center text-center">
-                      <div class="h-16 w-16 bg-slate-100 dark:bg-[#101935] rounded-full flex items-center justify-center mb-4 text-2xl opacity-50">
-                        🎯
-                      </div>
-                      <p class="text-slate-500 dark:text-slate-400 font-medium italic">No upcoming deadlines detected.</p>
-                      <p class="text-[10px] text-slate-400 mt-1">Enjoy your light workload!</p>
-                    </div>
-                  </ng-template>
                 </div>
-              </div>
+              </ng-container>
+
+              <!-- SECTION: MANAGER SPECIFIC VIEW -->
+              <ng-container *ngIf="userRole === 'manager'">
+                <!-- Widget 1: Latest Project Progression -->
+                <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden flex flex-col">
+                  <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
+                    <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center space-x-2">
+                      <span class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                      <span>Latest Project Progression</span>
+                    </h2>
+                  </div>
+                  <div class="p-8 flex-1">
+                    <div *ngIf="recentProjects.length > 0; else noProjects" class="space-y-6">
+                      <div *ngFor="let project of recentProjects" class="p-5 rounded-xl bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-blue-900/20 hover:border-[#3083DC]/40 transition-all group">
+                        <div class="flex items-center justify-between mb-3">
+                          <div>
+                            <h4 class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm group-hover:text-[#3083DC] transition-colors">{{ project.title }}</h4>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                              {{ project.statusLabel }} • {{ project.priority }}
+                            </span>
+                          </div>
+                          <div class="text-right">
+                            <span class="text-sm font-bold text-[#3083DC]">{{ project.progress }}%</span>
+                          </div>
+                        </div>
+                        <div class="h-2 w-full bg-slate-200 dark:bg-slate-700/50 rounded-full overflow-hidden">
+                          <div [class]="'h-full transition-all duration-1000 ease-out rounded-full ' + project.progressColor" [style.width.%]="project.progress"></div>
+                        </div>
+
+                        <!-- Task Stats Grid -->
+                        <div class="grid grid-cols-2 gap-4 mt-5">
+                          <div class="p-3 rounded-xl bg-slate-900/20 dark:bg-black/20 border border-white/5 shadow-inner">
+                            <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Tasks</p>
+                            <p class="text-xl font-bold text-slate-800 dark:text-white">{{ project.taskStats?.total || 0 }}</p>
+                          </div>
+                          <div class="p-3 rounded-xl bg-slate-900/20 dark:bg-black/20 border border-white/5 shadow-inner">
+                            <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Completed</p>
+                            <p class="text-xl font-bold text-emerald-500">{{ project.taskStats?.done || 0 }}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mt-6 pt-4 border-t border-slate-200 dark:border-white/5">
+                        <a routerLink="/dashboard/projects" class="text-xs font-bold text-[#3083DC] hover:text-[#3083DC]/80 transition-colors flex items-center gap-1 group/link">
+                          View all projects 
+                          <svg class="h-3 w-3 transform group-hover/link:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                        </a>
+                      </div>
+                    </div>
+                    <ng-template #noProjects>
+                      <p class="text-slate-500 italic text-center py-8">No recent project activity.</p>
+                    </ng-template>
+                  </div>
+                </div>
+
+                <!-- Widget 2: Upcoming Deadlines & Milestones -->
+                <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden flex flex-col">
+                  <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
+                    <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center space-x-2">
+                      <span class="h-2 w-2 bg-rose-500 rounded-full animate-pulse"></span>
+                      <span>Upcoming Deadlines & Milestones</span>
+                    </h2>
+                  </div>
+                  <div class="p-8 flex-1 overflow-y-auto custom-scrollbar" style="max-height: 400px;">
+                    <div *ngIf="upcomingDeadlines.length > 0; else noDeadlines" class="space-y-6">
+                      <div *ngFor="let item of upcomingDeadlines" class="relative pl-6 border-l-2 border-blue-900/20 group">
+                        <div [class]="'absolute -left-[5px] top-0 h-2 w-2 rounded-full ' + (item.isUrgent ? 'bg-rose-500 animate-ping' : 'bg-[#3083DC]')"></div>
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#3083DC]">{{ item.formattedDate }}</p>
+                        <h4 class="font-bold text-sm text-slate-800 dark:text-white mb-1 italic line-clamp-1 hover:text-[#3083DC] transition-colors cursor-default">{{ item.title }}</h4>
+                        <p class="text-[10px] text-slate-500">Project: {{ item.project?.title || 'General' }}</p>
+                      </div>
+                    </div>
+                    <ng-template #noDeadlines>
+                      <p class="text-slate-500 italic text-center py-8">No upcoming deadlines.</p>
+                    </ng-template>
+                  </div>
+                </div>
+              </ng-container>
             </div>
           </div>
         </main>
@@ -255,6 +332,7 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
   stats: any[] = [];
   recentProjects: any[] = [];
   upcomingDeadlines: any[] = [];
+  hrPulseData: any = null;
 
 
 
@@ -267,6 +345,7 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
     private designationService: DesignationService,
     private projectService: ProjectService,
     private taskService: TaskService,
+    private dashboardService: DashboardService,
     private sanitizer: DomSanitizer
   ) { }
 
@@ -279,18 +358,27 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
           this.userName = user.name || (user.firstName ? `${user.firstName} ${user.lastName}` : 'User');
           this.userRole = user.role || '';
 
-          if (this.userRole === 'manager' || this.userRole === 'hr') {
-            this.loadPendingLeaves();
-            this.loadDynamicStats();
-            this.loadRecentProjects();
-            this.loadUpcomingDeadlines();
-            this.pollingInterval = setInterval(() => {
+            if (this.userRole === 'manager' || this.userRole === 'hr') {
               this.loadPendingLeaves();
               this.loadDynamicStats();
-              this.loadRecentProjects();
-              this.loadUpcomingDeadlines();
-            }, 30000);
-          }
+              if (this.userRole === 'hr') {
+                this.loadHRPulse();
+              } else {
+                this.loadRecentProjects();
+                this.loadUpcomingDeadlines();
+              }
+              
+              this.pollingInterval = setInterval(() => {
+                this.loadPendingLeaves();
+                this.loadDynamicStats();
+                if (this.userRole === 'hr') {
+                  this.loadHRPulse();
+                } else {
+                  this.loadRecentProjects();
+                  this.loadUpcomingDeadlines();
+                }
+              }, 30000);
+            }
 
           if (this.userRole === 'manager') {
             const userId = user._id || user.id;
@@ -306,6 +394,15 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
         }
       }
     }
+  }
+
+  loadHRPulse(): void {
+    this.dashboardService.getHRPulse().subscribe({
+      next: (data) => {
+        this.hrPulseData = data;
+      },
+      error: (err) => console.error('Error loading HR pulse', err)
+    });
   }
 
   ngOnDestroy(): void {
