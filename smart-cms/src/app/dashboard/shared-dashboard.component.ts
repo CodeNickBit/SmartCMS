@@ -8,6 +8,8 @@ import { AuthService } from '../services/auth.service';
 import { ManagerService } from '../services/manager.service';
 import { DepartmentService } from '../services/department.service';
 import { DesignationService } from '../services/designation.service';
+import { ProjectService } from '../services/project.service';
+import { TaskService } from '../services/task.service';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 @Component({
@@ -120,49 +122,112 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
                 </div>
               </div>
 
-              <!-- Manager Section -->
-              <div *ngIf="userRole === 'manager'" class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
+              <!-- Manager Section: Project Progression -->
+              <div *ngIf="userRole === 'manager' || userRole === 'hr'" class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
                 <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
                   <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center space-x-2">
-                    <span class="h-2 w-2 bg-emerald-500 rounded-full"></span>
-                    <span>Team Overview</span>
+                    <span class="h-2 w-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span>Latest Project Progression</span>
                   </h2>
                 </div>
                 <div class="p-8">
-                  <div class="space-y-4">
-                    <div *ngFor="let member of team" class="flex items-center justify-between p-4 rounded-xl bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-blue-900/20">
-                      <div class="flex items-center space-x-4">
-                        <div class="h-10 w-10 rounded-lg bg-[#3083DC]/20 flex items-center justify-center text-[#3083DC] font-bold text-xs">
-                          {{ member.name.charAt(0) }}
-                        </div>
+                  <div *ngIf="recentProjects.length > 0; else noProjects" class="space-y-6">
+                    <div *ngFor="let project of recentProjects" class="p-5 rounded-xl bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border border-blue-900/20 hover:border-[#3083DC]/40 transition-all group">
+                      <div class="flex items-center justify-between mb-3">
                         <div>
-                          <p class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm">{{ member.name }}</p>
-                          <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400">{{ member.role }}</p>
+                          <h4 class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm group-hover:text-[#3083DC] transition-colors">{{ project.title }}</h4>
+                          <span class="text-[10px] font-bold uppercase tracking-widest text-slate-500 light:text-[#7A96B2] dark:text-slate-400">
+                            {{ project.statusLabel }} • {{ project.priority }}
+                          </span>
+                        </div>
+                        <div class="text-right">
+                          <span class="text-sm font-bold text-[#3083DC]">{{ project.progress }}%</span>
                         </div>
                       </div>
-                      <span [class]="'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ' + (member.status === 'Active' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400')">
-                        {{ member.status }}
-                      </span>
+                      
+                      <!-- Progress Bar Wrapper -->
+                      <div class="h-2 w-full bg-slate-200 light:bg-[#DDEAF8] dark:bg-slate-700/50 rounded-full overflow-hidden">
+                        <div 
+                          [class]="'h-full transition-all duration-1000 ease-out rounded-full ' + project.progressColor"
+                          [style.width.%]="project.progress">
+                        </div>
+                      </div>
+                      
+                      <div class="grid grid-cols-2 gap-4 mt-5">
+                        <div class="p-3 rounded-xl bg-slate-900/20 dark:bg-black/20 border border-white/5 shadow-inner">
+                          <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Tasks</p>
+                          <p class="text-xl font-bold text-slate-800 dark:text-white">{{ project.taskStats?.total || 0 }}</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900/20 dark:bg-black/20 border border-white/5 shadow-inner">
+                          <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Completed</p>
+                          <p class="text-xl font-bold text-emerald-500">{{ project.taskStats?.done || 0 }}</p>
+                        </div>
+                      </div>
+
+                      <div class="mt-4 pt-3 border-t border-slate-200 dark:border-white/5 flex items-center justify-between">
+                        <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Department</span>
+                        <span class="px-2 py-0.5 rounded-md bg-[#3083DC]/10 text-[#3083DC] text-[10px] font-bold">
+                          {{ project.department || 'General' }}
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  
+                  <ng-template #noProjects>
+                    <div class="py-12 flex flex-col items-center justify-center text-center">
+                      <div class="h-16 w-16 bg-slate-100 dark:bg-[#101935] rounded-full flex items-center justify-center mb-4 text-2xl opacity-50">
+                        📁
+                      </div>
+                      <p class="text-slate-500 dark:text-slate-400 font-medium italic">No recent project activity tracked.</p>
+                      <button routerLink="/dashboard/projects" class="mt-4 text-xs font-bold text-[#3083DC] hover:underline uppercase tracking-widest">
+                        View All Projects
+                      </button>
+                    </div>
+                  </ng-template>
                 </div>
               </div>
 
-              <!-- Announcements -->
+              <!-- Upcoming Deadlines & Milestones -->
               <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-xl shadow-lg overflow-hidden">
                 <div class="p-6 border-b border-blue-900/20 flex items-center justify-between bg-white/5">
                   <h2 class="text-lg font-bold text-slate-800 light:text-[#0D1B35] dark:text-white flex items-center space-x-2">
-                    <span class="h-2 w-2 bg-rose-500 rounded-full"></span>
-                    <span>Recent Announcements</span>
+                    <span class="h-2 w-2 bg-rose-500 rounded-full animate-pulse"></span>
+                    <span>Upcoming Deadlines & Milestones</span>
                   </h2>
                 </div>
-                <div class="p-8 space-y-6">
-                  <div *ngFor="let item of announcements" class="relative pl-6 border-l-2 border-blue-900/20 group">
-                    <div class="absolute -left-[5px] top-0 h-2 w-2 rounded-full bg-slate-600 group-hover:bg-[#3083DC] transition-colors"></div>
-                    <p class="text-xs font-bold text-[#3083DC] mb-1 uppercase tracking-widest">{{ item.date }}</p>
-                    <h4 class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm mb-1">{{ item.title }}</h4>
-                    <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 line-clamp-2 leading-relaxed">{{ item.content }}</p>
+                <div class="p-8">
+                  <div *ngIf="upcomingDeadlines.length > 0; else noDeadlines" class="space-y-6">
+                    <div *ngFor="let item of upcomingDeadlines" class="relative pl-6 border-l-2 border-blue-900/20 group pb-1">
+                      <div [class]="'absolute -left-[5px] top-0 h-2 w-2 rounded-full transition-colors ' + (item.isUrgent ? 'bg-rose-500 animate-ping' : 'bg-slate-500 group-hover:bg-[#3083DC]')"></div>
+                      <div class="absolute -left-[5px] top-0 h-2 w-2 rounded-full bg-rose-500" *ngIf="item.isUrgent"></div>
+                      
+                      <div class="flex items-center justify-between mb-1">
+                        <p [class]="'text-[10px] font-bold uppercase tracking-widest ' + (item.isUrgent ? 'text-rose-500' : 'text-[#3083DC]')">
+                          {{ item.formattedDate }}
+                        </p>
+                        <span [class]="'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-tight ' + (item.priority === 'critical' ? 'bg-rose-500/20 text-rose-500' : 'bg-[#3083DC]/10 text-[#3083DC]')">
+                          {{ item.priority }}
+                        </span>
+                      </div>
+                      
+                      <h4 class="font-bold text-slate-800 light:text-[#0D1B35] dark:text-white text-sm mb-1 group-hover:text-[#3083DC] transition-colors line-clamp-1 italic">
+                        {{ item.title }}
+                      </h4>
+                      <p class="text-[10px] text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-medium">
+                        Project: {{ item.project?.title || 'General' }}
+                      </p>
+                    </div>
                   </div>
+                  
+                  <ng-template #noDeadlines>
+                    <div class="py-12 flex flex-col items-center justify-center text-center">
+                      <div class="h-16 w-16 bg-slate-100 dark:bg-[#101935] rounded-full flex items-center justify-center mb-4 text-2xl opacity-50">
+                        🎯
+                      </div>
+                      <p class="text-slate-500 dark:text-slate-400 font-medium italic">No upcoming deadlines detected.</p>
+                      <p class="text-[10px] text-slate-400 mt-1">Enjoy your light workload!</p>
+                    </div>
+                  </ng-template>
                 </div>
               </div>
             </div>
@@ -188,17 +253,10 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
   private digestDismissKey = '';
 
   stats: any[] = [];
+  recentProjects: any[] = [];
+  upcomingDeadlines: any[] = [];
 
-  team = [
-    { name: 'Alex Johnson', role: 'UI Developer', status: 'Active' },
-    { name: 'Sarah Williams', role: 'UX Designer', status: 'In Meeting' },
-    { name: 'Mike Brown', role: 'Backend Engineer', status: 'Active' },
-  ];
 
-  announcements = [
-    { date: 'Jan 25, 2026', title: 'New Remote Work Policy', content: 'Updated guidelines for remote work and flexible hours have been posted to the employee handbook.' },
-    { date: 'Jan 22, 2026', title: 'Quarterly Town Hall', content: 'Join us for the Q1 Town Hall meeting this Friday at 10:00 AM in the main auditorium or via Zoom.' },
-  ];
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -207,6 +265,8 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
     private managerService: ManagerService,
     private departmentService: DepartmentService,
     private designationService: DesignationService,
+    private projectService: ProjectService,
+    private taskService: TaskService,
     private sanitizer: DomSanitizer
   ) { }
 
@@ -222,9 +282,13 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
           if (this.userRole === 'manager' || this.userRole === 'hr') {
             this.loadPendingLeaves();
             this.loadDynamicStats();
+            this.loadRecentProjects();
+            this.loadUpcomingDeadlines();
             this.pollingInterval = setInterval(() => {
               this.loadPendingLeaves();
               this.loadDynamicStats();
+              this.loadRecentProjects();
+              this.loadUpcomingDeadlines();
             }, 30000);
           }
 
@@ -248,6 +312,79 @@ export class SharedDashboardComponent implements OnInit, OnDestroy {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
     }
+  }
+
+  loadUpcomingDeadlines(): void {
+    this.taskService.getMyTasks({ status: 'todo,in_progress,in_review,blocked' }).subscribe({
+      next: (tasks) => {
+        this.upcomingDeadlines = (tasks || [])
+          .filter(t => t.dueDate)
+          .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+          .slice(0, 5)
+          .map(t => ({
+            ...t,
+            formattedDate: this.formatDueDate(t.dueDate),
+            isUrgent: this.checkUrgency(t.dueDate)
+          }));
+      },
+      error: (err) => console.error('Error loading deadlines', err)
+    });
+  }
+
+  private formatDueDate(date: string): string {
+    const d = new Date(date);
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    
+    const taskDate = new Date(d);
+    taskDate.setHours(0, 0, 0, 0);
+
+    if (taskDate.getTime() === now.getTime()) return 'Today';
+    if (taskDate.getTime() === tomorrow.getTime()) return 'Tomorrow';
+    
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  private checkUrgency(date: string): boolean {
+    const d = new Date(date);
+    const now = new Date();
+    const diff = d.getTime() - now.getTime();
+    const days = diff / (1000 * 60 * 60 * 24);
+    return days <= 2; // Urgent if within 2 days
+  }
+
+  loadRecentProjects(): void {
+    this.projectService.getAll().subscribe({
+      next: (projects) => {
+        this.recentProjects = (projects || []).slice(0, 3).map(p => {
+          const totalTasks = p.taskStats?.total || 0;
+          const completedTasks = p.taskStats?.done || 0;
+          const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+          
+          return {
+            ...p,
+            progress,
+            progressColor: this.getProgressColor(progress),
+            statusLabel: this.formatStatus(p.status)
+          };
+        });
+      },
+      error: (err) => console.error('Error loading projects', err)
+    });
+  }
+
+  private getProgressColor(progress: number): string {
+    if (progress >= 100) return 'bg-emerald-500';
+    if (progress >= 70) return 'bg-[#3083DC]';
+    if (progress >= 30) return 'bg-amber-500';
+    return 'bg-rose-500';
+  }
+
+  private formatStatus(status: string): string {
+    if (!status) return 'Unknown';
+    return status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   }
 
   loadDynamicStats(): void {
