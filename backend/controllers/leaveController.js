@@ -538,11 +538,26 @@ exports.updateLeaveStatus = async (req, res) => {
             updateData.resolvedBy = callerId;
         }
 
+        const oldStatus = leave.status;
         const updated = await LeaveRequest.findByIdAndUpdate(
             req.params.id,
             updateData,
             { new: true }
         );
+
+        // Send a Notification only if status changed from Pending to Approved/Rejected
+        if (oldStatus === 'Pending' && (status === 'Approved' || status === 'Rejected')) {
+            const { createNotification } = require('../utils/notificationHelper');
+            console.log(`[Notification-Debug] Sending ${status} notification for leave ${updated._id} to user ${leave.userId}`);
+            createNotification(
+                leave.userId,
+                `Leave Request ${status}`,
+                `Your leave request from ${new Date(leave.startDate).toLocaleDateString()} to ${new Date(leave.endDate).toLocaleDateString()} has been ${status.toLowerCase()}.`,
+                'Leave',
+                String(updated._id)
+            ).catch(err => console.error('[Notification-Error]', err));
+        }
+
         res.json(updated);
     } catch (error) {
         res.status(500).json({ message: 'Error updating leave status', error: error.message });

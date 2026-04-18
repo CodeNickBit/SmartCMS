@@ -4,6 +4,7 @@ const TimeLog = require('../models/TimeLog');
 const User = require('../models/User');
 const Manager = require('../models/Manager');
 const Admin = require('../models/Admin');
+const { createNotification } = require('../utils/notificationHelper');
 
 const enrichUser = async (userId, userModel) => {
   if (!userId) return null;
@@ -110,6 +111,17 @@ exports.createTask = async (req, res) => {
     });
 
     await task.save();
+    
+    if (task.assignedTo && String(task.assignedTo) !== String(userId)) {
+      await createNotification(
+        task.assignedTo,
+        'New Task Assigned',
+        `You have been assigned to task: "${title}"`,
+        'Task',
+        String(task._id)
+      );
+    }
+
     res.status(201).json({ message: 'Task created successfully', task });
   } catch (err) {
     res.status(500).json({ message: 'Failed to create task', error: err.message });
@@ -231,6 +243,15 @@ exports.updateTask = async (req, res) => {
     const logEntry = { performedBy: userId, performedByName: userName, at: new Date() };
     if (req.body.status && req.body.status !== previousStatus) {
       logEntry.action = `Status changed from "${previousStatus}" to "${req.body.status}"`;
+      if (task.assignedTo && String(task.assignedTo) !== String(userId)) {
+        createNotification(
+          task.assignedTo,
+          'Task Status Updated',
+          `Task "${task.title}" status changed to ${req.body.status}`,
+          'Task',
+          String(task._id)
+        ).catch(err => console.error(err));
+      }
     } else {
       logEntry.action = 'Task updated';
     }

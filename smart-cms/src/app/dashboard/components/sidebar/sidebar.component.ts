@@ -168,27 +168,16 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
           </a>
         </ng-container>
 
-        <!-- Common Links -->
-        <div class="pt-4 pb-2 px-3">
-          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Settings</p>
-        </div>
-        <button (click)="openProfile()"
-          class="w-full group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all text-left">
-          <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          <span class="font-medium text-sm">My Profile</span>
-        </button>
       </nav>
 
       <!-- User Profile Section -->
       <div class="p-4 border-t border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
-        <div class="flex items-center gap-3 p-2 rounded-xl bg-slate-50 light:bg-[#EEF3FA]/50 dark:bg-[#101935]/50 border border-blue-900/20">
-          <div class="h-10 w-10 rounded-lg bg-[#3083DC]/20 flex items-center justify-center text-[#3083DC] font-bold border border-[#3083DC]/30">
+        <div (click)="openProfile()" class="flex items-center gap-3 p-2 rounded-xl bg-slate-50 light:bg-[#EEF3FA]/50 dark:bg-[#101935]/50 border border-blue-900/20 cursor-pointer group hover:bg-[#3083DC]/10 transition-all">
+          <div class="h-10 w-10 rounded-lg bg-[#3083DC]/20 flex items-center justify-center text-[#3083DC] font-bold border border-[#3083DC]/30 group-hover:scale-105 group-hover:bg-[#3083DC]/30 transition-all">
             {{ userName.charAt(0).toUpperCase() }}
           </div>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-bold text-slate-800 light:text-[#0D1B35] dark:text-white truncate">{{ userName }}</p>
+            <p class="text-sm font-bold text-slate-800 light:text-[#0D1B35] dark:text-white truncate group-hover:text-[#3083DC] transition-colors">{{ userName }}</p>
             <p class="text-[10px] font-bold text-[#3083DC] uppercase tracking-wider">{{ userRole }}</p>
           </div>
         </div>
