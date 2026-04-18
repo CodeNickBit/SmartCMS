@@ -7,6 +7,7 @@ const LeaveRequest = require('../models/LeaveRequest');
 const Manager = require('../models/Manager');
 const AttendanceEscalation = require('../models/AttendanceEscalation');
 const { authenticateToken, isAdmin, isHR, isManager, isManagerOrHR } = require('../middleware/authMiddleware');
+const { createNotification } = require('../utils/notificationHelper');
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
   const R = 6371e3;
@@ -503,6 +504,14 @@ router.post('/approve/:attendanceId', authenticateToken, isManagerOrHR, async (r
 
     await attendance.save();
 
+    await createNotification(
+      attendance.employeeId.toString(),
+      'Attendance Approved',
+      `Your attendance for ${new Date(attendance.date).toLocaleDateString()} has been approved.`,
+      'Attendance',
+      attendance._id.toString()
+    );
+
     await AttendanceEscalation.updateMany(
       { attendanceId: attendance._id, status: 'active' },
       { status: 'resolved', resolvedAt: new Date() }
@@ -542,6 +551,14 @@ router.post('/decline/:attendanceId', authenticateToken, isManagerOrHR, async (r
 
     await attendance.save();
 
+    await createNotification(
+      attendance.employeeId.toString(),
+      'Attendance Declined',
+      `Your attendance check-in for ${new Date(attendance.date).toLocaleDateString()} has been declined. Status: Absent.`,
+      'Attendance',
+      attendance._id.toString()
+    );
+
     await AttendanceEscalation.updateMany(
       { attendanceId: attendance._id, status: 'active' },
       { status: 'resolved', resolvedAt: new Date() }
@@ -580,6 +597,14 @@ router.post('/mark-late/:attendanceId', authenticateToken, isManagerOrHR, async 
     });
 
     await attendance.save();
+
+    await createNotification(
+      attendance.employeeId.toString(),
+      'Attendance Status Updated',
+      `Your attendance for ${new Date(attendance.date).toLocaleDateString()} has been marked as late.`,
+      'Attendance',
+      attendance._id.toString()
+    );
 
     await AttendanceEscalation.updateMany(
       { attendanceId: attendance._id, status: 'active' },
@@ -736,6 +761,15 @@ router.post('/correction-review/:attendanceId', authenticateToken, isManagerOrHR
     });
 
     await attendance.save();
+    
+    await createNotification(
+      attendance.employeeId.toString(),
+      `Correction Request ${action.charAt(0).toUpperCase() + action.slice(1)}`,
+      `Your attendance correction request for ${new Date(attendance.date).toLocaleDateString()} has been ${action}.`,
+      'Attendance',
+      attendance._id.toString()
+    );
+
     res.json({ message: `Correction request ${action}`, attendance });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

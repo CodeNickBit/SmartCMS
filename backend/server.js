@@ -52,6 +52,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api', taskRoutes);
 app.use('/api/payroll', payrollRoutes);
+app.use('/api/notifications', require('./routes/notificationRoutes'));
 
 // Handle 404 routes with JSON response
 app.use((req, res, next) => {
