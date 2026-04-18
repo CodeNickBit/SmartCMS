@@ -207,6 +207,19 @@ exports.runPayroll = async (req, res) => {
                 }
 
                 const syncData = await computePayrollSync(emp._id.toString(), parseInt(year), parseInt(month));
+
+                if (!syncData.hasAttendanceRecords) {
+                    // Cleanup any existing draft payslip if employee is skipped
+                    await Payslip.findOneAndDelete({
+                        employeeId: emp._id,
+                        'payPeriod.year': year,
+                        'payPeriod.month': month,
+                        status: 'draft'
+                    });
+                    results.skipped.push({ employeeId: emp._id, reason: 'No attendance records found for this period.' });
+                    continue;
+                }
+
                 const payrollData = await calculateEmployeePayroll(emp._id.toString(), syncData, otRules);
 
                 // Upsert a draft payslip (replace any previous draft)
