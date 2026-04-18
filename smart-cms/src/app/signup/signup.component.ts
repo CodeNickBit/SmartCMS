@@ -160,6 +160,7 @@ export class SignupComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       gender: ['', Validators.required],
       dateOfBirth: ['', Validators.required],
+      age: [{ value: '', disabled: true }], // Auto-calculated, read-only
       phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       email: ['', [Validators.required, Validators.email]],
       emergencyContactName: ['', Validators.required],
@@ -200,7 +201,23 @@ export class SignupComponent implements OnInit {
   }
 
   calculateAge(): void {
-    // Optional utility kept but UI field removed
+    const dobValue = this.registrationForm.get('dateOfBirth')?.value;
+    if (!dobValue) {
+      this.registrationForm.patchValue({ age: '' });
+      return;
+    }
+
+    const dob = new Date(dobValue);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    
+    // Adjust age if birthday hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    this.registrationForm.patchValue({ age: age > 0 ? age : '' });
   }
 
   getFieldError(fieldName: string): string {
@@ -285,6 +302,7 @@ export class SignupComponent implements OnInit {
       lastName: formValue.lastName.trim(),
       gender: formValue.gender,
       dateOfBirth: formValue.dateOfBirth,
+      age: formValue.age || 0,
       phone: formValue.phone.trim(),
       email: formValue.email.trim().toLowerCase(),
       currentAddress: 'Not Provided',
