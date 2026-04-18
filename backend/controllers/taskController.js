@@ -163,8 +163,12 @@ exports.getProjectTasks = async (req, res) => {
 
     const { status, priority, assignedTo, parentTask } = req.query;
     const filter = { projectId: project._id };
-    if (status) filter.status = status;
-    if (priority) filter.priority = priority;
+    if (status) {
+      filter.status = status.includes(',') ? { $in: status.split(',') } : status;
+    }
+    if (priority) {
+      filter.priority = priority.includes(',') ? { $in: priority.split(',') } : priority;
+    }
     if (assignedTo) filter.assignedTo = assignedTo;
     if (parentTask === 'null') filter.parentTask = null;
     else if (parentTask) filter.parentTask = parentTask;
@@ -181,8 +185,12 @@ exports.getMyTasks = async (req, res) => {
     const allowedIds = await getAllIdentities(req);
     const { status, priority } = req.query;
     const filter = { assignedTo: { $in: allowedIds } };
-    if (status) filter.status = status;
-    if (priority) filter.priority = priority;
+    if (status) {
+      filter.status = status.includes(',') ? { $in: status.split(',') } : status;
+    }
+    if (priority) {
+      filter.priority = priority.includes(',') ? { $in: priority.split(',') } : priority;
+    }
 
     const tasks = await Task.find(filter).sort({ dueDate: 1 });
     const now = new Date();
