@@ -37,18 +37,41 @@ export class AddUserComponent implements OnInit {
   filterRole: string = 'All';
   searchQuery: string = '';
 
-  // Dummy Data
-  users = [
-    { id: 'USR001', name: 'John Doe', email: 'john@example.com', role: 'Admin', dept: 'IT', status: 'Active' },
-    { id: 'USR002', name: 'Jane Smith', email: 'jane@example.com', role: 'HR', dept: 'Human Resources', status: 'Active' },
-    { id: 'USR003', name: 'Robert Johnson', email: 'robert@example.com', role: 'Manager', dept: 'Sales', status: 'Inactive' },
-    { id: 'USR004', name: 'Emily Davis', email: 'emily@example.com', role: 'HR', dept: 'Human Resources', status: 'Active' },
-    { id: 'USR005', name: 'Michael Wilson', email: 'michael@example.com', role: 'Manager', dept: 'Operations', status: 'Active' },
-  ];
+  // Real data from backend
+  users: any[] = [];
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object, private authService: AuthService, private confirmationModal: ConfirmationModalService) { }
 
   ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadUsers();
+    }
+  }
+
+  loadUsers() {
+    this.authService.getUsers().subscribe({
+      next: (data: any[]) => {
+        // Filter to only show admin, hr, and manager roles
+        this.users = data.filter(user => 
+          user.role === 'admin' || user.role === 'hr' || user.role === 'manager'
+        ).map(user => ({
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: this.capitalizeRole(user.role),
+          dept: user.department || 'N/A',
+          status: user.active_inactive !== false ? 'Active' : 'Inactive'
+        }));
+      },
+      error: (err: any) => {
+        console.error('Failed to fetch users', err);
+      }
+    });
+  }
+
+  capitalizeRole(role: string): string {
+    if (!role) return '';
+    return role.charAt(0).toUpperCase() + role.slice(1);
   }
 
   get filteredUsers() {
@@ -140,6 +163,7 @@ export class AddUserComponent implements OnInit {
       next: (response) => {
         this.successMessage = `Successfully created ${this.modalRole} user: ${this.newUser.name}`;
         this.closeModal();
+        this.loadUsers(); // Reload the users list
         setTimeout(() => {
           this.successMessage = '';
         }, 3000);
