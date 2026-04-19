@@ -42,6 +42,8 @@ export class SignupComponent implements OnInit {
   dbManagers: { _id: string; name: string; email: string }[] = [];
   activeManagers: Manager[] = [];
   dbSalaryTemplates: SalaryTemplate[] = [];
+  standardWorkHours: number = 8;
+  shiftTimeOptions: { value: string; label: string }[] = [];
 
   constructor(
     private router: Router,
@@ -61,6 +63,7 @@ export class SignupComponent implements OnInit {
     this.loadDesignations();
     this.loadManagers();
     this.loadSalaryTemplates();
+    this.loadPayrollSettings();
 
     // Removed conditional fields logic for simplicity
 
@@ -71,6 +74,14 @@ export class SignupComponent implements OnInit {
 
     this.registrationForm.get('department')?.valueChanges.subscribe(() => {
       this.onDepartmentChange();
+    });
+
+    this.registrationForm.get('shiftType')?.valueChanges.subscribe(() => {
+      this.onShiftTypeChange();
+    });
+
+    this.registrationForm.get('workingHoursStart')?.valueChanges.subscribe(() => {
+      this.calculateEndTime();
     });
   }
 
@@ -124,6 +135,56 @@ export class SignupComponent implements OnInit {
       next: (data) => this.dbSalaryTemplates = data,
       error: (error) => console.error('Error fetching templates', error)
     });
+  }
+
+  loadPayrollSettings() {
+    this.payrollService.getPayrollSettings().subscribe({
+      next: (data) => {
+        if (data?.payrollSettings?.overtimeRules?.standardWorkHoursPerDay) {
+          this.standardWorkHours = data.payrollSettings.overtimeRules.standardWorkHoursPerDay;
+        }
+      },
+      error: (error) => console.error('Error fetching payroll settings', error)
+    });
+  }
+
+  onShiftTypeChange() {
+    const shiftType = this.registrationForm.get('shiftType')?.value;
+    this.registrationForm.patchValue({ workingHoursStart: '', workingHoursEnd: '' });
+    
+    if (shiftType === 'day') {
+      this.shiftTimeOptions = [
+        { value: '09:00', label: '9:00 AM - ' + this.calculateEndTimeLabel('09:00') },
+        { value: '10:00', label: '10:00 AM - ' + this.calculateEndTimeLabel('10:00') },
+        { value: '11:00', label: '11:00 AM - ' + this.calculateEndTimeLabel('11:00') }
+      ];
+    } else if (shiftType === 'night') {
+      this.shiftTimeOptions = [
+        { value: '20:00', label: '8:00 PM - ' + this.calculateEndTimeLabel('20:00') },
+        { value: '21:00', label: '9:00 PM - ' + this.calculateEndTimeLabel('21:00') },
+        { value: '22:00', label: '10:00 PM - ' + this.calculateEndTimeLabel('22:00') }
+      ];
+    } else {
+      this.shiftTimeOptions = [];
+    }
+  }
+
+  calculateEndTimeLabel(startTime: string): string {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const endHour = (hours + this.standardWorkHours) % 24;
+    const period = endHour >= 12 ? 'PM' : 'AM';
+    const displayHour = endHour === 0 ? 12 : endHour > 12 ? endHour - 12 : endHour;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+  }
+
+  calculateEndTime() {
+    const startTime = this.registrationForm.get('workingHoursStart')?.value;
+    if (!startTime) return;
+
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const endHour = hours + this.standardWorkHours;
+    const endTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    this.registrationForm.patchValue({ workingHoursEnd: endTime }, { emitEvent: false });
   }
 
   onDepartmentChange() {
