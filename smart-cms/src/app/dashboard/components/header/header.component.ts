@@ -22,8 +22,8 @@ import { Subscription, interval } from 'rxjs';
 
       <div class="flex items-center gap-6">
         <div class="flex items-center gap-2">
-          <!-- Theme Toggle Switch -->
-          <button (click)="toggleTheme()" type="button" 
+          <!-- Theme Toggle Switch (Hidden for Admins) -->
+          <button *ngIf="userRole !== 'admin'" (click)="toggleTheme()" type="button" 
             class="relative inline-flex h-6 w-11 items-center flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#3083DC] focus:ring-offset-2 focus:ring-offset-white light:focus:ring-offset-[#DDEAF8] dark:focus:ring-offset-[#1B264F] theme-toggle-btn" 
             [ngClass]="{'bg-[#3083DC]': isDarkMode, 'bg-[#1A6DC2]': !isDarkMode, 'is-dark': isDarkMode, 'is-light': !isDarkMode}" 
             role="switch" 

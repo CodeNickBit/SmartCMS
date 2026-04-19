@@ -5,5 +5,6 @@ const dashboardController = require('../controllers/dashboardController');
 
 router.get('/hr-pulse', protect, dashboardController.getHRPulse);
 router.get('/manager-deadlines', protect, dashboardController.getManagerDeadlines);
+router.get('/admin-stats', protect, dashboardController.getAdminDashboardStats);
 
 module.exports = router;
