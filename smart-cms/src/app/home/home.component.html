@@ -139,6 +139,29 @@
       </div>
 
       <div class="flex flex-col items-center justify-center py-4">
+        <!-- Shift and Working Hours Info -->
+        <div *ngIf="userProfile?.shiftType || userProfile?.workingHoursStart" 
+          class="w-full mb-4 bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
+          <div class="flex items-center justify-center gap-4 text-sm">
+            <div *ngIf="userProfile?.shiftType" class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+              <span class="text-slate-300 font-medium">
+                <span class="text-blue-400 font-bold capitalize">{{ userProfile.shiftType }}</span> Shift
+              </span>
+            </div>
+            <div *ngIf="userProfile?.workingHoursStart && userProfile?.workingHoursEnd" class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="text-slate-300 font-medium">
+                <span class="text-blue-400 font-bold">{{ formatTime(userProfile.workingHoursStart) }} - {{ formatTime(userProfile.workingHoursEnd) }}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
         <div class="text-[#d67b36] light:text-[#C96A1A] dark:text-[#EE964B]xl font-bold mb-2 tracking-wider font-mono">
           {{ attendance.totalHours }}
         </div>

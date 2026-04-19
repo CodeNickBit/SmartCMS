@@ -975,6 +975,14 @@ export class HomeComponent implements OnInit {
 
   formatTaskStatus(s: string): string { return s?.replace(/_/g, ' ') || ''; }
 
+  formatTime(time: string): string {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+  }
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
