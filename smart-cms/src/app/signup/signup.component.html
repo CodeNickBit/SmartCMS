@@ -249,8 +249,6 @@
                 <option value="">Select Shift Type</option>
                 <option value="day">Day</option>
                 <option value="night">Night</option>
-                <option value="rotating">Rotating</option>
-                <option value="flexible">Flexible</option>
               </select>
             </div>
           </div>
@@ -276,14 +274,18 @@
 
             <div class="flex flex-col gap-2">
               <label for="workingHoursStart" class="text-sm font-medium text-gray-300">Working Hours Start</label>
-              <input type="time" id="workingHoursStart" formControlName="workingHoursStart"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <select id="workingHoursStart" formControlName="workingHoursStart"
+                [disabled]="!registrationForm.get('shiftType')?.value"
+                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC] disabled:opacity-50 disabled:cursor-not-allowed">
+                <option value="">{{ registrationForm.get('shiftType')?.value ? 'Select Start Time' : 'Select Shift Type First' }}</option>
+                <option *ngFor="let option of shiftTimeOptions" [value]="option.value">{{ option.label }}</option>
+              </select>
             </div>
 
             <div class="flex flex-col gap-2">
-              <label for="workingHoursEnd" class="text-sm font-medium text-gray-300">Working Hours End</label>
-              <input type="time" id="workingHoursEnd" formControlName="workingHoursEnd"
-                class="w-full bg-[#1B264F] border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#3083DC]">
+              <label for="workingHoursEnd" class="text-sm font-medium text-gray-300">Working Hours End (Auto-calculated)</label>
+              <input type="time" id="workingHoursEnd" formControlName="workingHoursEnd" readonly
+                class="w-full bg-[#1B264F]/50 border border-gray-600 rounded-lg px-3 py-2.5 text-sm text-gray-400 cursor-not-allowed">
             </div>
 
             <div class="flex flex-col gap-2">
