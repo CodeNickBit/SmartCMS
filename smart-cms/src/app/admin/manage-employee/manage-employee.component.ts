@@ -35,6 +35,9 @@ export class ManageEmployeeComponent implements OnInit {
   dbDesignations: Designation[] = [];
   dbSalaryTemplates: SalaryTemplate[] = [];
   activeManagers: Manager[] = [];
+  currentEditingDept: string = ''; // Track dept to prevent redundant clears
+  initialRMName: string = ''; // Capture original name for dropdown fallback
+  initialBMName: string = ''; // Capture original name for fallback
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -124,10 +127,14 @@ export class ManageEmployeeComponent implements OnInit {
 
   onDepartmentChange() {
     if (this.editingEmployee && this.editingEmployee.department) {
-      // Only reset manager selections when user explicitly changes department
-      this.editingEmployee.reportingManager = '';
-      this.editingEmployee.backupManager = '';
-      this.loadManagersByDepartment(this.editingEmployee.department);
+      // Only reset manager selections if the department has actually CHANGED
+      // This prevents clearing selections when the edit modal first loads
+      if (this.editingEmployee.department !== this.currentEditingDept) {
+        this.editingEmployee.reportingManager = '';
+        this.editingEmployee.backupManager = '';
+        this.currentEditingDept = this.editingEmployee.department;
+        this.loadManagersByDepartment(this.editingEmployee.department);
+      }
     }
   }
 
@@ -140,16 +147,22 @@ export class ManageEmployeeComponent implements OnInit {
         if (this.editingEmployee && this.editingEmployee.reportingManager) {
            const rmFound = this.activeManagers.find((m: any) => m._id === this.editingEmployee.reportingManager);
            if (!rmFound && this.editingEmployee.reportingManager !== '') {
-               // We don't have the manager details since it's just an ID from the backend,
-               // but we can push a stub option to allow the dropdown to reflect the current value.
-               this.activeManagers.push({ _id: this.editingEmployee.reportingManager, name: 'Assigned RM', department: 'Other' } as Manager);
+               this.activeManagers.push({ 
+                 _id: this.editingEmployee.reportingManager, 
+                 name: this.initialRMName || 'Assigned RM', 
+                 department: 'Current' 
+               } as Manager);
            }
         }
         
         if (this.editingEmployee && this.editingEmployee.backupManager) {
            const bmFound = this.activeManagers.find((m: any) => m._id === this.editingEmployee.backupManager);
            if (!bmFound && this.editingEmployee.backupManager !== '') {
-               this.activeManagers.push({ _id: this.editingEmployee.backupManager, name: 'Assigned BM', department: 'Other' } as Manager);
+               this.activeManagers.push({ 
+                 _id: this.editingEmployee.backupManager, 
+                 name: this.initialBMName || 'Assigned BM', 
+                 department: 'Current' 
+               } as Manager);
            }
         }
       },
@@ -183,6 +196,10 @@ export class ManageEmployeeComponent implements OnInit {
 
   // Actions
   editEmployee(emp: any) {
+    // Capture the human-readable names from the table view before fetching raw DB data
+    this.initialRMName = emp.reportingManager && emp.reportingManager !== '—' ? emp.reportingManager : '';
+    this.initialBMName = emp.backupManager && emp.backupManager !== '—' ? emp.backupManager : '';
+
     this.authService.getUserById(emp._id).subscribe({
       next: (fullUser) => {
         this.editingEmployee = { ...fullUser };
@@ -199,6 +216,7 @@ export class ManageEmployeeComponent implements OnInit {
         }
         this.isEditing = true;
         if (this.editingEmployee.department) {
+          this.currentEditingDept = this.editingEmployee.department;
           this.loadManagersByDepartment(this.editingEmployee.department);
         }
       },

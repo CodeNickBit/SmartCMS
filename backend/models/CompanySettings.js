@@ -24,7 +24,7 @@ const companySettingsSchema = new mongoose.Schema({
             max: 31
         },
         lopRules: {
-            enabled: { type: Boolean, default: false },
+            enabled: { type: Boolean, default: true },
             considerLateMarksAsLOP: { type: Boolean, default: false },
             lateMarksThreshold: { type: Number, default: 3 },
             absentWithoutApprovalIsLOP: { type: Boolean, default: true }
