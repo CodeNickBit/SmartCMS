@@ -4,6 +4,7 @@ const Manager = require('../models/Manager');
 const LeavePolicy = require('../models/LeavePolicy');
 const Hr = require('../models/Hr');
 const { sendEscalationEmail } = require('../utils/mailer');
+const { createNotification, notifyHRs } = require('../utils/notificationHelper');
 
 const validateLeaveRequest = async (userId, leaveType, startDate, endDate, leaveUnit, halfDayPeriod, currentLeaveId = null) => {
     const start = new Date(startDate);
@@ -210,6 +211,42 @@ exports.applyForLeave = async (req, res) => {
 
         await newLeave.save();
 
+        // NOTIFICATION LOGIC
+        const employeeName = user.firstName 
+            ? `${user.firstName} ${user.lastName || ''}`.trim() 
+            : (user.name || 'An employee');
+        
+        const dateRange = `${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}`;
+
+        // 1. Notify Assigned Manager or HR Pool
+        if (managerId === 'hr-pool') {
+            await notifyHRs(
+                'New Leave Request (Escalated)',
+                `${employeeName} has applied for ${leaveType} (${dateRange}). This request requires HR attention as the reporting manager is unavailable.`,
+                'Leave',
+                String(newLeave._id)
+            );
+        } else if (managerId) {
+            await createNotification(
+                managerId,
+                'New Leave Request',
+                `${employeeName} has applied for ${leaveType} from ${dateRange}.`,
+                'Leave',
+                String(newLeave._id)
+            );
+        }
+
+        // 2. Proxy Notice: Notify the proxy manager if one was explicitly assigned by the employee
+        if (proxyManagerId) {
+            await createNotification(
+                proxyManagerId,
+                'Proxy Assignment notice',
+                `${employeeName} has designated you as their proxy for their leave from ${dateRange}.`,
+                'Leave',
+                String(newLeave._id)
+            );
+        }
+
         if (isEscalated && managerId === 'hr-pool') {
             const employeeName = user.firstName
                 ? `${user.firstName} ${user.lastName || ''}`.trim()
@@ -398,6 +435,28 @@ exports.cancelLeave = async (req, res) => {
 
         leave.status = 'Cancelled';
         await leave.save();
+
+        // Notify Manager/HR of cancellation
+        const employee = await User.findById(leave.userId) || await Manager.findById(leave.userId) || await Hr.findById(leave.userId);
+        const employeeName = employee ? (employee.name || `${employee.firstName} ${employee.lastName}`.trim()) : 'An employee';
+        
+        if (leave.managerId === 'hr-pool') {
+            await notifyHRs(
+                'Leave Request Cancelled',
+                `${employeeName} has cancelled their pending ${leave.leaveType} request.`,
+                'Leave',
+                String(leave._id)
+            );
+        } else if (leave.managerId) {
+            await createNotification(
+                leave.managerId,
+                'Leave Request Cancelled',
+                `${employeeName} has cancelled their pending ${leave.leaveType} request.`,
+                'Leave',
+                String(leave._id)
+            );
+        }
+
         res.json({ message: 'Leave request cancelled successfully', leave });
     } catch (error) {
         res.status(500).json({ message: 'Error cancelling leave', error: error.message });
@@ -547,7 +606,6 @@ exports.updateLeaveStatus = async (req, res) => {
 
         // Send a Notification only if status changed from Pending to Approved/Rejected
         if (oldStatus === 'Pending' && (status === 'Approved' || status === 'Rejected')) {
-            const { createNotification } = require('../utils/notificationHelper');
             console.log(`[Notification-Debug] Sending ${status} notification for leave ${updated._id} to user ${leave.userId}`);
             createNotification(
                 leave.userId,
@@ -556,6 +614,20 @@ exports.updateLeaveStatus = async (req, res) => {
                 'Leave',
                 String(updated._id)
             ).catch(err => console.error('[Notification-Error]', err));
+
+            // PROXY NOTICE: If a manager's leave is approved and they have a proxy, notify the proxy
+            if (status === 'Approved' && updated.proxyManagerId) {
+                const manager = await Manager.findById(leave.userId) || await User.findById(leave.userId);
+                const managerName = manager ? (manager.name || `${manager.firstName} ${manager.lastName}`.trim()) : 'A manager';
+                
+                await createNotification(
+                    updated.proxyManagerId,
+                    'Proxy Manager Activation',
+                    `You are now active as the proxy manager for ${managerName} until ${new Date(updated.endDate).toLocaleDateString()}.`,
+                    'Leave',
+                    String(updated._id)
+                ).catch(err => console.error('[Proxy-Notification-Error]', err));
+            }
         }
 
         res.json(updated);
