@@ -35,14 +35,11 @@ export class ManageEmployeeComponent implements OnInit {
   dbDesignations: Designation[] = [];
   dbSalaryTemplates: SalaryTemplate[] = [];
   activeManagers: Manager[] = [];
-<<<<<<< HEAD
   standardWorkHours: number = 8;
   shiftTimeOptions: { value: string; label: string }[] = [];
-=======
   currentEditingDept: string = ''; // Track dept to prevent redundant clears
   initialRMName: string = ''; // Capture original name for dropdown fallback
   initialBMName: string = ''; // Capture original name for fallback
->>>>>>> e710542c0459798a840df78872b76e1eba287f19
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
