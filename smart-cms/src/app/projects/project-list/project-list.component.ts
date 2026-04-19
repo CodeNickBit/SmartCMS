@@ -14,19 +14,19 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule, MatSnackBarModule, SharedSidebarComponent, AdminSidebarComponent, SharedHeaderComponent],
   template: `
-    <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+    <div class="flex h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white font-sans overflow-hidden">
       <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
       <app-shared-sidebar *ngIf="!isAdmin && userRole !== 'employee'" class="flex-shrink-0"></app-shared-sidebar>
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <app-shared-header title="Projects"></app-shared-header>
-        <main class="flex-1 overflow-y-auto p-6 lg:p-8 bg-[#101935] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-[#1B264F] [&::-webkit-scrollbar-thumb]:rounded-full">
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] [&::-webkit-scrollbar-thumb]:rounded-full">
           <div class="max-w-[1200px] mx-auto w-full">
 
             <div class="flex justify-between items-start mb-7">
               <div>
                 <button *ngIf="userRole === 'employee'" class="mb-4" (click)="router.navigate(['/home'])" style="background: none; border: 1px solid rgba(30, 58, 138, 0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-size: 14px; transition: all 0.2s;">← Back to Dashboard</button>
-                <h1 class="text-3xl font-bold text-white m-0">Projects</h1>
-                <p class="text-slate-400 mt-1 text-sm">Manage and track all your projects</p>
+                <h1 class="text-3xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white m-0">Projects</h1>
+                <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-1 text-sm">Manage and track all your projects</p>
               </div>
               <button
                 *ngIf="canCreate"
@@ -38,13 +38,13 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
 
             <div class="flex gap-3 mb-6 flex-wrap">
               <input
-                class="flex-1 min-w-[200px] px-3.5 py-2.5 border border-blue-900/30 rounded-lg text-sm outline-none bg-[#1B264F] text-white placeholder-slate-500 focus:border-blue-500 transition-colors"
+                class="flex-1 min-w-[200px] px-3.5 py-2.5 border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-lg text-sm outline-none bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] text-slate-800 light:text-[#0D1B35] dark:text-white placeholder-slate-500 focus:border-blue-500 transition-colors"
                 type="text"
                 placeholder="Search projects..."
                 [(ngModel)]="filters.search"
                 (ngModelChange)="loadProjects()">
               <select
-                class="px-3.5 py-2.5 border border-blue-900/30 rounded-lg text-sm bg-[#1B264F] text-white cursor-pointer outline-none focus:border-blue-500 transition-colors"
+                class="px-3.5 py-2.5 border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-lg text-sm bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] text-slate-800 light:text-[#0D1B35] dark:text-white cursor-pointer outline-none focus:border-blue-500 transition-colors"
                 [(ngModel)]="filters.status"
                 (ngModelChange)="loadProjects()">
                 <option value="">All Status</option>
@@ -55,7 +55,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
                 <option value="archived">Archived</option>
               </select>
               <select
-                class="px-3.5 py-2.5 border border-blue-900/30 rounded-lg text-sm bg-[#1B264F] text-white cursor-pointer outline-none focus:border-blue-500 transition-colors"
+                class="px-3.5 py-2.5 border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-lg text-sm bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] text-slate-800 light:text-[#0D1B35] dark:text-white cursor-pointer outline-none focus:border-blue-500 transition-colors"
                 [(ngModel)]="filters.priority"
                 (ngModelChange)="loadProjects()">
                 <option value="">All Priority</option>
@@ -66,16 +66,16 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
               </select>
             </div>
 
-            <div *ngIf="loading" class="flex flex-col items-center py-16 text-slate-400">
-              <div class="w-9 h-9 border-[3px] border-blue-900/30 border-t-blue-500 rounded-full animate-spin mb-3"></div>
+            <div *ngIf="loading" class="flex flex-col items-center py-16 text-slate-500 light:text-[#7A96B2] dark:text-slate-400">
+              <div class="w-9 h-9 border-[3px] border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 border-t-blue-500 rounded-full animate-spin mb-3"></div>
               <p class="text-sm">Loading projects...</p>
             </div>
 
             <div *ngIf="!loading" class="grid gap-5" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr))">
 
-              <div *ngIf="projects.length === 0" class="col-span-full text-center py-16 text-slate-400">
+              <div *ngIf="projects.length === 0" class="col-span-full text-center py-16 text-slate-500 light:text-[#7A96B2] dark:text-slate-400">
                 <div class="text-5xl mb-4 opacity-80">📁</div>
-                <h3 class="text-white text-lg font-semibold mb-2">No projects found</h3>
+                <h3 class="text-slate-800 light:text-[#0D1B35] dark:text-white text-lg font-semibold mb-2">No projects found</h3>
                 <p class="text-sm mb-5">{{ canCreate ? 'Create your first project to get started.' : 'You have not been added to any projects yet.' }}</p>
                 <button
                   *ngIf="canCreate"
@@ -88,11 +88,11 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
               <div
                 *ngFor="let p of projects"
                 (click)="router.navigate(['/projects', p._id])"
-                class="bg-[#1B264F] rounded-2xl p-5 border border-blue-900/30 cursor-pointer transition-all duration-200 shadow-md hover:border-blue-500/50 hover:-translate-y-0.5">
+                class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] rounded-2xl p-5 border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 cursor-pointer transition-all duration-200 shadow-md hover:border-blue-500/50 hover:-translate-y-0.5">
 
                 <div class="flex justify-between items-start mb-2.5 gap-2">
                   <div class="flex items-center gap-2 flex-1 min-w-0">
-                    <h3 class="text-base font-semibold text-white m-0 truncate">{{ p.title }}</h3>
+                    <h3 class="text-base font-semibold text-slate-800 light:text-[#0D1B35] dark:text-white m-0 truncate">{{ p.title }}</h3>
                     <span class="shrink-0 text-[11px] font-semibold px-2 py-0.5 rounded-md capitalize whitespace-nowrap"
                       [ngClass]="{
                         'bg-green-500/20 text-green-400': p.priority === 'low',
@@ -108,7 +108,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
                         'bg-green-500/20 text-green-400': p.status === 'active',
                         'bg-amber-500/20 text-amber-400': p.status === 'on_hold',
                         'bg-emerald-500/20 text-emerald-400': p.status === 'completed',
-                        'bg-slate-500/20 text-slate-400': p.status === 'archived'
+                        'bg-slate-500/20 text-slate-500 light:text-[#7A96B2] dark:text-slate-400': p.status === 'archived'
                       }">{{ formatStatus(p.status) }}</span>
                     <span
                       *ngIf="getUserRoleInProject(p)"
@@ -118,11 +118,11 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
                   </div>
                 </div>
 
-                <p class="text-[13px] text-slate-400 mb-3.5 leading-relaxed line-clamp-2">{{ p.description || 'No description provided.' }}</p>
+                <p class="text-[13px] text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mb-3.5 leading-relaxed line-clamp-2">{{ p.description || 'No description provided.' }}</p>
 
                 <div class="mb-3.5" *ngIf="p.taskStats">
                   <div class="flex justify-between items-center mb-1.5">
-                    <span class="text-xs text-slate-400">{{ p.taskStats.done || 0 }}/{{ p.taskStats.total || 0 }} tasks done</span>
+                    <span class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400">{{ p.taskStats.done || 0 }}/{{ p.taskStats.total || 0 }} tasks done</span>
                     <span class="text-xs font-semibold text-blue-400">{{ getProgressPct(p.taskStats) }}%</span>
                   </div>
                   <div class="bg-blue-900/30 rounded-full h-1.5 overflow-hidden">
@@ -133,7 +133,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
                   </div>
                 </div>
 
-                <div class="flex justify-between items-center text-[13px] text-slate-400 border-t border-blue-900/30 pt-3 mt-1">
+                <div class="flex justify-between items-center text-[13px] text-slate-500 light:text-[#7A96B2] dark:text-slate-400 border-t border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 pt-3 mt-1">
                   <div class="flex items-center gap-1">
                     <span>👥</span> {{ p.members?.length || 0 }} members
                   </div>

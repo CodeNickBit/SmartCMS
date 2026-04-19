@@ -4,6 +4,7 @@ const TimeLog = require('../models/TimeLog');
 const User = require('../models/User');
 const Manager = require('../models/Manager');
 const Admin = require('../models/Admin');
+const { createNotification } = require('../utils/notificationHelper');
 
 const enrichUser = async (userId, userModel) => {
   if (!userId) return null;
@@ -125,6 +126,17 @@ exports.createTask = async (req, res) => {
     });
 
     await task.save();
+    
+    if (task.assignedTo && String(task.assignedTo) !== String(userId)) {
+      await createNotification(
+        task.assignedTo,
+        'New Task Assigned',
+        `You have been assigned to task: "${title}"`,
+        'Task',
+        String(task._id)
+      );
+    }
+
     res.status(201).json({ message: 'Task created successfully', task });
   } catch (err) {
     res.status(500).json({ message: 'Failed to create task', error: err.message });
@@ -151,8 +163,12 @@ exports.getProjectTasks = async (req, res) => {
 
     const { status, priority, assignedTo, parentTask } = req.query;
     const filter = { projectId: project._id };
-    if (status) filter.status = status;
-    if (priority) filter.priority = priority;
+    if (status) {
+      filter.status = status.includes(',') ? { $in: status.split(',') } : status;
+    }
+    if (priority) {
+      filter.priority = priority.includes(',') ? { $in: priority.split(',') } : priority;
+    }
     if (assignedTo) filter.assignedTo = assignedTo;
     if (parentTask === 'null') filter.parentTask = null;
     else if (parentTask) filter.parentTask = parentTask;
@@ -169,8 +185,12 @@ exports.getMyTasks = async (req, res) => {
     const allowedIds = await getAllIdentities(req);
     const { status, priority } = req.query;
     const filter = { assignedTo: { $in: allowedIds } };
-    if (status) filter.status = status;
-    if (priority) filter.priority = priority;
+    if (status) {
+      filter.status = status.includes(',') ? { $in: status.split(',') } : status;
+    }
+    if (priority) {
+      filter.priority = priority.includes(',') ? { $in: priority.split(',') } : priority;
+    }
 
     const tasks = await Task.find(filter).sort({ dueDate: 1 });
     const now = new Date();
@@ -246,6 +266,28 @@ exports.updateTask = async (req, res) => {
     const logEntry = { performedBy: userId, performedByName: userName, at: new Date() };
     if (req.body.status && req.body.status !== previousStatus) {
       logEntry.action = `Status changed from "${previousStatus}" to "${req.body.status}"`;
+      
+      // Notify the person assigned to the task if not the one changing it
+      if (task.assignedTo && String(task.assignedTo) !== String(userId)) {
+        createNotification(
+          task.assignedTo,
+          'Task Status Updated',
+          `Task "${task.title}" status changed to ${req.body.status}. View: /tasks/${task._id}`,
+          'Task',
+          String(task._id)
+        ).catch(err => console.error(err));
+      }
+
+      // Notify the creator/manager who assigned the task
+      if (task.assignedBy && String(task.assignedBy) !== String(userId)) {
+        createNotification(
+          task.assignedBy,
+          'Task Progress Update',
+          `${userName} updated task "${task.title}" to ${req.body.status}. View: /tasks/${task._id}`,
+          'Task',
+          String(task._id)
+        ).catch(err => console.error(err));
+      }
     } else {
       logEntry.action = 'Task updated';
     }

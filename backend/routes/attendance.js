@@ -7,6 +7,7 @@ const LeaveRequest = require('../models/LeaveRequest');
 const Manager = require('../models/Manager');
 const AttendanceEscalation = require('../models/AttendanceEscalation');
 const { authenticateToken, isAdmin, isHR, isManager, isManagerOrHR } = require('../middleware/authMiddleware');
+const { createNotification, notifyHRs } = require('../utils/notificationHelper');
 
 function haversineDistance(lat1, lon1, lat2, lon2) {
   const R = 6371e3;
@@ -260,6 +261,18 @@ router.post('/check-in', authenticateToken, async (req, res) => {
 
     await attendance.save();
 
+    // Notify the assigned manager
+    if (assignedManagerId) {
+      const empName = req.user.firstName ? `${req.user.firstName} ${req.user.lastName}`.trim() : 'An employee';
+      createNotification(
+        assignedManagerId.toString(),
+        'Attendance Approval Required',
+        `${empName} has checked in and is awaiting your approval. Status: ${status}${escalationInfo ? ' (Escalated)' : ''}.`,
+        'Attendance',
+        attendance._id.toString()
+      ).catch(err => console.error('Notification error:', err));
+    }
+
     if (escalationInfo) {
       const escalation = new AttendanceEscalation({
         attendanceId: attendance._id,
@@ -503,6 +516,14 @@ router.post('/approve/:attendanceId', authenticateToken, isManagerOrHR, async (r
 
     await attendance.save();
 
+    await createNotification(
+      attendance.employeeId.toString(),
+      'Attendance Approved',
+      `Your attendance for ${new Date(attendance.date).toLocaleDateString()} has been approved.`,
+      'Attendance',
+      attendance._id.toString()
+    );
+
     await AttendanceEscalation.updateMany(
       { attendanceId: attendance._id, status: 'active' },
       { status: 'resolved', resolvedAt: new Date() }
@@ -542,6 +563,14 @@ router.post('/decline/:attendanceId', authenticateToken, isManagerOrHR, async (r
 
     await attendance.save();
 
+    await createNotification(
+      attendance.employeeId.toString(),
+      'Attendance Declined',
+      `Your attendance check-in for ${new Date(attendance.date).toLocaleDateString()} has been declined. Status: Absent.`,
+      'Attendance',
+      attendance._id.toString()
+    );
+
     await AttendanceEscalation.updateMany(
       { attendanceId: attendance._id, status: 'active' },
       { status: 'resolved', resolvedAt: new Date() }
@@ -580,6 +609,14 @@ router.post('/mark-late/:attendanceId', authenticateToken, isManagerOrHR, async 
     });
 
     await attendance.save();
+
+    await createNotification(
+      attendance.employeeId.toString(),
+      'Attendance Status Updated',
+      `Your attendance for ${new Date(attendance.date).toLocaleDateString()} has been marked as late.`,
+      'Attendance',
+      attendance._id.toString()
+    );
 
     await AttendanceEscalation.updateMany(
       { attendanceId: attendance._id, status: 'active' },
@@ -682,6 +719,31 @@ router.post('/correction-request', authenticateToken, async (req, res) => {
     };
 
     await attendance.save();
+
+    // Notify Manager/HR pool of correction request
+    try {
+      const userObj = await User.findById(employeeId).select('firstName lastName reportingManager');
+      if (userObj && userObj.reportingManager) {
+        const empName = `${userObj.firstName} ${userObj.lastName}`.trim();
+        await createNotification(
+          userObj.reportingManager.toString(),
+          'Attendance Correction Requested',
+          `${empName} has submitted a correction request for ${targetDate.toLocaleDateString()}.`,
+          'Attendance',
+          attendance._id.toString()
+        );
+      } else {
+        await notifyHRs(
+          'Attendance Correction Requested',
+          `An employee has submitted a correction request for ${targetDate.toLocaleDateString()}.`,
+          'Attendance',
+          attendance._id.toString()
+        );
+      }
+    } catch (err) {
+      console.error('Notification error in correction-request:', err);
+    }
+
     res.status(201).json({ message: 'Correction request submitted', attendance });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -736,6 +798,15 @@ router.post('/correction-review/:attendanceId', authenticateToken, isManagerOrHR
     });
 
     await attendance.save();
+    
+    await createNotification(
+      attendance.employeeId.toString(),
+      `Correction Request ${action.charAt(0).toUpperCase() + action.slice(1)}`,
+      `Your attendance correction request for ${new Date(attendance.date).toLocaleDateString()} has been ${action}.`,
+      'Attendance',
+      attendance._id.toString()
+    );
+
     res.json({ message: `Correction request ${action}`, attendance });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

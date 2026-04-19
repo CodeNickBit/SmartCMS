@@ -14,7 +14,9 @@
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div *ngFor="let card of statsCards"
-          class="bg-[#1B264F] border border-blue-900/30 rounded-xl p-5 shadow-lg relative overflow-hidden group hover:border-[#3083DC]/50 transition-all">
+          class="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden group hover:scale-[1.02] hover:bg-white/10 transition-all duration-300">
+          <!-- Glass Highlight -->
+          <div class="absolute -top-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-all"></div>
           <div class="flex justify-between items-start mb-4">
             <div [class]="'p-3 rounded-xl bg-opacity-20 ' + card.color">
               <!-- Icons switch -->
@@ -50,47 +52,93 @@
               {{ card.change }}
             </span>
           </div>
-          <p class="text-slate-400 text-sm font-medium">{{ card.title }}</p>
-          <p class="text-3xl font-bold text-white mt-1">{{ card.value }}</p>
+          <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">{{ card.title }}</p>
+          <div class="flex items-baseline gap-2 mt-1">
+            <p class="text-4xl font-extrabold text-white animate-count">{{ card.value }}</p>
+          </div>
         </div>
       </div>
 
       <!-- Charts Section -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Attendance Chart -->
-        <div class="bg-[#1B264F] border border-blue-900/30 p-6 rounded-xl shadow-lg lg:col-span-2">
+        <!-- Attendance Chart (Now Stacked Pulse Chart) -->
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-2xl lg:col-span-2 group overflow-hidden">
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h3 class="text-lg font-bold text-white">Attendance Overview</h3>
-              <p class="text-sm text-slate-400">Weekly employee presence</p>
+              <h3 class="text-lg font-bold text-white">Staff Growth & Onboarding Pulse</h3>
+              <p class="text-sm text-slate-400">Workforce activity (Last 30 Days)</p>
             </div>
-            <button
-              class="px-3 py-1.5 bg-[#101935] text-slate-300 text-sm font-medium rounded-lg hover:text-white transition-colors border border-blue-900/30">
-              This Week
-            </button>
+            
+            <!-- Pulse Legend -->
+            <div class="hidden sm:flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#3083DC] shadow-[0_0_8px_rgba(48,131,220,0.6)]"></span>
+                <span class="text-slate-300">Active</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#EE964B] shadow-[0_0_8px_rgba(238,150,75,0.6)]"></span>
+                <span class="text-slate-300">Leave</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#48BB78] shadow-[0_0_8px_rgba(72,187,120,0.6)]"></span>
+                <span class="text-slate-300">Joiners</span>
+              </div>
+            </div>
           </div>
 
-          <div class="flex items-end justify-between h-48 sm:h-64 pt-6 gap-2 sm:gap-4">
-            <div *ngFor="let item of attendanceData" class="flex flex-col items-center gap-2 group w-full">
-              <div
-                class="w-full bg-[#101935] rounded-t-lg relative h-full flex items-end overflow-hidden group-hover:bg-slate-800 transition-colors">
-                <!-- Blue Bar -->
-                <div [style.height.%]="item.value"
-                  class="w-full bg-[#3083DC] rounded-t-lg transition-all duration-500 relative group-hover:bg-[#4a9df0]">
-                  <!-- Tooltip -->
-                  <div
-                    class="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap border border-slate-700">
-                    {{ item.value }}%
-                  </div>
-                </div>
+          <div class="overflow-x-auto custom-scrollbar pb-2">
+            <div class="relative h-48 min-w-[800px] mt-4">
+              <!-- SVG Stacked Area Chart -->
+              <svg width="800" height="150" viewBox="0 0 800 150" class="drop-shadow-2xl overflow-visible">
+                <defs>
+                  <!-- Glow Filter -->
+                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+
+                  <!-- Gradients for Stacked Areas -->
+                  <linearGradient id="gradientPresent" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#3083DC; stop-opacity:0.8" />
+                    <stop offset="100%" style="stop-color:#3083DC; stop-opacity:0.2" />
+                  </linearGradient>
+                  
+                  <linearGradient id="gradientLeaves" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#EE964B; stop-opacity:0.7" />
+                    <stop offset="100%" style="stop-color:#EE964B; stop-opacity:0.2" />
+                  </linearGradient>
+
+                  <linearGradient id="gradientJoiners" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#48BB78; stop-opacity:0.6" />
+                    <stop offset="100%" style="stop-color:#48BB78; stop-opacity:0" />
+                  </linearGradient>
+                </defs>
+
+                <!-- Pulse Waves -->
+                <path *ngFor="let layer of getPulsePaths()"
+                  [attr.d]="layer.path"
+                  [attr.fill]="layer.color"
+                  stroke-width="1.5"
+                  class="transition-all duration-700 ease-in-out hover:opacity-90"
+                  [attr.stroke]="layer.key === 'active' ? '#3083DC' : (layer.key === 'leave' ? '#EE964B' : '#48BB78')"
+                  filter="url(#glow)"
+                />
+              </svg>
+
+              <!-- Date Labels -->
+              <div class="flex justify-between mt-6 px-2">
+                <span *ngFor="let p of pulseData; let i = index" 
+                      class="text-[9px] text-slate-500 font-bold" 
+                      [hidden]="i % 3 !== 0">
+                  {{ p.day }}
+                </span>
               </div>
-              <span class="text-xs text-slate-400 font-medium">{{ item.day }}</span>
             </div>
           </div>
         </div>
 
         <!-- Department Distribution -->
-        <div class="bg-[#1B264F] border border-blue-900/30 p-6 rounded-xl shadow-lg">
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-2xl group">
           <div class="mb-6">
             <h3 class="text-lg font-bold text-white">Department Distribution</h3>
             <p class="text-sm text-slate-400">Employee allocation</p>
@@ -99,7 +147,7 @@
           <div class="flex items-center justify-center my-8">
             <div class="relative w-48 h-48 rounded-full" [style.background]="getDepartmentGradient()">
               <div class="absolute inset-4 bg-[#1B264F] rounded-full flex flex-col items-center justify-center">
-                <span class="text-3xl font-bold text-white">12</span>
+                <span class="text-3xl font-bold text-white">{{ departmentData.length }}</span>
                 <span class="text-xs text-slate-400">Depts</span>
               </div>
             </div>
@@ -117,7 +165,7 @@
       <!-- Bottom Section -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Recent Activity -->
-        <div class="bg-[#1B264F] border border-blue-900/30 p-6 rounded-xl shadow-lg lg:col-span-2">
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-2xl lg:col-span-2 overflow-hidden">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-bold text-white">Recent Activity</h3>
             <button class="text-sm text-[#3083DC] font-medium hover:text-white transition-colors">View All</button>
@@ -131,7 +179,6 @@
                   <th class="pb-3 font-medium">Activity</th>
                   <th class="pb-3 font-medium">Date</th>
                   <th class="pb-3 font-medium">Status</th>
-                  <th class="pb-3 font-medium text-right">Action</th>
                 </tr>
               </thead>
               <tbody class="text-sm">
@@ -158,17 +205,6 @@
                       {{ activity.status }}
                     </span>
                   </td>
-                  <td class="py-4 text-right">
-                    <button class="text-slate-400 hover:text-[#3083DC] transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    </button>
-                  </td>
                 </tr>
               </tbody>
             </table>
@@ -176,7 +212,7 @@
         </div>
 
         <!-- Pending Approvals -->
-        <div class="bg-[#1B264F] border border-blue-900/30 p-6 rounded-xl shadow-lg">
+        <div class="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-2xl overflow-hidden">
           <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-bold text-white">Pending Approvals</h3>
             <span class="px-2 py-1 bg-[#3083DC]/20 text-[#3083DC] text-xs font-bold rounded-md">3 New</span>
