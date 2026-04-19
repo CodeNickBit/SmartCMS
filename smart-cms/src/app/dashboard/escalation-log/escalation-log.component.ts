@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { SharedSidebarComponent } from '../components/sidebar/sidebar.component';
-import { SharedHeaderComponent } from '../components/header/header.component';
 import { AttendanceService } from '../../services/attendance.service';
 import { AuthService } from '../../services/auth.service';
+import { Router, RouterModule } from '@angular/router';
+import { SharedSidebarComponent } from '../components/sidebar/sidebar.component';
+import { SharedHeaderComponent } from '../components/header/header.component';
+import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-escalation-log',
@@ -12,8 +14,10 @@ import { AuthService } from '../../services/auth.service';
   imports: [
     CommonModule,
     FormsModule,
+    RouterModule,
     SharedSidebarComponent,
-    SharedHeaderComponent
+    SharedHeaderComponent,
+    AdminSidebarComponent
   ],
   templateUrl: './escalation-log.component.html',
   styleUrl: './escalation-log.component.css'
@@ -22,15 +26,18 @@ export class EscalationLogComponent implements OnInit {
   escalations: any[] = [];
   isLoading: boolean = true;
   userRole: string = '';
+  isAdmin: boolean = false;
   
   constructor(
     private attendanceService: AttendanceService,
-    private authService: AuthService
+    private authService: AuthService,
+    public router: Router
   ) {}
 
   ngOnInit() {
     const user = this.authService.getUser();
-    this.userRole = user?.role || '';
+    this.userRole = user?.role?.toLowerCase() || '';
+    this.isAdmin = this.userRole === 'admin';
     this.loadEscalations();
   }
 

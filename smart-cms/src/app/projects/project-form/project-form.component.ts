@@ -14,12 +14,12 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule, SharedSidebarComponent, AdminSidebarComponent, SharedHeaderComponent],
   template: `
-    <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+    <div class="flex h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white font-sans overflow-hidden">
       <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
       <app-shared-sidebar *ngIf="!isAdmin" class="flex-shrink-0"></app-shared-sidebar>
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <app-shared-header [title]="isEdit ? 'Edit Project' : 'New Project'"></app-shared-header>
-        <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-[#101935]">
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935]">
           <div class="form-page">
             <div class="form-header">
         <button class="btn-back" (click)="router.navigate(['/projects'])">← Back</button>
@@ -113,11 +113,11 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
           </div>
 
           <!-- Team Allocation Section (Keka Inspired) -->
-          <div class="team-allocation-section mt-8 pt-6 border-t border-blue-900/30">
+          <div class="team-allocation-section mt-8 pt-6 border-t border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
             <div class="flex items-center justify-between mb-4">
               <div>
                 <h3 class="text-lg font-bold">Team Allocation</h3>
-                <p class="text-xs text-slate-400">Search and assign members with specific project roles</p>
+                <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400">Search and assign members with specific project roles</p>
               </div>
               <span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">{{ members.length }} Allocated</span>
             </div>
@@ -130,14 +130,14 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
                        (focus)="showSearch = true"
                        [ngModelOptions]="{standalone: true}" 
                        placeholder="Search by name, email, department or ID..." 
-                       class="search-input w-full pl-14 h-12 text-sm bg-[#0D1B35] border-blue-900/30">
+                       class="search-input w-full pl-14 h-12 text-sm bg-[#0D1B35] border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
                 <span class="absolute left-5 top-3.5 text-slate-500 text-lg">🔍</span>
                 <button *ngIf="memberSearchTerm" (click)="memberSearchTerm = ''; showSearch = false" class="absolute right-3 top-3.5 text-slate-500 hover:text-white">✕</button>
               </div>
 
               <!-- Search Results Dropdown -->
               <div *ngIf="showSearch && filteredAvailableUsers.length > 0" 
-                   class="search-results-popup mt-2 bg-[#1B264F] border border-blue-800/50 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 overflow-x-hidden custom-scrollbar">
+                   class="search-results-popup mt-2 bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-blue-800/50 rounded-xl shadow-2xl max-h-60 overflow-y-auto z-50 overflow-x-hidden custom-scrollbar">
                 <div class="p-2 border-b border-blue-900/10 bg-blue-500/5 items-center justify-between flex">
                   <span class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Select from members</span>
                   <button (click)="showSearch = false" class="text-[10px] text-blue-400 hover:underline">Close</button>
@@ -190,7 +190,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
             </div>
           </div>
 
-          <div class="form-actions pt-6 mt-6 border-t border-blue-900/30">
+          <div class="form-actions pt-6 mt-6 border-t border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
             <button type="button" class="btn-secondary" (click)="router.navigate(['/projects'])">Cancel</button>
             <button type="submit" class="btn-primary" [disabled]="form.invalid || submitting">
               {{ submitting ? 'Saving...' : (isEdit ? 'Update Project' : 'Create Project') }}

@@ -10,6 +10,8 @@ import { AttendanceService, AttendanceRecord } from '../services/attendance.serv
 import { ProfileModalComponent } from '../dashboard/components/profile-modal/profile-modal.component';
 import { TaskService } from '../services/task.service';
 import { PayrollService, Payslip as RealPayslip } from '../services/payroll.service';
+import { NotificationService, Notification as GlobalNotification } from '../services/notification.service';
+import { Subscription, interval } from 'rxjs';
 
 export interface Task {
   id: number;
@@ -28,16 +30,7 @@ export interface LeaveBalance {
   minNotice?: number; // Added minNotice
 }
 
-export interface Notification {
-  id: number | string;
-  title: string;
-  message: string;
-  date: Date;
-  read: boolean;
-  type: 'info' | 'success' | 'warning' | 'error';
-  category: 'General' | 'Leave' | 'Work';
-  leaveId?: string;
-}
+// (Local Notification interface removed to use global one from NotificationService)
 
 export interface Attendance {
   status: 'Clocked In' | 'Clocked Out';
@@ -116,7 +109,8 @@ export class HomeComponent implements OnInit {
 
   // Notifications
   showNotifications = false;
-  notifications: Notification[] = []; // Initialized empty, populated by Leave logic
+  notifications: GlobalNotification[] = []; 
+  private notificationPolling?: Subscription;
 
   // Leave Application Modal
   showLeaveModal = false;
@@ -132,6 +126,13 @@ export class HomeComponent implements OnInit {
   isSubmittingLeave = false;
 
   myLeaves: any[] = [];
+  showAllLeaves: boolean = false;
+
+  get displayedLeaves(): any[] {
+    if (!this.myLeaves) return [];
+    return this.showAllLeaves ? this.myLeaves : this.myLeaves.slice(0, 5);
+  }
+
   managerOnLeave = false;
   managerProxyName: string | null = null;
 
@@ -169,7 +170,8 @@ export class HomeComponent implements OnInit {
     private officeLocationService: OfficeLocationService,
     private attendanceService: AttendanceService,
     private taskService: TaskService,
-    private payrollService: PayrollService
+    private payrollService: PayrollService,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit(): void {
@@ -199,6 +201,20 @@ export class HomeComponent implements OnInit {
     this.loadAttendanceData();
     this.loadRealTasks();
     this.loadLatestPayslip();
+    this.fetchNotifications();
+    
+    // Polling for notifications every 30 seconds
+    if (isPlatformBrowser(this.platformId)) {
+        this.notificationPolling = interval(30000).subscribe(() => this.fetchNotifications());
+        
+        // Click outside to close notifications - smarter approach
+        document.addEventListener('click', (event: any) => {
+          const isClickInside = event.target.closest('.notification-drawer') || event.target.closest('.notification-toggle-btn');
+          if (!isClickInside && this.showNotifications) {
+            this.showNotifications = false;
+          }
+        });
+    }
   }
   // ngOnDestroy removed as polling is removed
 
@@ -238,42 +254,11 @@ export class HomeComponent implements OnInit {
       next: (leaves) => {
         this.myLeaves = leaves || [];
         const usedByType: Record<string, number> = {};
-        const leaveNotificationIds = new Set((this.notifications || []).filter((n: any) => n.leaveId).map((n: any) => n.leaveId));
-        const newNotifications: Notification[] = [];
-
+        
         (this.myLeaves || []).forEach((l: any) => {
           if (l.status === 'Approved') {
             const days = this.getLeaveDays(l.startDate, l.endDate);
             usedByType[l.leaveType] = (usedByType[l.leaveType] || 0) + days;
-          }
-          if ((l.status === 'Approved' || l.status === 'Rejected') && l._id && !leaveNotificationIds.has(l._id)) {
-            const start = typeof l.startDate === 'string' ? new Date(l.startDate) : l.startDate;
-            const end = typeof l.endDate === 'string' ? new Date(l.endDate) : l.endDate;
-            const dateRange = `${(start as Date).toLocaleDateString()} – ${(end as Date).toLocaleDateString()}`;
-            if (l.status === 'Approved') {
-              newNotifications.push({
-                id: `leave-${l._id}`,
-                title: 'Leave Approved',
-                message: `Your ${l.leaveType} (${dateRange}) has been approved.`,
-                date: l.updatedAt ? new Date(l.updatedAt) : new Date(),
-                read: false,
-                type: 'success',
-                category: 'Leave',
-                leaveId: l._id
-              } as any);
-            } else {
-              newNotifications.push({
-                id: `leave-${l._id}`,
-                title: 'Leave Rejected',
-                message: l.rejectionReason ? `Your ${l.leaveType} (${dateRange}) was rejected. Reason: ${l.rejectionReason}` : `Your ${l.leaveType} (${dateRange}) was rejected.`,
-                date: l.updatedAt ? new Date(l.updatedAt) : new Date(),
-                read: false,
-                type: 'error',
-                category: 'Leave',
-                leaveId: l._id
-              } as any);
-            }
-            leaveNotificationIds.add(l._id);
           }
         });
 
@@ -282,9 +267,6 @@ export class HomeComponent implements OnInit {
           used: usedByType[b.type] || 0,
           available: Math.max(0, b.total - (usedByType[b.type] || 0))
         }));
-
-        const existingNonLeave = this.notifications.filter((n: any) => !n.leaveId);
-        this.notifications = [...newNotifications, ...existingNonLeave];
       },
       error: (err) => console.error('Error loading my leaves', err)
     });
@@ -378,41 +360,107 @@ export class HomeComponent implements OnInit {
   acknowledgePolicy(): void {
     this.isPolicyAcknowledged = true;
     this.closePolicyModal();
-    // Do NOT open leave form automatically. User must click "Apply" explicitly.
+    // Reset and open the leave form as requested by the user
+    this.isEditMode = false;
+    this.editingLeaveId = null;
+    this.activeManagerComments = null;
+    this.showLeaveModal = true;
+    this.selectedFiles = [];
+    this.leaveForm = {
+      leaveType: this.leaveBalances.length > 0 ? this.leaveBalances[0].type : '',
+      leaveUnit: 'full-day',
+      halfDayPeriod: 'first-half',
+      startDate: '',
+      endDate: '',
+      reason: ''
+    };
   }
 
-  toggleNotifications(): void {
+  toggleNotifications(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
     this.showNotifications = !this.showNotifications;
   }
 
   // Notification Tabs
   activeNotificationTab: string = 'All';
-  notificationTabs: string[] = ['All', 'Unread', 'Leave', 'Work', 'General'];
+  notificationTabs: string[] = ['All', 'Unread', 'Work', 'General'];
 
   setActiveNotificationTab(tab: string): void {
     this.activeNotificationTab = tab;
   }
 
-  getFilteredNotifications(): Notification[] {
-    if (this.activeNotificationTab === 'All') {
-      return this.notifications;
-    } else if (this.activeNotificationTab === 'Unread') {
-      return this.notifications.filter(n => !n.read);
-    } else {
-      return this.notifications.filter(n => n.category === this.activeNotificationTab);
+  fetchNotifications(): void {
+    this.notificationService.getNotifications().subscribe({
+      next: (data) => {
+        this.notifications = data;
+      },
+      error: (err) => console.error('Error fetching notifications (Home)', err)
+    });
+  }
+
+  deleteNotification(note: GlobalNotification, event: Event): void {
+    event.stopPropagation();
+    this.notificationService.deleteNotification(note._id).subscribe(() => {
+      this.notifications = this.notifications.filter(n => n._id !== note._id);
+    });
+  }
+
+  markAllAsRead(): void {
+    this.notificationService.markAllAsRead().subscribe(() => {
+      this.notifications.forEach(n => n.isRead = true);
+    });
+  }
+
+  markAsRead(note: GlobalNotification): void {
+    if (!note.isRead) {
+      this.notificationService.markAsRead(note._id).subscribe(() => {
+        note.isRead = true;
+      });
+    }
+  }
+
+  getFilteredNotifications(): GlobalNotification[] {
+    switch (this.activeNotificationTab) {
+      case 'Unread':
+        return this.notifications.filter(n => !n.isRead);
+      case 'Work':
+        return this.notifications.filter(n => ['Task', 'Attendance'].includes(n.category));
+      case 'General':
+        return this.notifications.filter(n => ['Leave', 'Payroll', 'System', 'General'].includes(n.category));
+      default:
+        return this.notifications;
+    }
+  }
+
+  notificationIconType(category: string): 'success' | 'info' | 'warning' | 'error' {
+    switch (category) {
+      case 'Payroll':
+        return 'success';
+      case 'Leave':
+        return 'warning';
+      case 'Task':
+      case 'Attendance':
+      case 'System':
+      case 'General':
+      default:
+        return 'info';
     }
   }
 
   hasNotificationsByCategory(category: string): boolean {
+    if (category === 'Work') return this.notifications.some(n => ['Task', 'Attendance'].includes(n.category));
+    if (category === 'General') return this.notifications.some(n => ['Leave', 'Payroll', 'System', 'General'].includes(n.category));
     return this.notifications.some(n => n.category === category);
   }
 
   hasUnreadNotifications(): boolean {
-    return this.notifications.some(n => !n.read);
+    return this.notifications.some(n => !n.isRead);
   }
 
   get unreadNotificationCount(): number {
-    return this.notifications.filter(n => !n.read).length;
+    return this.notifications.filter(n => !n.isRead).length;
   }
 
   loadAttendanceData(): void {

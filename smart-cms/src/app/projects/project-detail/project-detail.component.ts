@@ -14,40 +14,40 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
   standalone: true,
   imports: [CommonModule, DatePipe, RouterModule, FormsModule, SharedSidebarComponent, AdminSidebarComponent, SharedHeaderComponent],
   template: `
-    <div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+    <div class="flex h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white font-sans overflow-hidden">
       <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
       <app-shared-sidebar *ngIf="!isAdmin && userRole !== 'employee'" class="flex-shrink-0"></app-shared-sidebar>
       <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         <app-shared-header title="Project Board"></app-shared-header>
-        <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-[#101935]">
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935]">
           <div class="detail-page" *ngIf="project">
 
             <div class="flex gap-3 mb-5">
               <button *ngIf="userRole === 'employee'"
                 (click)="router.navigate(['/home'])"
-                class="inline-flex items-center gap-1.5 bg-transparent border border-blue-900/30 text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-blue-900/20 hover:text-white transition-all">
+                class="inline-flex items-center gap-1.5 bg-transparent border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 text-slate-500 light:text-[#7A96B2] dark:text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-blue-900/20 hover:text-white transition-all">
                 ← Back to Dashboard
               </button>
               <button
                 (click)="router.navigate(['/projects'])"
-                class="inline-flex items-center gap-1.5 bg-transparent border border-blue-900/30 text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-blue-900/20 hover:text-white transition-all">
+                class="inline-flex items-center gap-1.5 bg-transparent border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 text-slate-500 light:text-[#7A96B2] dark:text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer hover:bg-blue-900/20 hover:text-white transition-all">
                 ← All Projects
               </button>
             </div>
 
-            <div class="bg-[#1B264F] border border-blue-900/30 rounded-2xl p-6 mb-6 shadow-md">
+            <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-2xl p-6 mb-6 shadow-md">
               <div class="flex flex-col gap-4">
 
                 <div class="flex items-start justify-between gap-4 flex-wrap">
                   <div class="flex items-center gap-3 flex-wrap">
-                    <h1 class="text-2xl font-bold text-white m-0">{{ project?.title }}</h1>
+                    <h1 class="text-2xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white m-0">{{ project?.title }}</h1>
                     <span class="text-[11px] font-semibold px-2.5 py-1 rounded-md capitalize"
                       [ngClass]="{
                         'bg-blue-500/20 text-blue-400': project?.status === 'planning',
                         'bg-green-500/20 text-green-400': project?.status === 'active',
                         'bg-amber-500/20 text-amber-400': project?.status === 'on_hold',
                         'bg-emerald-500/20 text-emerald-400': project?.status === 'completed',
-                        'bg-slate-500/20 text-slate-400': project?.status === 'archived'
+                        'bg-slate-500/20 text-slate-500 light:text-[#7A96B2] dark:text-slate-400': project?.status === 'archived'
                       }">{{ formatStatus(project?.status) }}</span>
                     <span class="text-[11px] font-semibold px-2.5 py-1 rounded-md capitalize"
                       [ngClass]="{
@@ -60,7 +60,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
                   <div *ngIf="canManage" class="flex gap-2.5 shrink-0">
                     <button
                       (click)="router.navigate(['/projects', project._id, 'edit'])"
-                      class="bg-blue-900/30 text-slate-300 border-0 px-4 py-2 rounded-lg cursor-pointer text-sm font-semibold hover:bg-blue-900/50 hover:text-white transition-all">
+                      class="bg-blue-900/30 text-slate-600 light:text-[#3B597B] dark:text-slate-300 border-0 px-4 py-2 rounded-lg cursor-pointer text-sm font-semibold hover:bg-blue-900/50 hover:text-white transition-all">
                       Edit
                     </button>
                     <button
@@ -71,7 +71,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
                   </div>
                 </div>
 
-                <p *ngIf="project?.description" class="text-slate-400 text-sm m-0 leading-relaxed">{{ project?.description }}</p>
+                <p *ngIf="project?.description" class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 text-sm m-0 leading-relaxed">{{ project?.description }}</p>
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   <div *ngIf="project?.projectManagerName" class="flex flex-col gap-0.5">
@@ -104,7 +104,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
                   </span>
                 </div>
 
-                <div *ngIf="project?.milestones?.length" class="border-t border-blue-900/30 pt-4">
+                <div *ngIf="project?.milestones?.length" class="border-t border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 pt-4">
                   <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2.5">Milestones</p>
                   <div class="flex flex-wrap gap-2">
                     <div
@@ -112,7 +112,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
                       class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
                       [ngClass]="m.isCompleted
                         ? 'bg-green-500/10 border-green-500/30 text-green-400'
-                        : 'bg-[#101935] border-blue-900/30 text-slate-300'">
+                        : 'bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 text-slate-600 light:text-[#3B597B] dark:text-slate-300'">
                       <span>{{ m.isCompleted ? '✅' : '⏳' }}</span>
                       <span>{{ m.title }}</span>
                       <span *ngIf="m.dueDate" class="text-slate-500 text-[11px]">· {{ m.dueDate | date:'MMM d' }}</span>
@@ -268,7 +268,7 @@ import { AdminSidebarComponent } from '../../admin/components/sidebar/sidebar.co
           </div>
           <div class="error-state" *ngIf="!project && !loading">
             <p>⚠️ Failed to load project. You may not have access or the project does not exist.</p>
-            <button (click)="router.navigate(['/projects'])" class="inline-flex items-center gap-1.5 bg-transparent border border-blue-900/30 text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer mt-3 hover:bg-blue-900/20 hover:text-white transition-all">← Back to Projects</button>
+            <button (click)="router.navigate(['/projects'])" class="inline-flex items-center gap-1.5 bg-transparent border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 text-slate-500 light:text-[#7A96B2] dark:text-slate-400 px-4 py-2 rounded-lg text-sm cursor-pointer mt-3 hover:bg-blue-900/20 hover:text-white transition-all">← Back to Projects</button>
           </div>
         </main>
       </div>
