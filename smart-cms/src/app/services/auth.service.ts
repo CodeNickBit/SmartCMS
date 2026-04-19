@@ -37,7 +37,7 @@ export interface RegisterRequest {
   joiningDate: string;
   employmentType: string;
   workLocation: string;
-  shiftType?: 'day' | 'night' | 'rotating' | 'flexible';
+  shiftType?: 'day' | 'night';
   
   // Work & Pay Details
   workingHoursStart?: string;
