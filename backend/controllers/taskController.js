@@ -69,10 +69,25 @@ const getAllIdentities = async (req) => {
 
 const canModifyTask = async (task, req) => {
   const role = getUserRole(req);
+  const userId = getUserId(req);
+  const userEmail = req.user?.email;
+
   if (role === 'admin') return true;
-  if (role === 'manager') return true;
+
+  // Check project-level management rights
+  const project = await Project.findById(task.projectId);
+  const isProjectManager = project && (
+    String(project.projectManager) === userId || 
+    String(project.createdBy) === userId ||
+    (userEmail && project.projectManagerEmail && project.projectManagerEmail.toLowerCase() === userEmail.toLowerCase())
+  );
+
+  if (isProjectManager && role === 'manager') return true;
+
+  // Check if assigned to the user
   const allowedIds = await getAllIdentities(req);
   if (allowedIds.includes(String(task.assignedTo))) return true;
+
   return false;
 };
 
