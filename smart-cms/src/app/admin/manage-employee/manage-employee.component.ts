@@ -35,9 +35,14 @@ export class ManageEmployeeComponent implements OnInit {
   dbDesignations: Designation[] = [];
   dbSalaryTemplates: SalaryTemplate[] = [];
   activeManagers: Manager[] = [];
+<<<<<<< HEAD
+  standardWorkHours: number = 8;
+  shiftTimeOptions: { value: string; label: string }[] = [];
+=======
   currentEditingDept: string = ''; // Track dept to prevent redundant clears
   initialRMName: string = ''; // Capture original name for dropdown fallback
   initialBMName: string = ''; // Capture original name for fallback
+>>>>>>> e710542c0459798a840df78872b76e1eba287f19
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -64,6 +69,7 @@ export class ManageEmployeeComponent implements OnInit {
       this.loadDesignations();
       this.loadManagers();
       this.loadSalaryTemplates();
+      this.loadPayrollSettings();
     }
   }
 
@@ -76,6 +82,59 @@ export class ManageEmployeeComponent implements OnInit {
         console.error('Error fetching templates:', error);
       }
     });
+  }
+
+  loadPayrollSettings() {
+    this.payrollService.getPayrollSettings().subscribe({
+      next: (data) => {
+        if (data?.payrollSettings?.overtimeRules?.standardWorkHoursPerDay) {
+          this.standardWorkHours = data.payrollSettings.overtimeRules.standardWorkHoursPerDay;
+        }
+      },
+      error: (error) => console.error('Error fetching payroll settings', error)
+    });
+  }
+
+  onShiftTypeChange() {
+    if (!this.editingEmployee) return;
+    
+    const shiftType = this.editingEmployee.shiftType;
+    this.editingEmployee.workingHoursStart = '';
+    this.editingEmployee.workingHoursEnd = '';
+    
+    if (shiftType === 'day') {
+      this.shiftTimeOptions = [
+        { value: '09:00', label: '9:00 AM - ' + this.calculateEndTimeLabel('09:00') },
+        { value: '10:00', label: '10:00 AM - ' + this.calculateEndTimeLabel('10:00') },
+        { value: '11:00', label: '11:00 AM - ' + this.calculateEndTimeLabel('11:00') }
+      ];
+    } else if (shiftType === 'night') {
+      this.shiftTimeOptions = [
+        { value: '20:00', label: '8:00 PM - ' + this.calculateEndTimeLabel('20:00') },
+        { value: '21:00', label: '9:00 PM - ' + this.calculateEndTimeLabel('21:00') },
+        { value: '22:00', label: '10:00 PM - ' + this.calculateEndTimeLabel('22:00') }
+      ];
+    } else {
+      this.shiftTimeOptions = [];
+    }
+  }
+
+  calculateEndTimeLabel(startTime: string): string {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const endHour = (hours + this.standardWorkHours) % 24;
+    const period = endHour >= 12 ? 'PM' : 'AM';
+    const displayHour = endHour === 0 ? 12 : endHour > 12 ? endHour - 12 : endHour;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+  }
+
+  onWorkingHoursStartChange() {
+    if (!this.editingEmployee || !this.editingEmployee.workingHoursStart) return;
+
+    const startTime = this.editingEmployee.workingHoursStart;
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const endHour = hours + this.standardWorkHours;
+    const endTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    this.editingEmployee.workingHoursEnd = endTime;
   }
 
   loadEmployees() {
