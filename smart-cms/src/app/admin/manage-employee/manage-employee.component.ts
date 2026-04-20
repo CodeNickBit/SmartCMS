@@ -37,9 +37,12 @@ export class ManageEmployeeComponent implements OnInit {
   activeManagers: Manager[] = [];
   standardWorkHours: number = 8;
   shiftTimeOptions: { value: string; label: string }[] = [];
+  standardWorkHours: number = 8;
+  shiftTimeOptions: { value: string; label: string }[] = [];
   currentEditingDept: string = ''; // Track dept to prevent redundant clears
   initialRMName: string = ''; // Capture original name for dropdown fallback
   initialBMName: string = ''; // Capture original name for fallback
+
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
