@@ -67,7 +67,7 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
           <a routerLink="/dashboard/escalation-log" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
             class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
             <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span class="font-medium text-sm">Escalation Log</span>
           </a>
@@ -112,7 +112,7 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
           <a routerLink="/dashboard/escalation-log" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
             class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
             <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span class="font-medium text-sm">Escalation Log</span>
           </a>

@@ -37,9 +37,12 @@ export class ManageEmployeeComponent implements OnInit {
   activeManagers: Manager[] = [];
   standardWorkHours: number = 8;
   shiftTimeOptions: { value: string; label: string }[] = [];
+  standardWorkHours: number = 8;
+  shiftTimeOptions: { value: string; label: string }[] = [];
   currentEditingDept: string = ''; // Track dept to prevent redundant clears
   initialRMName: string = ''; // Capture original name for dropdown fallback
   initialBMName: string = ''; // Capture original name for fallback
+
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -94,11 +97,11 @@ export class ManageEmployeeComponent implements OnInit {
 
   onShiftTypeChange() {
     if (!this.editingEmployee) return;
-    
+
     const shiftType = this.editingEmployee.shiftType;
     this.editingEmployee.workingHoursStart = '';
     this.editingEmployee.workingHoursEnd = '';
-    
+
     if (shiftType === 'day') {
       this.shiftTimeOptions = [
         { value: '09:00', label: '9:00 AM - ' + this.calculateEndTimeLabel('09:00') },
@@ -138,7 +141,7 @@ export class ManageEmployeeComponent implements OnInit {
     this.authService.getUsers().subscribe({
       next: (data: any[]) => {
         // Filter to only show regular employees (exclude admin, hr, manager roles)
-        this.employees = data.filter(emp => 
+        this.employees = data.filter(emp =>
           emp.role === 'employee' || !emp.role || emp.role === ''
         );
       },
@@ -198,28 +201,28 @@ export class ManageEmployeeComponent implements OnInit {
     this.managerService.getActiveManagers(department).subscribe({
       next: (data) => {
         this.activeManagers = data;
-        
+
         // Ensure current assigned manager stays in list even if not from matching department
         if (this.editingEmployee && this.editingEmployee.reportingManager) {
-           const rmFound = this.activeManagers.find((m: any) => m._id === this.editingEmployee.reportingManager);
-           if (!rmFound && this.editingEmployee.reportingManager !== '') {
-               this.activeManagers.push({ 
-                 _id: this.editingEmployee.reportingManager, 
-                 name: this.initialRMName || 'Assigned RM', 
-                 department: 'Current' 
-               } as Manager);
-           }
+          const rmFound = this.activeManagers.find((m: any) => m._id === this.editingEmployee.reportingManager);
+          if (!rmFound && this.editingEmployee.reportingManager !== '') {
+            this.activeManagers.push({
+              _id: this.editingEmployee.reportingManager,
+              name: this.initialRMName || 'Assigned RM',
+              department: 'Current'
+            } as Manager);
+          }
         }
-        
+
         if (this.editingEmployee && this.editingEmployee.backupManager) {
-           const bmFound = this.activeManagers.find((m: any) => m._id === this.editingEmployee.backupManager);
-           if (!bmFound && this.editingEmployee.backupManager !== '') {
-               this.activeManagers.push({ 
-                 _id: this.editingEmployee.backupManager, 
-                 name: this.initialBMName || 'Assigned BM', 
-                 department: 'Current' 
-               } as Manager);
-           }
+          const bmFound = this.activeManagers.find((m: any) => m._id === this.editingEmployee.backupManager);
+          if (!bmFound && this.editingEmployee.backupManager !== '') {
+            this.activeManagers.push({
+              _id: this.editingEmployee.backupManager,
+              name: this.initialBMName || 'Assigned BM',
+              department: 'Current'
+            } as Manager);
+          }
         }
       },
       error: (error) => {
@@ -234,10 +237,10 @@ export class ManageEmployeeComponent implements OnInit {
       const matchesSearch = name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
         (emp.email && emp.email.toLowerCase().includes(this.searchQuery.toLowerCase())) ||
         (emp.employeeId && emp.employeeId.toLowerCase().includes(this.searchQuery.toLowerCase()));
-      
+
       const status = emp.active_inactive !== false ? 'Active' : 'Inactive';
       const matchesStatus = this.filterStatus === 'All' || status === this.filterStatus;
-      
+
       return matchesSearch && matchesStatus;
     });
   }
@@ -259,11 +262,11 @@ export class ManageEmployeeComponent implements OnInit {
     this.authService.getUserById(emp._id).subscribe({
       next: (fullUser) => {
         this.editingEmployee = { ...fullUser };
-        
+
         if (!this.editingEmployee.reportingManager) this.editingEmployee.reportingManager = '';
         if (!this.editingEmployee.backupManager) this.editingEmployee.backupManager = '';
         if (!this.editingEmployee.salaryTemplate) this.editingEmployee.salaryTemplate = '';
-        
+
         if (this.editingEmployee.joiningDate) {
           const date = new Date(this.editingEmployee.joiningDate);
           if (!isNaN(date.getTime())) {
