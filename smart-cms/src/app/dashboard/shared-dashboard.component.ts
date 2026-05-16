@@ -198,8 +198,8 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
                     <!-- New Joinees Section -->
                     <div class="space-y-4">
                        <h4 class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest">Recent Onboarding</h4>
-                       <div *ngIf="hrPulseData?.newJoinees?.length > 0; else noNewHires" class="space-y-3">
-                          <div *ngFor="let hire of hrPulseData.newJoinees" class="p-3 rounded-xl bg-slate-50 dark:bg-[#101935] border border-white/5 flex items-center justify-between group">
+                       <div *ngIf="hrPulseData?.newJoinees?.length > 0; else noNewHires" class="space-y-3 max-h-[160px] overflow-y-auto custom-scrollbar pr-2">
+                          <div *ngFor="let hire of hrPulseData.newJoinees.slice(0, 2)" class="p-3 rounded-xl bg-slate-50 dark:bg-[#101935] border border-white/5 flex items-center justify-between group">
                              <div class="flex items-center gap-3">
                                 <div class="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-xs">
                                    {{ hire.name.charAt(0) }}
