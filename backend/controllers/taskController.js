@@ -183,8 +183,26 @@ exports.getProjectTasks = async (req, res) => {
 exports.getMyTasks = async (req, res) => {
   try {
     const allowedIds = await getAllIdentities(req);
+    const role = getUserRole(req);
+    
+    let assignedModel = '';
+    if (role === 'manager') assignedModel = 'Manager';
+    else if (role === 'hr') assignedModel = 'Hr';
+    else if (role === 'admin') assignedModel = 'Admin';
+    else if (role === 'employee') assignedModel = 'User';
+
     const { status, priority } = req.query;
-    const filter = { assignedTo: { $in: allowedIds } };
+    
+    const filter = {
+      $or: [
+        { assignedTo: { $in: allowedIds } },
+        { assignedToModel: assignedModel }
+      ]
+    };
+    
+    if (role === 'manager') {
+      filter.$or.push({ assignedToModel: 'Reporting_Manager' });
+    }
     if (status) {
       filter.status = status.includes(',') ? { $in: status.split(',') } : status;
     }
@@ -409,5 +427,28 @@ exports.getTimeLogs = async (req, res) => {
     res.json(logs);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch time logs', error: err.message });
+  }
+};
+
+exports.getWorkflowTasks = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    if (!userId) return res.status(400).json({ message: 'User ID is required' });
+
+    const role = getUserRole(req);
+    const loggedInId = getUserId(req);
+
+    if (!['admin', 'hr', 'manager'].includes(role) && String(loggedInId) !== String(userId)) {
+       return res.status(403).json({ message: 'Access denied to these workflow tasks' });
+    }
+
+    const tasks = await Task.find({ 
+       relatedUserId: userId, 
+       taskType: { $in: ['onboarding', 'offboarding'] } 
+    }).sort({ createdAt: 1 });
+
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch workflow tasks', error: err.message });
   }
 };

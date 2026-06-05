@@ -29,6 +29,10 @@ export class TaskService {
     return this.http.get<any[]>(`${BASE_URL}/my-tasks`, { headers: this.getHeaders(), params });
   }
 
+  getWorkflowTasks(userId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${BASE_URL}/workflow/${userId}`, { headers: this.getHeaders() });
+  }
+
   getById(taskId: string): Observable<any> {
     return this.http.get<any>(`${BASE_URL}/tasks/${taskId}`, { headers: this.getHeaders() });
   }

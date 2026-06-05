@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SharedSidebarComponent } from '../components/sidebar/sidebar.component';
 import { SharedHeaderComponent } from '../components/header/header.component';
@@ -41,7 +42,8 @@ export class MyTeamComponent implements OnInit {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -129,5 +131,9 @@ export class MyTeamComponent implements OnInit {
 
   get inactiveCount(): number {
     return this.teamMembers.filter(m => m.active_inactive === false).length;
+  }
+
+  viewWorkflow(id: string): void {
+    this.router.navigate(['/dashboard/employee-workflow', id]);
   }
 }

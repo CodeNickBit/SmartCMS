@@ -1,0 +1,129 @@
+<div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+  <app-admin-sidebar *ngIf="userRole === 'admin'"></app-admin-sidebar>
+  <app-shared-sidebar *ngIf="userRole !== 'admin'"></app-shared-sidebar>
+  <div class="flex-1 flex flex-col h-full relative min-w-0">
+    <app-admin-header *ngIf="userRole === 'admin'" title="Workflow Templates"></app-admin-header>
+    <app-shared-header *ngIf="userRole !== 'admin'" [notificationCount]="0"></app-shared-header>
+
+    <!-- Main scrollable area -->
+    <main class="flex-1 overflow-y-auto custom-scrollbar">
+      <div class="p-6 max-w-7xl mx-auto">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h1 class="text-2xl font-bold text-white">Workflow Templates</h1>
+            <p class="text-sm text-slate-400">Manage checklists for Onboarding and Offboarding.</p>
+          </div>
+          <button (click)="openEditor()" class="bg-[#3083DC] text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition-colors border border-blue-500/50">
+            + New Template
+          </button>
+        </div>
+
+        <div *ngIf="!isEditing" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div *ngFor="let template of templates" (click)="openEditor(template)" class="bg-[#1B264F] rounded-xl shadow-lg border border-blue-900/30 p-5 flex flex-col justify-between transition-all hover:border-[#3083DC]/50 cursor-pointer">
+            <div>
+              <div class="flex justify-between items-start mb-2">
+                <h2 class="text-xl font-semibold text-white">{{ template.name }}</h2>
+                <span [ngClass]="{'bg-green-900/30 text-green-400 border border-green-800/50': template.isActive, 'bg-red-900/30 text-red-400 border border-red-800/50': !template.isActive}" class="px-2 py-1 rounded text-xs font-medium">
+                  {{ template.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </div>
+              <p class="text-sm text-slate-400 mb-4 capitalize">Type: <span class="text-slate-300 font-medium">{{ template.type }}</span></p>
+              <p class="text-sm text-slate-400 mb-4">{{ template.tasks.length }} Tasks configured</p>
+            </div>
+            <div class="flex gap-3">
+              <button (click)="$event.stopPropagation(); openEditor(template)" class="flex-1 bg-[#101935] text-slate-300 border border-slate-700 py-2 rounded-lg hover:bg-slate-800 hover:text-white transition-colors">Edit</button>
+              <button (click)="$event.stopPropagation(); deleteTemplate(template._id)" class="flex-1 bg-red-900/20 text-red-400 border border-red-900/50 py-2 rounded-lg hover:bg-red-900/40 transition-colors">Delete</button>
+            </div>
+          </div>
+          <div *ngIf="templates.length === 0" class="col-span-full text-center py-12 bg-[#1B264F]/50 rounded-xl border border-dashed border-blue-900/30">
+            <p class="text-slate-400">No templates found. Create one to get started.</p>
+          </div>
+        </div>
+
+        <div *ngIf="isEditing" class="bg-[#1B264F] rounded-xl shadow-lg border border-blue-900/30 p-6">
+          <div class="flex justify-between items-center mb-6 pb-4 border-b border-blue-900/30">
+            <h2 class="text-xl font-bold text-white">{{ currentTemplate._id ? 'Edit' : 'Create' }} Template</h2>
+            <button (click)="closeEditor()" class="text-slate-400 hover:text-white transition-colors">Cancel</button>
+          </div>
+
+          <form (ngSubmit)="saveTemplate()" #form="ngForm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5">Template Name</label>
+                <input type="text" name="name" [(ngModel)]="currentTemplate.name" required class="w-full px-4 py-2 bg-[#0F172A] border border-slate-700 rounded-lg text-white focus:border-[#3083DC] focus:ring-1 focus:ring-[#3083DC] outline-none transition-all placeholder-slate-500">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1.5">Type</label>
+                <select name="type" [(ngModel)]="currentTemplate.type" class="w-full px-4 py-2 bg-[#0F172A] border border-slate-700 rounded-lg text-white focus:border-[#3083DC] focus:ring-1 focus:ring-[#3083DC] outline-none transition-all appearance-none cursor-pointer pr-10 bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');">
+                  <option value="onboarding" class="bg-[#0F172A]">Onboarding</option>
+                  <option value="offboarding" class="bg-[#0F172A]">Offboarding</option>
+                </select>
+              </div>
+              <div class="flex items-center mt-7">
+                <label class="flex items-center cursor-pointer group">
+                  <div class="relative flex items-center">
+                    <input type="checkbox" name="isActive" [(ngModel)]="currentTemplate.isActive" class="sr-only">
+                    <div class="w-10 h-6 bg-slate-700 rounded-full shadow-inner transition-colors" [ngClass]="{'bg-[#3083DC]': currentTemplate.isActive}"></div>
+                    <div class="absolute w-4 h-4 bg-white rounded-full shadow inset-y-1 left-1 transition-transform transform" [ngClass]="{'translate-x-4': currentTemplate.isActive}"></div>
+                  </div>
+                  <span class="ml-3 text-slate-300 font-medium group-hover:text-white transition-colors">Active Template</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="mb-4 flex justify-between items-center bg-[#0F172A] p-4 rounded-lg border border-slate-800">
+              <h3 class="text-lg font-semibold text-white">Tasks Checklist</h3>
+              <button type="button" (click)="addTask()" class="text-sm bg-[#1B264F] text-[#3083DC] px-4 py-2 rounded-lg border border-blue-900/50 hover:bg-blue-900/30 hover:text-white transition-colors">
+                + Add Task
+              </button>
+            </div>
+
+            <div class="space-y-4 mb-8">
+              <div *ngFor="let task of currentTemplate.tasks; let i = index" class="p-5 border border-slate-700/50 rounded-xl bg-[#0F172A]/50 relative group transition-all hover:border-slate-600">
+                <button type="button" (click)="removeTask(i)" class="absolute top-3 right-3 text-slate-500 opacity-0 group-hover:opacity-100 transition-all hover:text-red-400 hover:bg-red-900/20 p-1.5 rounded-lg" title="Remove task">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-5 pr-8">
+                  <div class="md:col-span-2">
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Task Title *</label>
+                    <input type="text" [name]="'title'+i" [(ngModel)]="task.title" required placeholder="e.g. Set up email account" class="w-full px-3 py-2 text-sm bg-[#1B264F] border border-slate-700 rounded-lg text-white focus:border-[#3083DC] focus:ring-1 focus:ring-[#3083DC] outline-none transition-all placeholder-slate-600">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Assigned Role *</label>
+                    <select [name]="'role'+i" [(ngModel)]="task.assignedToRole" class="w-full px-3 py-2 text-sm bg-[#1B264F] border border-slate-700 rounded-lg text-white focus:border-[#3083DC] focus:ring-1 focus:ring-[#3083DC] outline-none transition-all appearance-none cursor-pointer pr-8 bg-no-repeat bg-[right_0.75rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');">
+                      <option value="Admin" class="bg-[#0F172A]">Admin</option>
+                      <option value="Hr" class="bg-[#0F172A]">HR</option>
+                      <option value="Manager" class="bg-[#0F172A]">Manager</option>
+                      <option value="Reporting_Manager" class="bg-[#0F172A]">Reporting Manager</option>
+                      <option value="User" class="bg-[#0F172A]">Employee (User)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Department (Optional)</label>
+                    <select [name]="'dept'+i" [(ngModel)]="task.department" class="w-full px-3 py-2 text-sm bg-[#1B264F] border border-slate-700 rounded-lg text-white focus:border-[#3083DC] focus:ring-1 focus:ring-[#3083DC] outline-none transition-all appearance-none cursor-pointer pr-8 bg-no-repeat bg-[right_0.75rem_center] bg-[length:1em_1em]" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');">
+                      <option value="" class="bg-[#0F172A]">Any Department</option>
+                      <option *ngFor="let dept of departments" [value]="dept.name" class="bg-[#0F172A]">{{ dept.name }}</option>
+                    </select>
+                  </div>
+                  <div class="md:col-span-4">
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Description (Optional)</label>
+                    <input type="text" [name]="'desc'+i" [(ngModel)]="task.description" placeholder="Provide extra details..." class="w-full px-3 py-2 text-sm bg-[#1B264F] border border-slate-700 rounded-lg text-white focus:border-[#3083DC] focus:ring-1 focus:ring-[#3083DC] outline-none transition-all placeholder-slate-600">
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="currentTemplate.tasks.length === 0" class="text-sm text-slate-400 text-center py-8 bg-[#0F172A]/30 rounded-xl border border-dashed border-slate-700">
+                No tasks added yet. Click "+ Add Task" to start building your checklist.
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-5 border-t border-blue-900/30">
+              <button type="submit" [disabled]="!form.valid || currentTemplate.tasks.length === 0" class="bg-[#3083DC] text-white px-8 py-2.5 rounded-lg shadow-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium border border-blue-500/50">
+                Save Template
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

@@ -37,8 +37,6 @@ export class ManageEmployeeComponent implements OnInit {
   activeManagers: Manager[] = [];
   standardWorkHours: number = 8;
   shiftTimeOptions: { value: string; label: string }[] = [];
-  standardWorkHours: number = 8;
-  shiftTimeOptions: { value: string; label: string }[] = [];
   currentEditingDept: string = ''; // Track dept to prevent redundant clears
   initialRMName: string = ''; // Capture original name for dropdown fallback
   initialBMName: string = ''; // Capture original name for fallback
@@ -332,6 +330,10 @@ export class ManageEmployeeComponent implements OnInit {
         error: (err: any) => console.error('Delete failed', err)
       });
     });
+  }
+
+  viewWorkflows(emp: any) {
+    this.router.navigate(['/admin/employee-workflow', emp._id]);
   }
 
   navigateToRegister() {

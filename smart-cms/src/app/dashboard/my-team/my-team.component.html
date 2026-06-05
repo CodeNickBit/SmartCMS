@@ -144,6 +144,7 @@
                   <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider">Contact</th>
                   <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider">Joining Date</th>
                   <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider">Status</th>
+                  <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 light:text-[#7A96B2] dark:text-slate-400 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-blue-900/10">
@@ -178,6 +179,11 @@
                     <span [class]="'px-3 py-1.5 inline-flex text-xs leading-5 font-bold rounded-full border ' + getStatusBadgeClass(member.active_inactive)">
                       {{ getStatusText(member.active_inactive) }}
                     </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button (click)="viewWorkflow(member._id)" class="text-[#3083DC] hover:text-blue-500 hover:underline transition-colors">
+                      View Workflow
+                    </button>
                   </td>
                 </tr>
               </tbody>

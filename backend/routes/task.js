@@ -6,6 +6,8 @@ const pc = require('../controllers/projectController');
 
 router.get('/timesheets/:employeeId', protect, pc.getEmployeeTimesheet);
 
+router.get('/workflow/:userId', protect, tc.getWorkflowTasks);
+
 router.get('/my-tasks', protect, tc.getMyTasks);
 
 router.post('/projects/:pid/tasks', protect, tc.createTask);

@@ -1,0 +1,79 @@
+<div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+  <app-admin-sidebar *ngIf="userRole === 'admin'"></app-admin-sidebar>
+  <app-shared-sidebar *ngIf="userRole !== 'admin'"></app-shared-sidebar>
+  <div class="flex-1 flex flex-col h-full relative min-w-0">
+    <app-admin-header *ngIf="userRole === 'admin'" title="Employee Workflow"></app-admin-header>
+    <app-shared-header *ngIf="userRole !== 'admin'" [notificationCount]="0"></app-shared-header>
+
+    <!-- Main scrollable area -->
+    <main class="flex-1 overflow-y-auto custom-scrollbar">
+      <div class="p-6 max-w-5xl mx-auto">
+        <button (click)="goBack()" class="mb-4 text-[#3083DC] hover:text-white transition-colors flex items-center text-sm">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          Back to Employees
+        </button>
+
+        <div *ngIf="loading" class="text-center py-10 text-slate-400">Loading...</div>
+
+        <div *ngIf="!loading && user" class="bg-[#1B264F] rounded-xl shadow-lg border border-blue-900/30 p-6 mb-6 flex justify-between items-center">
+          <div>
+            <h1 class="text-2xl font-bold text-white">{{ user.name || user.firstName + ' ' + user.lastName }}</h1>
+            <p class="text-slate-400">{{ user.email }} • {{ user.department || 'No Department' }}</p>
+          </div>
+          <div>
+            <span [ngClass]="{'bg-green-900/30 text-green-400 border border-green-800/50': user.active_inactive !== false, 'bg-red-900/30 text-red-400 border border-red-800/50': user.active_inactive === false}" class="px-3 py-1 rounded-full text-sm font-medium">
+              {{ user.active_inactive !== false ? 'Active' : 'Inactive (Offboarding)' }}
+            </span>
+          </div>
+        </div>
+
+        <div *ngIf="!loading && user">
+          <h2 class="text-xl font-bold text-white mb-4">Workflow Tasks</h2>
+          
+          <div *ngIf="tasks.length === 0" class="text-center py-10 bg-[#1B264F]/50 border border-dashed border-blue-900/30 rounded-lg text-slate-400">
+            No workflow tasks generated for this employee.
+          </div>
+
+          <div class="space-y-4">
+            <div *ngFor="let task of tasks" class="bg-[#1B264F] rounded-lg shadow-sm border border-blue-900/30 p-5 flex items-center justify-between transition-all hover:border-[#3083DC]/50">
+              <div class="flex items-start gap-4">
+                <div class="mt-1">
+                  <span *ngIf="task.taskType === 'onboarding'" class="bg-blue-900/40 text-blue-400 border border-blue-800/50 p-2 rounded-lg inline-block text-xs font-bold uppercase">ONB</span>
+                  <span *ngIf="task.taskType === 'offboarding'" class="bg-orange-900/40 text-orange-400 border border-orange-800/50 p-2 rounded-lg inline-block text-xs font-bold uppercase">OFF</span>
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-white">{{ task.title }}</h3>
+                  <p class="text-sm text-slate-400">{{ task.description || 'No description provided' }}</p>
+                  <div class="flex items-center gap-4 mt-2 text-xs text-slate-500">
+                    <span class="flex items-center gap-1">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                      Assigned to: <span class="text-slate-300">{{ task.assignedToModel }} (ID: {{ task.assignedTo || 'Unassigned' }})</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-col items-end gap-2">
+                <select [disabled]="!canEditTask(task)"
+                        [ngModel]="task.status" (ngModelChange)="updateTaskStatus(task, $event)" 
+                        class="text-sm border rounded-lg px-3 py-1.5 outline-none transition-colors appearance-none pr-8 bg-no-repeat bg-[right_0.5rem_center] bg-[length:1em_1em]"
+                        [ngClass]="{
+                          'cursor-pointer': canEditTask(task),
+                          'opacity-50 cursor-not-allowed': !canEditTask(task),
+                          'bg-green-900/20 border-green-800/50 text-green-400': task.status === 'done', 
+                          'bg-yellow-900/20 border-yellow-800/50 text-yellow-400': task.status === 'in_progress',
+                          'bg-[#0F172A] border-slate-700 text-slate-300': task.status !== 'done' && task.status !== 'in_progress'
+                        }">
+                  <option value="todo" class="bg-[#0F172A] text-slate-300">To Do</option>
+                  <option value="in_progress" class="bg-[#0F172A] text-yellow-400">In Progress</option>
+                  <option value="in_review" class="bg-[#0F172A] text-blue-400">In Review</option>
+                  <option value="done" class="bg-[#0F172A] text-green-400">Done</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

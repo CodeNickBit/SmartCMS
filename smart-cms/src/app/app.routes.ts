@@ -112,6 +112,26 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/reports/reports.component').then(m => m.ReportsComponent),
     canActivate: [adminGuard]
   },
+  {
+    path: 'admin/workflow-templates',
+    loadComponent: () => import('./admin/workflow-templates/workflow-templates.component').then(m => m.WorkflowTemplatesComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/workflow-templates',
+    loadComponent: () => import('./admin/workflow-templates/workflow-templates.component').then(m => m.WorkflowTemplatesComponent),
+    canActivate: [managerHrGuard]
+  },
+  {
+    path: 'admin/employee-workflow/:id',
+    loadComponent: () => import('./admin/employee-workflow/employee-workflow.component').then(m => m.EmployeeWorkflowComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/employee-workflow/:id',
+    loadComponent: () => import('./admin/employee-workflow/employee-workflow.component').then(m => m.EmployeeWorkflowComponent),
+    canActivate: [managerHrGuard]
+  },
   { path: 'dashboard/add-users', component: AddUserComponent },
   { path: 'dashboard/leave-approvals', component: LeaveApprovalsComponent },
   { path: 'dashboard/team-calendar', component: TeamCalendarComponent },
