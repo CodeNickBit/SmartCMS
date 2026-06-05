@@ -55,6 +55,7 @@ app.use('/api', taskRoutes);
 app.use('/api/payroll', payrollRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/workflow-templates', require('./routes/workflowTemplateRoutes'));
 
 // Handle 404 routes with JSON response
 app.use((req, res, next) => {

@@ -22,7 +22,10 @@ const attachmentSchema = new mongoose.Schema({
 }, { _id: true });
 
 const taskSchema = new mongoose.Schema({
-  projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
+  projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project' },
+  taskType: { type: String, enum: ['project', 'onboarding', 'offboarding'], default: 'project' },
+  relatedUserId: { type: String }, // User being onboarded/offboarded
+  workflowTemplateId: { type: mongoose.Schema.Types.ObjectId, ref: 'WorkflowTemplate' },
   milestoneId: { type: mongoose.Schema.Types.ObjectId },
   title: { type: String, required: true, trim: true },
   description: { type: String, trim: true },
@@ -53,5 +56,6 @@ const taskSchema = new mongoose.Schema({
 
 taskSchema.index({ projectId: 1, status: 1 });
 taskSchema.index({ assignedTo: 1, status: 1 });
+taskSchema.index({ relatedUserId: 1, taskType: 1 });
 
 module.exports = mongoose.model('Task', taskSchema);
