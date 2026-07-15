@@ -173,6 +173,27 @@ export const routes: Routes = [
   { path: 'timesheets/:employeeId', component: TimesheetComponent, canActivate: [authGuard] },
 
   {
+    path: 'admin/manage-assets',
+    loadComponent: () => import('./admin/manage-assets/manage-assets.component').then(m => m.ManageAssetsComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/my-assets',
+    loadComponent: () => import('./dashboard/my-assets/my-assets.component').then(m => m.MyAssetsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'dashboard/my-expenses',
+    loadComponent: () => import('./dashboard/my-expenses/my-expenses.component').then(m => m.MyExpensesComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'dashboard/expense-approvals',
+    loadComponent: () => import('./dashboard/expense-approvals/expense-approvals.component').then(m => m.ExpenseApprovalsComponent),
+    canActivate: [managerHrGuard]
+  },
+
+  {
     path: 'unauthorized',
     loadComponent: () => import('./unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
   },
