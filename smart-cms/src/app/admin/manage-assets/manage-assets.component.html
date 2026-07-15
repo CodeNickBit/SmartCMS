@@ -1,0 +1,173 @@
+<div class="flex h-screen bg-[#101935] text-white font-sans overflow-hidden">
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <div class="flex-1 flex flex-col h-full relative min-w-0">
+    <app-admin-header title="Manage Assets" [(searchQuery)]="searchQuery"></app-admin-header>
+
+    <main class="flex-1 overflow-y-auto bg-[#101935] scroll-smooth">
+      <div class="max-w-full mx-auto p-6 lg:p-8 space-y-8">
+        
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-semibold text-white tracking-tight">Assets Inventory</h1>
+          </div>
+          <button (click)="openAddModal()"
+            class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/25 text-white rounded-xl text-sm font-bold transition-all border border-blue-500/50 flex items-center gap-2">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add New Asset
+          </button>
+        </div>
+
+        <!-- Asset Table -->
+        <div class="bg-[#1B264F] text-white rounded-2xl shadow-xl overflow-hidden border border-blue-900/30">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-[#101935] text-slate-300 font-bold border-b border-slate-700">
+                <tr>
+                  <th class="px-6 py-4">Asset Name</th>
+                  <th class="px-6 py-4">Category</th>
+                  <th class="px-6 py-4">Serial No</th>
+                  <th class="px-6 py-4">Status</th>
+                  <th class="px-6 py-4">Assigned To</th>
+                  <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-700">
+                <tr *ngFor="let asset of assets" class="hover:bg-[#101935]/50 transition-colors">
+                  <td class="px-6 py-4 font-medium text-slate-300">{{ asset.name }}</td>
+                  <td class="px-6 py-4">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold border bg-blue-900/30 text-blue-300 border-blue-700">
+                      {{ asset.category }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-slate-400 font-mono text-xs">{{ asset.serialNumber }}</td>
+                  <td class="px-6 py-4">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold border"
+                      [ngClass]="{
+                        'bg-emerald-900/30 text-emerald-300 border-emerald-700': asset.status === 'Available',
+                        'bg-[#3083DC]/20 text-[#3083DC] border-[#3083DC]/50': asset.status === 'Assigned',
+                        'bg-orange-900/30 text-orange-300 border-orange-700': asset.status === 'Maintenance',
+                        'bg-red-900/30 text-red-300 border-red-700': asset.status === 'Retired'
+                      }">
+                      {{ asset.status }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-slate-300">
+                    <div *ngIf="asset.assignedTo" class="flex items-center gap-3">
+                      <div class="h-8 w-8 rounded-full bg-[#3083DC]/20 flex items-center justify-center text-[#3083DC] font-bold text-xs uppercase">
+                        {{ asset.assignedTo.firstName?.[0] || 'U' }}{{ asset.assignedTo.lastName?.[0] || 'N' }}
+                      </div>
+                      <span class="font-bold text-white">{{ asset.assignedTo.firstName }} {{ asset.assignedTo.lastName }}</span>
+                    </div>
+                    <span *ngIf="!asset.assignedTo" class="text-slate-500 italic">Unassigned</span>
+                  </td>
+                  <td class="px-6 py-4 text-right">
+                    <div class="flex justify-end gap-1">
+                      <button *ngIf="asset.status === 'Available'" (click)="openAssignModal(asset)" class="px-3 py-1.5 text-xs font-bold text-blue-400 hover:text-white bg-blue-900/20 hover:bg-blue-600 rounded-lg transition-all border border-blue-500/30">Assign</button>
+                      <button *ngIf="asset.status === 'Assigned'" (click)="openReturnModal(asset)" class="px-3 py-1.5 text-xs font-bold text-orange-400 hover:text-white bg-orange-900/20 hover:bg-orange-600 rounded-lg transition-all border border-orange-500/30">Return</button>
+                      <button (click)="deleteAsset(asset._id!)" class="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Delete Asset">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="assets.length === 0">
+                  <td colspan="6" class="px-6 py-10 text-center text-slate-400 italic">
+                    No assets found. Click "Add New Asset" to create one.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add/Edit Modal (Dark Theme) -->
+<div *ngIf="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+  <div class="bg-[#1B264F] text-white rounded-2xl shadow-2xl border border-blue-900/50 w-full max-w-md flex flex-col animate-in zoom-in-95 duration-300">
+    <div class="flex items-center justify-between p-6 border-b border-blue-900/30 flex-shrink-0">
+      <h2 class="text-xl font-bold text-white tracking-tight">{{ selectedAsset ? 'Edit Asset' : 'Add New Asset' }}</h2>
+      <button (click)="closeModal()" class="text-slate-400 hover:text-red-500 hover:bg-slate-800/50 p-2 rounded-xl transition-all">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    <form [formGroup]="assetForm" (ngSubmit)="onSubmit()" class="p-6 space-y-4">
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Asset Name</label>
+        <input type="text" formControlName="name" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none">
+      </div>
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Serial Number</label>
+        <input type="text" formControlName="serialNumber" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none">
+      </div>
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Category</label>
+        <select formControlName="category" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+      </div>
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Status</label>
+        <select formControlName="status" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+          <option value="Available">Available</option>
+          <option value="Maintenance">Maintenance</option>
+          <option value="Retired">Retired</option>
+        </select>
+      </div>
+      <div class="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-blue-900/30">
+        <button type="button" (click)="closeModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:text-white bg-[#101935] hover:bg-slate-800 transition-all border border-blue-900/50">Cancel</button>
+        <button type="submit" [disabled]="assetForm.invalid" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/25 text-white rounded-xl text-sm font-bold transition-all border border-blue-500/50 disabled:opacity-50">Save Asset</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Assign Modal (Dark Theme) -->
+<div *ngIf="showAssignModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+  <div class="bg-[#1B264F] text-white rounded-2xl shadow-2xl border border-blue-900/50 w-full max-w-md flex flex-col animate-in zoom-in-95 duration-300">
+    <div class="p-6 border-b border-blue-900/30">
+      <h3 class="text-xl font-bold text-white tracking-tight">Assign {{ selectedAsset?.name }}</h3>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Select Employee</label>
+        <select [(ngModel)]="assignUserId" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+          <option value="">-- Select Employee --</option>
+          <option *ngFor="let user of users" [value]="user._id">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</option>
+        </select>
+      </div>
+      <div class="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-blue-900/30">
+        <button type="button" (click)="closeAssignModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:text-white bg-[#101935] hover:bg-slate-800 transition-all border border-blue-900/50">Cancel</button>
+        <button type="button" (click)="assignAsset()" [disabled]="!assignUserId" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/25 text-white rounded-xl text-sm font-bold transition-all border border-blue-500/50 disabled:opacity-50">Assign Asset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Return Modal (Dark Theme) -->
+<div *ngIf="showReturnModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+  <div class="bg-[#1B264F] text-white rounded-2xl shadow-2xl border border-blue-900/50 w-full max-w-md flex flex-col animate-in zoom-in-95 duration-300">
+    <div class="p-6 border-b border-blue-900/30">
+      <h3 class="text-xl font-bold text-white tracking-tight">Return {{ selectedAsset?.name }}</h3>
+      <p class="text-sm text-slate-400 mt-1">Currently assigned to {{ selectedAsset?.assignedTo?.firstName }} {{ selectedAsset?.assignedTo?.lastName }}</p>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="space-y-2">
+        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Return Notes / Condition (Optional)</label>
+        <textarea [(ngModel)]="returnNotes" rows="3" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none" placeholder="e.g. Scratches on screen, working fine"></textarea>
+      </div>
+      <div class="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-blue-900/30">
+        <button type="button" (click)="closeReturnModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:text-white bg-[#101935] hover:bg-slate-800 transition-all border border-blue-900/50">Cancel</button>
+        <button type="button" (click)="returnAsset()" class="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 hover:shadow-lg hover:shadow-orange-500/25 text-white rounded-xl text-sm font-bold transition-all border border-orange-500/50">Mark as Returned</button>
+      </div>
+    </div>
+  </div>
+</div>

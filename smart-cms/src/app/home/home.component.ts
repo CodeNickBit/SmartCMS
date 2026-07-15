@@ -7,11 +7,10 @@ import { LeavePolicyService, LeavePolicy } from '../services/leave-policy.servic
 import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 import { OfficeLocationService } from '../services/office-location.service';
 import { AttendanceService, AttendanceRecord } from '../services/attendance.service';
-import { ProfileModalComponent } from '../dashboard/components/profile-modal/profile-modal.component';
 import { TaskService } from '../services/task.service';
 import { PayrollService, Payslip as RealPayslip } from '../services/payroll.service';
-import { NotificationService, Notification as GlobalNotification } from '../services/notification.service';
-import { Subscription, interval } from 'rxjs';
+import { SharedSidebarComponent } from '../dashboard/components/sidebar/sidebar.component';
+import { SharedHeaderComponent } from '../dashboard/components/header/header.component';
 
 export interface Task {
   id: number;
@@ -63,7 +62,7 @@ interface OfficeLocation {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProfileModalComponent, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, SharedSidebarComponent, SharedHeaderComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -104,13 +103,6 @@ export class HomeComponent implements OnInit {
   generalRules: string[] = [];
   policies: LeavePolicy[] = [];
 
-  // Profile Modal
-  showProfileModal = false;
-
-  // Notifications
-  showNotifications = false;
-  notifications: GlobalNotification[] = []; 
-  private notificationPolling?: Subscription;
 
   // Leave Application Modal
   showLeaveModal = false;
@@ -170,19 +162,11 @@ export class HomeComponent implements OnInit {
     private officeLocationService: OfficeLocationService,
     private attendanceService: AttendanceService,
     private taskService: TaskService,
-    private payrollService: PayrollService,
-    private notificationService: NotificationService
+    private payrollService: PayrollService
   ) { }
 
   ngOnInit(): void {
     this.userProfile = this.authService.getUser();
-
-    // Check saved theme
-    if (isPlatformBrowser(this.platformId)) {
-      const savedTheme = localStorage.getItem('theme');
-      this.isDarkMode = savedTheme !== 'light'; // Default to dark if not set
-      this.applyTheme();
-    }
 
     // Fallback if no user is logged in
     if (!this.userProfile) {
@@ -201,20 +185,6 @@ export class HomeComponent implements OnInit {
     this.loadAttendanceData();
     this.loadRealTasks();
     this.loadLatestPayslip();
-    this.fetchNotifications();
-    
-    // Polling for notifications every 30 seconds
-    if (isPlatformBrowser(this.platformId)) {
-        this.notificationPolling = interval(30000).subscribe(() => this.fetchNotifications());
-        
-        // Click outside to close notifications - smarter approach
-        document.addEventListener('click', (event: any) => {
-          const isClickInside = event.target.closest('.notification-drawer') || event.target.closest('.notification-toggle-btn');
-          if (!isClickInside && this.showNotifications) {
-            this.showNotifications = false;
-          }
-        });
-    }
   }
   // ngOnDestroy removed as polling is removed
 
@@ -341,14 +311,6 @@ export class HomeComponent implements OnInit {
   }
 
   // Modal Methods
-  openProfileModal(): void {
-    this.showProfileModal = true;
-  }
-
-  closeProfileModal(): void {
-    this.showProfileModal = false;
-  }
-
   openPolicyModal(): void {
     this.showPolicyModal = true;
   }
@@ -360,7 +322,6 @@ export class HomeComponent implements OnInit {
   acknowledgePolicy(): void {
     this.isPolicyAcknowledged = true;
     this.closePolicyModal();
-    // Reset and open the leave form as requested by the user
     this.isEditMode = false;
     this.editingLeaveId = null;
     this.activeManagerComments = null;
@@ -376,92 +337,6 @@ export class HomeComponent implements OnInit {
     };
   }
 
-  toggleNotifications(event?: Event): void {
-    if (event) {
-      event.stopPropagation();
-    }
-    this.showNotifications = !this.showNotifications;
-  }
-
-  // Notification Tabs
-  activeNotificationTab: string = 'All';
-  notificationTabs: string[] = ['All', 'Unread', 'Work', 'General'];
-
-  setActiveNotificationTab(tab: string): void {
-    this.activeNotificationTab = tab;
-  }
-
-  fetchNotifications(): void {
-    this.notificationService.getNotifications().subscribe({
-      next: (data) => {
-        this.notifications = data;
-      },
-      error: (err) => console.error('Error fetching notifications (Home)', err)
-    });
-  }
-
-  deleteNotification(note: GlobalNotification, event: Event): void {
-    event.stopPropagation();
-    this.notificationService.deleteNotification(note._id).subscribe(() => {
-      this.notifications = this.notifications.filter(n => n._id !== note._id);
-    });
-  }
-
-  markAllAsRead(): void {
-    this.notificationService.markAllAsRead().subscribe(() => {
-      this.notifications.forEach(n => n.isRead = true);
-    });
-  }
-
-  markAsRead(note: GlobalNotification): void {
-    if (!note.isRead) {
-      this.notificationService.markAsRead(note._id).subscribe(() => {
-        note.isRead = true;
-      });
-    }
-  }
-
-  getFilteredNotifications(): GlobalNotification[] {
-    switch (this.activeNotificationTab) {
-      case 'Unread':
-        return this.notifications.filter(n => !n.isRead);
-      case 'Work':
-        return this.notifications.filter(n => ['Task', 'Attendance'].includes(n.category));
-      case 'General':
-        return this.notifications.filter(n => ['Leave', 'Payroll', 'System', 'General'].includes(n.category));
-      default:
-        return this.notifications;
-    }
-  }
-
-  notificationIconType(category: string): 'success' | 'info' | 'warning' | 'error' {
-    switch (category) {
-      case 'Payroll':
-        return 'success';
-      case 'Leave':
-        return 'warning';
-      case 'Task':
-      case 'Attendance':
-      case 'System':
-      case 'General':
-      default:
-        return 'info';
-    }
-  }
-
-  hasNotificationsByCategory(category: string): boolean {
-    if (category === 'Work') return this.notifications.some(n => ['Task', 'Attendance'].includes(n.category));
-    if (category === 'General') return this.notifications.some(n => ['Leave', 'Payroll', 'System', 'General'].includes(n.category));
-    return this.notifications.some(n => n.category === category);
-  }
-
-  hasUnreadNotifications(): boolean {
-    return this.notifications.some(n => !n.isRead);
-  }
-
-  get unreadNotificationCount(): number {
-    return this.notifications.filter(n => !n.isRead).length;
-  }
 
   loadAttendanceData(): void {
     if (isPlatformBrowser(this.platformId)) {

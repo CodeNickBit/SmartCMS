@@ -5,6 +5,16 @@ const companySettingsSchema = new mongoose.Schema({
         type: String,
         trim: true
     }],
+    assetCategories: [{
+        type: String,
+        trim: true,
+        default: ['Laptop', 'Monitor', 'Mobile', 'Keyboard/Mouse', 'Software License', 'Other']
+    }],
+    expenseCategories: [{
+        type: String,
+        trim: true,
+        default: ['Travel', 'Food', 'Accommodation', 'Internet', 'Office Supplies', 'Other']
+    }],
     payrollSettings: {
         frequency: {
             type: String,

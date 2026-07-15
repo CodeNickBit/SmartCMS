@@ -50,6 +50,13 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
             </svg>
             <span class="font-medium text-sm">Leave Approvals</span>
           </a>
+          <a routerLink="/dashboard/expense-approvals" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
+            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
+            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-medium text-sm">Expense Approvals</span>
+          </a>
           <a routerLink="/dashboard/employees" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
             class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
             <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,6 +108,14 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
             </svg>
             <span class="font-medium text-sm">Attendance Approvals</span>
           </a>
+          <!-- Expense Approvals -->
+          <a routerLink="/dashboard/expense-approvals" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
+            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
+            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-medium text-sm">Expense Approvals</span>
+          </a>
           <!-- Team Calendar -->
           <a routerLink="/dashboard/team-calendar" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
             class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
@@ -127,7 +142,7 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
         </ng-container>
 
         <!-- Personal Links -->
-        <ng-container *ngIf="userRole === 'manager' || userRole === 'hr' || userRole === 'employee'">
+        <ng-container *ngIf="userRole === 'manager' || userRole === 'hr' || userRole === 'employee' || userRole === ''">
           <div class="pt-4 pb-2 px-3">
             <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Personal</p>
           </div>
@@ -145,10 +160,24 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
             </svg>
             <span class="font-medium text-sm">My Payslips</span>
           </a>
+          <a routerLink="/dashboard/my-assets" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
+            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
+            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span class="font-medium text-sm">My Assets</span>
+          </a>
+          <a routerLink="/dashboard/my-expenses" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
+            class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
+            <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="font-medium text-sm">My Expenses</span>
+          </a>
         </ng-container>
 
         <!-- Projects & Tasks — Role-based visibility -->
-        <ng-container *ngIf="userRole === 'manager' || userRole === 'hr' || userRole === 'employee'">
+        <ng-container *ngIf="userRole === 'manager' || userRole === 'hr' || userRole === 'employee' || userRole === ''">
           <div class="pt-4 pb-2 px-3">
             <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Projects</p>
           </div>
@@ -159,7 +188,7 @@ import { ProfileModalComponent } from '../profile-modal/profile-modal.component'
             </svg>
             <span class="font-medium text-sm">Projects</span>
           </a>
-          <a *ngIf="userRole === 'employee' || userRole === 'manager'" routerLink="/my-tasks" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
+          <a *ngIf="userRole === 'employee' || userRole === 'manager' || userRole === ''" routerLink="/my-tasks" routerLinkActive="bg-white/5 light:bg-black/5 text-slate-800 light:text-[#0D1B35] dark:text-white"
             class="group relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 light:text-[#3D5A7A] dark:text-slate-300 hover:bg-white/5 light:hover:bg-black/5 hover:text-white light:hover:text-[#0D1B35] transition-all">
             <svg class="h-5 w-5 group-hover:text-[#3083DC] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

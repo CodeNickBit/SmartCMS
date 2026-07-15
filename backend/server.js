@@ -57,6 +57,13 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/workflow-templates', require('./routes/workflowTemplateRoutes'));
 
+// New Asset and Expense routes
+app.use('/api/assets', require('./routes/assetRoutes'));
+app.use('/api/expenses', require('./routes/expenseRoutes'));
+
+// Serve static files for uploads
+app.use('/uploads', express.static('uploads'));
+
 // Handle 404 routes with JSON response
 app.use((req, res, next) => {
   res.status(404).json({ message: `Route not found: ${req.originalUrl}` });
