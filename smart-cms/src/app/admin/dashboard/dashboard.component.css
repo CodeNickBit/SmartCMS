@@ -1,3 +1,55 @@
-/* Dashboard-specific CSS is intentionally minimal.
-   Layout and styling are handled primarily via Tailwind CSS
-   utility classes and Angular Material theming. */
+@keyframes pulse-once {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); text-shadow: 0 0 15px rgba(255, 255, 255, 0.5); }
+  100% { transform: scale(1); }
+}
+
+.pulse-animation {
+  animation: pulse-once 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animate-count {
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+/* Glassmorphism scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Premium Chart Effects */
+.glow-bar {
+  filter: drop-shadow(0 0 8px rgba(48, 131, 220, 0.4));
+  box-shadow: 0 0 15px rgba(48, 131, 220, 0.2);
+}
+
+.line-draw-animation {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: draw 2.5s ease-out forwards;
+  filter: drop-shadow(0 0 5px rgba(48, 131, 220, 0.5));
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+polyline:hover {
+  stroke-width: 5;
+  transition: stroke-width 0.3s ease;
+  filter: drop-shadow(0 0 10px rgba(238, 150, 75, 0.8));
+}

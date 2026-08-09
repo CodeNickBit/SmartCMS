@@ -1,0 +1,535 @@
+<div class="bg-[#f6f9ff] font-['Inter'] text-[#171c21]">
+  <!-- TopNavBar Component -->
+  <header
+    class="fixed top-0 w-full z-50 backdrop-blur-24 bg-white/80 shadow-sm shadow-blue-900/5"
+  >
+    <nav class="flex justify-between items-center max-w-7xl mx-auto px-8 h-20">
+      <img
+        src="assets/MEAN_Logo_White.png"
+        alt="SmartCMS Logo"
+        class="h-14 w-auto object-contain cursor-pointer pointer-events-auto"
+      />
+      <div class="flex items-center gap-4">
+        <button
+          (click)="navigateToLogin()"
+          class="px-6 py-2 rounded-full font-bold text-sm bg-[#00549d] text-white hover:scale-95 transition-transform"
+        >
+          Login
+        </button>
+      </div>
+    </nav>
+  </header>
+  <main class="pt-20">
+    <!-- Hero Section -->
+    <section
+      class="relative overflow-hidden pt-32 pb-48 min-h-[85vh] flex items-center bg-[#f6f9ff]"
+      id="hero"
+    >
+      <!-- Interactive Background Canvas -->
+      <canvas class="hero-interactive-canvas" id="hero-canvas"></canvas>
+      <div class="relative z-10 max-w-5xl mx-auto px-8 text-center space-y-10">
+
+        <h1
+          class="text-5xl lg:text-8xl font-black text-[#171c21] leading-[1.05] tracking-tight"
+        >
+          Streamline Your
+          <span class="text-[#1a6dc2]">Corporate</span> Operations with SmartCMS
+        </h1>
+        <p
+          class="text-xl md:text-2xl text-[#425d7f] max-w-3xl mx-auto leading-relaxed font-medium"
+        >
+          The all-in-one platform for seamless employee management, attendance
+          tracking, and task delegation. Designed for the modern enterprise.
+        </p>
+        <div class="flex flex-wrap justify-center gap-6 pt-6">
+          <button
+            (click)="navigateToLogin()"
+            class="px-10 py-5 rounded-full bg-gradient-to-br from-[#00549d] to-[#1a6dc2] text-white font-bold text-xl shadow-2xl shadow-[#00549d]/30 hover:scale-105 transition-all"
+          >
+            Request Demo
+          </button>
+          <button
+            class="px-10 py-5 rounded-full bg-white/50 backdrop-blur-md border border-[#c1c6d4]/30 text-[#00549d] font-bold text-xl hover:bg-white transition-all shadow-lg"
+          >
+            Learn More
+          </button>
+        </div>
+      </div>
+    </section>
+    <!-- Trusted By Section -->
+    <section class="py-12 bg-[#eff4fb]/40">
+      <div class="max-w-7xl mx-auto px-8">
+        <p
+          class="text-center font-['Inter'] text-[10px] tracking-[0.2em] uppercase text-[#414752] mb-10 font-bold"
+        >
+          Trusted by global industry leaders
+        </p>
+        <div
+          class="flex flex-wrap justify-center items-center gap-12 lg:gap-24 opacity-60 grayscale hover:grayscale-0 transition-all"
+        >
+          <div class="text-2xl font-bold tracking-tighter text-[#171c21]">
+            SENTRY.CO
+          </div>
+          <div class="text-2xl font-bold tracking-tighter text-[#171c21]">
+            VORTEX
+          </div>
+          <div class="text-2xl font-bold tracking-tighter text-[#171c21]">
+            AXION
+          </div>
+          <div class="text-2xl font-bold tracking-tighter text-[#171c21]">
+            LUMEN
+          </div>
+          <div class="text-2xl font-bold tracking-tighter text-[#171c21]">
+            PULSE
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Key Features Bento Grid -->
+    <section class="py-32 px-8 max-w-7xl mx-auto">
+      <div class="text-center mb-20 space-y-4">
+        <h2 class="text-4xl font-black tracking-tight text-[#1e293b]">
+          Powerful Features for Growth
+        </h2>
+        <p class="text-[#425d7f] max-w-2xl mx-auto text-lg">
+          Every tool you need to manage a thriving workforce, integrated into a
+          single cohesive ecosystem.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 h-auto">
+        <!-- Feature 1 -->
+        <div
+          class="md:col-span-7 group relative rounded-full p-10 bg-[#eff4fb] overflow-hidden border border-[#c1c6d4]/10 hover:bg-[#ffffff] transition-all duration-500"
+        >
+          <div class="relative z-10 space-y-4">
+            <div
+              class="h-12 w-12 rounded-xl bg-[#00549d]/10 flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-[#00549d] text-3xl"
+                >diversity_3</span
+              >
+            </div>
+            <h3 class="text-2xl font-bold text-[#334155]">
+              Employee Lifecycle Management
+            </h3>
+            <p class="text-[#425d7f] leading-relaxed">
+              From automated onboarding to continuous performance tracking and
+              retirement planning. Manage the journey with empathy and data.
+            </p>
+          </div>
+          <div
+            class="absolute bottom-[-10%] right-[-5%] w-64 h-64 bg-[#00549d]/5 rounded-full blur-3xl group-hover:bg-[#00549d]/10 transition-colors"
+          ></div>
+        </div>
+        <!-- Feature 2 -->
+        <div
+          class="md:col-span-5 group relative rounded-full p-10 bg-[#eff4fb] overflow-hidden border border-[#c1c6d4]/10 hover:bg-[#ffffff] transition-all duration-500"
+        >
+          <div class="relative z-10 space-y-4">
+            <div
+              class="h-12 w-12 rounded-xl bg-[#864100]/10 flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-[#864100] text-3xl"
+                >event_available</span
+              >
+            </div>
+            <h3 class="text-2xl font-bold text-[#334155]">
+              Leave &amp; Attendance
+            </h3>
+            <p class="text-[#425d7f] leading-relaxed">
+              Smart geofencing and facial recognition for error-free tracking.
+            </p>
+          </div>
+          <div
+            class="absolute top-[-10%] left-[-5%] w-48 h-48 bg-[#864100]/5 rounded-full blur-2xl"
+          ></div>
+        </div>
+        <!-- Feature 3 -->
+        <div
+          class="md:col-span-5 group relative rounded-full p-10 bg-[#eff4fb] overflow-hidden border border-[#c1c6d4]/10 hover:bg-[#ffffff] transition-all duration-500"
+        >
+          <div class="relative z-10 space-y-4">
+            <div
+              class="h-12 w-12 rounded-xl bg-[#456082]/10 flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-[#456082] text-3xl"
+                >account_balance_wallet</span
+              >
+            </div>
+            <h3 class="text-2xl font-bold text-[#334155]">
+              Payroll Integration
+            </h3>
+            <p class="text-[#425d7f] leading-relaxed">
+              Global tax compliance and instant payment processing.
+            </p>
+          </div>
+        </div>
+        <!-- Feature 4 -->
+        <div
+          class="md:col-span-7 group relative rounded-full p-10 bg-[#eff4fb] overflow-hidden border border-[#c1c6d4]/10 hover:bg-[#ffffff] transition-all duration-500"
+        >
+          <div class="relative z-10 space-y-4">
+            <div
+              class="h-12 w-12 rounded-xl bg-[#1a6dc2]/10 flex items-center justify-center"
+            >
+              <span class="material-symbols-outlined text-[#1a6dc2] text-3xl"
+                >assignment</span
+              >
+            </div>
+            <h3 class="text-2xl font-bold text-[#334155]">
+              Project &amp; Task Delegation
+            </h3>
+            <p class="text-[#425d7f] leading-relaxed">
+              AI-driven task distribution based on employee bandwidth and skill
+              set. Optimize productivity without the burnout.
+            </p>
+          </div>
+          <div
+            class="absolute bottom-0 right-0 p-6 opacity-10 group-hover:opacity-30 transition-opacity"
+          >
+            <span class="material-symbols-outlined text-8xl">dashboard</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Role-Based Value Prop (Tabbed) -->
+    <section class="py-32 bg-[#eff4fb]/60">
+      <div class="max-w-7xl mx-auto px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <div class="order-2 lg:order-1">
+            <div
+              class="rounded-3xl bg-[#ffffff] p-8 shadow-xl border border-[#c1c6d4]/5"
+            >
+              <div class="flex items-center gap-4 mb-8">
+                <div
+                  class="h-10 w-10 rounded-full bg-[#00549d]/10 flex items-center justify-center text-[#00549d] font-bold"
+                >
+                  01
+                </div>
+                <h4 class="text-xl font-bold text-[#1e293b]">
+                  Comprehensive Analytics
+                </h4>
+              </div>
+              <div class="space-y-6">
+                <div class="h-4 bg-[#e9eef5] rounded-full w-full">
+                  <div class="h-full bg-[#00549d] rounded-full w-3/4"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="p-4 rounded-xl bg-[#eff4fb]">
+                    <p class="text-xs text-[#414752] font-bold uppercase mb-1">
+                      Retention
+                    </p>
+                    <p class="text-2xl font-black text-[#1e293b]">94%</p>
+                  </div>
+                  <div class="p-4 rounded-xl bg-[#eff4fb]">
+                    <p class="text-xs text-[#414752] font-bold uppercase mb-1">
+                      Happiness
+                    </p>
+                    <p class="text-2xl font-black text-[#1e293b]">8.2/10</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="order-1 lg:order-2 space-y-8">
+            <h2 class="text-4xl font-black tracking-tight text-[#1e293b]">
+              Tailored Experience for Every Role
+            </h2>
+            <div class="flex flex-wrap gap-2">
+              <button
+                (click)="setRole('Admin')"
+                [class]="activeRole === 'Admin' ? 'px-6 py-2 rounded-full bg-[#00549d] text-white font-bold text-sm transition-colors' : 'px-6 py-2 rounded-full bg-[#e9eef5] text-[#414752] font-bold text-sm hover:bg-[#e3e9f0] transition-colors'"
+              >
+                Admin
+              </button>
+              <button
+                (click)="setRole('HR Manager')"
+                [class]="activeRole === 'HR Manager' ? 'px-6 py-2 rounded-full bg-[#00549d] text-white font-bold text-sm transition-colors' : 'px-6 py-2 rounded-full bg-[#e9eef5] text-[#414752] font-bold text-sm hover:bg-[#e3e9f0] transition-colors'"
+              >
+                HR Manager
+              </button>
+              <button
+                (click)="setRole('Dept Manager')"
+                [class]="activeRole === 'Dept Manager' ? 'px-6 py-2 rounded-full bg-[#00549d] text-white font-bold text-sm transition-colors' : 'px-6 py-2 rounded-full bg-[#e9eef5] text-[#414752] font-bold text-sm hover:bg-[#e3e9f0] transition-colors'"
+              >
+                Dept Manager
+              </button>
+              <button
+                (click)="setRole('Employee')"
+                [class]="activeRole === 'Employee' ? 'px-6 py-2 rounded-full bg-[#00549d] text-white font-bold text-sm transition-colors' : 'px-6 py-2 rounded-full bg-[#e9eef5] text-[#414752] font-bold text-sm hover:bg-[#e3e9f0] transition-colors'"
+              >
+                Employee
+              </button>
+            </div>
+            <div class="space-y-4" *ngIf="rolesData[activeRole] as role">
+              <p class="text-xl font-semibold text-[#00549d]">
+                {{ role.title }}
+              </p>
+              <p class="text-lg text-[#425d7f] leading-relaxed">
+                {{ role.desc }}
+              </p>
+              <ul class="space-y-3">
+                <li class="flex items-center gap-3" *ngFor="let feat of role.features">
+                  <span class="material-symbols-outlined text-[#00549d] text-sm"
+                    >check_circle</span
+                  >
+                  <span class="font-medium text-[#475569]"
+                    >{{ feat }}</span
+                  >
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Testimonials -->
+    <section class="py-32 px-8 max-w-7xl mx-auto">
+      <h2
+        class="text-center text-4xl font-black tracking-tight mb-20 text-[#1e293b]"
+      >
+        Voices of Success
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Testimonial 1 -->
+        <div
+          class="p-8 rounded-3xl bg-[#eff4fb] flex flex-col justify-between border border-[#c1c6d4]/10 group hover:scale-[1.02] transition-transform"
+        >
+          <p class="text-lg leading-relaxed text-[#425d7f] italic mb-8">
+            "SmartCMS didn't just change our HR workflow; it redefined our
+            corporate culture. Efficiency is up 40%."
+          </p>
+          <div class="flex items-center gap-4">
+            <img
+              alt="CEO"
+              class="w-12 h-12 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all"
+              data-alt="Professional headshot of a confident male CEO in a navy suit, clean studio background, natural lighting"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqEVwat6z0jbO14qG3fPODa168GnhtrMzjY3EANOs_o7P9FjyCdYHclhm0uiw4gfSM8uWaLA_bTCw1JBntsaCN7A9QMzGSIKxOb5F3UKXfk1Luv_gQTm2TB5n7YxDwJ6unDok9qogweHv1zU7ESct1ndFPoR9AoHhw1fMbU1RUBoy_65aYT9RETC0DLMhR4ZrjtP7ifSQIhIiCqpvfaqmXUStSk_Sdc-D-UIagUNY5UWuk98cF6PaWFAZvNrXeZ7cDrhiIZlPLG0zd"
+            />
+            <div>
+              <p class="font-bold text-[#171c21]">Aayush Shah</p>
+              <p
+                class="text-xs uppercase font-['Inter'] tracking-wider text-[#414752]"
+              >
+                CEO, Nexus Corp
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- Testimonial 2 -->
+        <div
+          class="p-8 rounded-3xl bg-[#00549d] text-white flex flex-col justify-between shadow-xl shadow-[#00549d]/20 scale-105"
+        >
+          <p class="text-lg leading-relaxed italic mb-8 opacity-90">
+            "The payroll integration alone saved us hundreds of manual hours.
+            It’s the most robust system we've ever used."
+          </p>
+          <div class="flex items-center gap-4">
+            <img
+              alt="HR Manager"
+              class="w-12 h-12 rounded-full object-cover"
+              data-alt="Professional headshot of a female HR Director, friendly expression, modern office background with soft bokeh"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4g53ADvSxxWvuBDrAnIEuNPTpXmwu3JqrfX-ZaJFt2NZJmMgEdyvd2WFaOdN4ksx3ap0HQd0okGxKZarJBq6UJPPK2XmmapbB2Nz9Jzl2riYKaU-77dhFpJKO9lXg6UWi3PxhSrquEo9uEEWri45BzelkvLWXJVkpyVv1mqgoWICt8AKaUQU5IT0tQ4Nqun8tRnYHMsruhbPPmG2eNChAP7QEN4yxw14wEpaGY44toSw266-OKmG_u3vRKBc4u17fxZleDURsKBlm"
+            />
+            <div>
+              <p class="font-bold">Nikhil Chauhan</p>
+              <p
+                class="text-xs uppercase font-['Inter'] tracking-wider opacity-70"
+              >
+                HR Director, Global Stream
+              </p>
+            </div>
+          </div>
+        </div>
+        <!-- Testimonial 3 -->
+        <div
+          class="p-8 rounded-3xl bg-[#eff4fb] flex flex-col justify-between border border-[#c1c6d4]/10 group hover:scale-[1.02] transition-transform"
+        >
+          <p class="text-lg leading-relaxed text-[#425d7f] italic mb-8">
+            "The interface is so intuitive that our training time dropped from
+            weeks to just a few hours."
+          </p>
+          <div class="flex items-center gap-4">
+            <img
+              alt="Manager"
+              class="w-12 h-12 rounded-full object-cover grayscale group-hover:grayscale-0 transition-all"
+              data-alt="Close-up portrait of a male tech manager wearing glasses, thinking pose, soft warm indoor lighting"
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKMn7F20u2UbxfdwbiMJi3QUpKUpM5TqZvn3_nc67NMv5NHRXwYSS_u4yUynxRmxM350YUX2zxBFCBVl8V4_WLxvqOcDFkfJIaC3mPON9s9sEwDtmupsdyeZTKWk87g5fPDB6sPkCDceKxF1yOdfe-3iNIBRKrC5qO6UWFGKJOl1-JdJNp13RJc8dr7O6UMOaYOaRx2hk8a56au4fKmxAyFmErtkGTjxeOirmBi-KFvUCPXWT5pfhcJsxk6rUEns_zua1IiXqil0Yz"
+            />
+            <div>
+              <p class="font-bold text-[#171c21]">Kirtan Soni</p>
+              <p
+                class="text-xs uppercase font-['Inter'] tracking-wider text-[#414752]"
+              >
+                Operations Lead, Axiom
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Bottom CTA -->
+    <section class="py-20 px-8">
+      <div
+        class="max-w-7xl mx-auto rounded-3xl bg-gradient-to-r from-[#00549d] to-[#1a6dc2] p-12 lg:p-20 text-center text-white relative overflow-hidden shadow-2xl"
+      >
+        <div class="relative z-10 space-y-8">
+          <h2 class="text-4xl lg:text-6xl font-black tracking-tight">
+            Ready to modernize your workforce?
+          </h2>
+          <p class="text-xl opacity-90 max-w-2xl mx-auto">
+            Join over 2,500+ enterprises who have transformed their management
+            operations.
+          </p>
+          <div class="flex justify-center gap-4">
+            <button
+              (click)="navigateToLogin()"
+              class="px-10 py-4 rounded-full bg-white text-[#00549d] font-black text-lg hover:scale-105 transition-transform"
+            >
+              Get Started Today
+            </button>
+          </div>
+        </div>
+        <!-- Abstract Decor -->
+        <div
+          class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"
+        ></div>
+        <div
+          class="absolute bottom-0 left-0 w-96 h-96 bg-[#864100]/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"
+        ></div>
+      </div>
+    </section>
+  </main>
+  <!-- Footer Component -->
+  <footer
+    class="w-full py-16 bg-slate-50 font-inter text-xs tracking-wide uppercase font-bold"
+  >
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-12 max-w-7xl mx-auto px-8">
+      <div class="col-span-2 md:col-span-1 space-y-6">
+        <div class="text-lg font-black text-slate-900 tracking-tighter">
+          ANK Developers
+        </div>
+        <p class="text-slate-500 normal-case font-normal leading-relaxed">
+          Setting the gold standard for corporate management software since
+          2025. Built for scale, designed for people.
+        </p>
+        <div class="flex gap-4">
+          <span
+            class="material-symbols-outlined text-blue-700 cursor-pointer hover:opacity-100 transition-opacity opacity-80"
+            >public</span
+          >
+          <span
+            class="material-symbols-outlined text-blue-700 cursor-pointer hover:opacity-100 transition-opacity opacity-80"
+            >hub</span
+          >
+          <span
+            class="material-symbols-outlined text-blue-700 cursor-pointer hover:opacity-100 transition-opacity opacity-80"
+            >shield</span
+          >
+        </div>
+      </div>
+      <div class="space-y-6">
+        <h5 class="text-slate-900">Product</h5>
+        <ul class="space-y-4 text-slate-500">
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Features</a
+            >
+          </li>
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Solutions</a
+            >
+          </li>
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Pricing</a
+            >
+          </li>
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Updates</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="space-y-6">
+        <h5 class="text-slate-900">Company</h5>
+        <ul class="space-y-4 text-slate-500">
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >LinkedIn</a
+            >
+          </li>
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Twitter</a
+            >
+          </li>
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Facebook</a
+            >
+          </li>
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Support</a
+            >
+          </li>
+        </ul>
+      </div>
+      <div class="space-y-6">
+        <h5 class="text-slate-900">Legal</h5>
+        <ul class="space-y-4 text-slate-500">
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Privacy Policy</a
+            >
+          </li>
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Terms</a
+            >
+          </li>
+          <li>
+            <a
+              class="hover:text-blue-500 transition-colors"
+              href="javascript:void(0)"
+              >Cookies</a
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div
+      class="max-w-7xl mx-auto px-8 mt-16 pt-8 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4 text-slate-400"
+    >
+      <p>© 2025 ANK Developers. All rights reserved.</p>
+      <div class="flex gap-8">
+        <span>Enterprise Grade Security</span> <span>ISO 27001 Certified</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- Rebuild Trigger: 1775925839239 -->

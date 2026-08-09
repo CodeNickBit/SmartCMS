@@ -7,15 +7,24 @@ const upload = require('../middleware/upload');
 
 // ... Leaves
 router.post('/apply', upload.array('attachments', 3), leaveController.applyForLeave);
-router.post('/cancel/:id', leaveController.cancelLeave);
+router.post('/cancel/:id', protect, leaveController.cancelLeave);
 router.get('/my-leaves/:userId', leaveController.getMyLeaves);
 router.get('/manager-requests/:managerId', leaveController.getManagerLeaves);
+router.get('/manager-status/:managerId', leaveController.getManagerStatus);
+router.get('/return-digest/:managerId', leaveController.getReturnDigest);
 router.get('/team-calendar/:managerId', leaveController.getTeamCalendar);
-router.put('/:id/status', protect, checkRole(['manager']), leaveController.updateLeaveStatus);
+router.put('/:id/status', protect, checkRole(['manager', 'hr', 'admin']), leaveController.updateLeaveStatus);
 router.put('/:id', leaveController.updateLeaveRequest);
 
 // ... Year End (Admin Only)
 router.get('/year-end/preview', protect, checkRole(['admin', 'hr']), leaveBalanceController.previewYearEnd);
 router.post('/year-end/execute', protect, checkRole(['admin']), leaveBalanceController.executeYearEnd);
 
+// ... Leave Balance History (Employee View)
+router.get('/balance-history/:userId', protect, leaveBalanceController.getBalanceHistory);
+
+// ... Admin Reports
+router.get('/reports/summary', protect, checkRole(['admin', 'hr']), leaveBalanceController.getLeaveReport);
+
 module.exports = router;
+

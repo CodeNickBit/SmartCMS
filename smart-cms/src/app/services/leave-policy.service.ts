@@ -20,14 +20,17 @@ export interface LeaveRequest {
     _id?: string;
     userId: string;
     leaveType: string;
+    leaveUnit?: 'full-day' | 'half-day';
+    halfDayPeriod?: 'first-half' | 'second-half';
     startDate: Date;
     endDate: Date;
     reason: string;
-    status: 'Pending' | 'Approved' | 'Rejected';
+    status: 'Pending' | 'Approved' | 'Rejected' | 'Changes Requested' | 'Cancelled';
     managerId?: string;
     rejectionReason?: string;
     createdAt?: Date;
     userDetails?: any; // For populated user data in manager view
+    escalatedFromManager?: string; // Original manager names when escalated to HR
 }
 
 @Injectable({
@@ -83,6 +86,10 @@ export class LeavePolicyService {
         return this.http.get<LeaveRequest[]>(`${this.leaveUrl}/team-calendar/${managerId}`);
     }
 
+    getManagerStatus(managerId: string): Observable<{ onLeave: boolean }> {
+        return this.http.get<{ onLeave: boolean }>(`${this.leaveUrl}/manager-status/${managerId}`);
+    }
+
     updateLeaveStatus(leaveId: string, status: 'Approved' | 'Rejected' | 'Changes Requested', rejectionReason?: string, managerComments?: string): Observable<any> {
         return this.http.put(`${this.leaveUrl}/${leaveId}/status`, { status, rejectionReason, managerComments });
     }
@@ -101,5 +108,17 @@ export class LeavePolicyService {
 
     cancelLeave(id: string): Observable<any> {
         return this.http.post(`${this.leaveUrl}/cancel/${id}`, {});
+    }
+
+    getReturnDigest(managerId: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.leaveUrl}/return-digest/${managerId}`);
+    }
+
+    getBalanceHistory(userId: string): Observable<any[]> {
+        return this.http.get<any[]>(`${this.leaveUrl}/balance-history/${userId}`);
+    }
+
+    getLeaveReport(year: number): Observable<any> {
+        return this.http.get<any>(`${this.leaveUrl}/reports/summary?year=${year}`);
     }
 }

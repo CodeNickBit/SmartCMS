@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 const API_URL = 'http://localhost:3000/api/auth';
@@ -11,6 +11,7 @@ export interface RegisterRequest {
   lastName: string;
   gender: 'Male' | 'Female' | 'Other';
   dateOfBirth: string;
+  age?: number;
   maritalStatus?: 'Single' | 'Married' | 'Divorced' | 'Widowed';
   phone: string;
   email: string;
@@ -36,7 +37,7 @@ export interface RegisterRequest {
   joiningDate: string;
   employmentType: string;
   workLocation: string;
-  shiftType?: 'day' | 'night' | 'rotating' | 'flexible';
+  shiftType?: 'day' | 'night';
   
   // Work & Pay Details
   workingHoursStart?: string;
@@ -169,7 +170,15 @@ export class AuthService {
   }
 
   getUsers(): Observable<any[]> {
-    return this.http.get<any[]>(`${API_URL}/users`);
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const headers = new HttpHeaders(token ? { Authorization: `Bearer ${token}` } : {});
+    return this.http.get<any[]>(`${API_URL}/users`, { headers });
+  }
+
+  getUserById(id: string): Observable<any> {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const headers = new HttpHeaders(token ? { Authorization: `Bearer ${token}` } : {});
+    return this.http.get<any>(`${API_URL}/users/${id}`, { headers });
   }
 
   updateUser(id: string, data: any): Observable<any> {

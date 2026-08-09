@@ -1,12 +1,16 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { LeavePolicyService, LeavePolicy } from '../services/leave-policy.service';
 import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 import { OfficeLocationService } from '../services/office-location.service';
 import { AttendanceService, AttendanceRecord } from '../services/attendance.service';
+import { TaskService } from '../services/task.service';
+import { PayrollService, Payslip as RealPayslip } from '../services/payroll.service';
+import { SharedSidebarComponent } from '../dashboard/components/sidebar/sidebar.component';
+import { SharedHeaderComponent } from '../dashboard/components/header/header.component';
 
 export interface Task {
   id: number;
@@ -25,16 +29,7 @@ export interface LeaveBalance {
   minNotice?: number; // Added minNotice
 }
 
-export interface Notification {
-  id: number | string;
-  title: string;
-  message: string;
-  date: Date;
-  read: boolean;
-  type: 'info' | 'success' | 'warning' | 'error';
-  category: 'General' | 'Leave' | 'Work';
-  leaveId?: string;
-}
+// (Local Notification interface removed to use global one from NotificationService)
 
 export interface Attendance {
   status: 'Clocked In' | 'Clocked Out';
@@ -53,6 +48,7 @@ export interface Payslip {
   year: number;
   netPay: number;
   downloadUrl: string;
+  status?: string;
 }
 
 interface OfficeLocation {
@@ -66,7 +62,7 @@ interface OfficeLocation {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule, SharedSidebarComponent, SharedHeaderComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
@@ -91,19 +87,14 @@ export class HomeComponent implements OnInit {
     { type: 'Privilege Leave', total: 15, used: 0, available: 15 }
   ];
 
-  tasks: Task[] = [
-    { id: 1, title: 'Complete Q1 Report', status: 'In Progress', priority: 'High', dueDate: new Date() },
-    { id: 2, title: 'Update Client Profile', status: 'To Do', priority: 'Medium', dueDate: new Date(new Date().setDate(new Date().getDate() + 2)) },
-    { id: 3, title: 'Team Meeting Prep', status: 'Done', priority: 'Low', dueDate: new Date(new Date().setDate(new Date().getDate() - 1)) }
-  ];
+  realTasks: any[] = [];
+  taskSummary = { total: 0, inProgress: 0, done: 0, overdue: 0 };
+  tasksLoading = false;
 
-  recentPayslip: Payslip = {
-    id: 'PAY-JAN-2025',
-    month: 'January',
-    year: 2025,
-    netPay: 45000,
-    downloadUrl: '#'
-  };
+  tasks: Task[] = [];
+
+  recentPayslip: Payslip | null = null;
+  isLoadingPayroll = false;
 
   // Policy Modal
 
@@ -112,9 +103,6 @@ export class HomeComponent implements OnInit {
   generalRules: string[] = [];
   policies: LeavePolicy[] = [];
 
-  // Notifications
-  showNotifications = false;
-  notifications: Notification[] = []; // Initialized empty, populated by Leave logic
 
   // Leave Application Modal
   showLeaveModal = false;
@@ -130,15 +118,51 @@ export class HomeComponent implements OnInit {
   isSubmittingLeave = false;
 
   myLeaves: any[] = [];
+  showAllLeaves: boolean = false;
+
+  get displayedLeaves(): any[] {
+    if (!this.myLeaves) return [];
+    return this.showAllLeaves ? this.myLeaves : this.myLeaves.slice(0, 5);
+  }
+
+  managerOnLeave = false;
+  managerProxyName: string | null = null;
+
+  isDarkMode = true;
+
+  toggleTheme(): void {
+    this.isDarkMode = !this.isDarkMode;
+    if (isPlatformBrowser(this.platformId)) {
+      this.applyTheme();
+    }
+  }
+
+  private applyTheme(): void {
+    const body = document.body;
+    const html = document.documentElement;
+    if (this.isDarkMode) {
+      body.classList.add('theme-dark', 'dark');
+      html.classList.add('dark');
+      body.classList.remove('theme-light');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      body.classList.add('theme-light');
+      body.classList.remove('theme-dark', 'dark');
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private router: Router,
+    public router: Router,
     private authService: AuthService,
     private leavePolicyService: LeavePolicyService,
     private confirmationModal: ConfirmationModalService,
     private officeLocationService: OfficeLocationService,
-    private attendanceService: AttendanceService
+    private attendanceService: AttendanceService,
+    private taskService: TaskService,
+    private payrollService: PayrollService
   ) { }
 
   ngOnInit(): void {
@@ -156,8 +180,11 @@ export class HomeComponent implements OnInit {
     this.loadLeaveData();
     if (this.userProfile) {
       this.loadMyLeavesAndSync();
+      this.checkManagerStatus();
     }
     this.loadAttendanceData();
+    this.loadRealTasks();
+    this.loadLatestPayslip();
   }
   // ngOnDestroy removed as polling is removed
 
@@ -197,42 +224,11 @@ export class HomeComponent implements OnInit {
       next: (leaves) => {
         this.myLeaves = leaves || [];
         const usedByType: Record<string, number> = {};
-        const leaveNotificationIds = new Set((this.notifications || []).filter((n: any) => n.leaveId).map((n: any) => n.leaveId));
-        const newNotifications: Notification[] = [];
-
+        
         (this.myLeaves || []).forEach((l: any) => {
           if (l.status === 'Approved') {
             const days = this.getLeaveDays(l.startDate, l.endDate);
             usedByType[l.leaveType] = (usedByType[l.leaveType] || 0) + days;
-          }
-          if ((l.status === 'Approved' || l.status === 'Rejected') && l._id && !leaveNotificationIds.has(l._id)) {
-            const start = typeof l.startDate === 'string' ? new Date(l.startDate) : l.startDate;
-            const end = typeof l.endDate === 'string' ? new Date(l.endDate) : l.endDate;
-            const dateRange = `${(start as Date).toLocaleDateString()} – ${(end as Date).toLocaleDateString()}`;
-            if (l.status === 'Approved') {
-              newNotifications.push({
-                id: `leave-${l._id}`,
-                title: 'Leave Approved',
-                message: `Your ${l.leaveType} (${dateRange}) has been approved.`,
-                date: l.updatedAt ? new Date(l.updatedAt) : new Date(),
-                read: false,
-                type: 'success',
-                category: 'Leave',
-                leaveId: l._id
-              } as any);
-            } else {
-              newNotifications.push({
-                id: `leave-${l._id}`,
-                title: 'Leave Rejected',
-                message: l.rejectionReason ? `Your ${l.leaveType} (${dateRange}) was rejected. Reason: ${l.rejectionReason}` : `Your ${l.leaveType} (${dateRange}) was rejected.`,
-                date: l.updatedAt ? new Date(l.updatedAt) : new Date(),
-                read: false,
-                type: 'error',
-                category: 'Leave',
-                leaveId: l._id
-              } as any);
-            }
-            leaveNotificationIds.add(l._id);
           }
         });
 
@@ -241,12 +237,61 @@ export class HomeComponent implements OnInit {
           used: usedByType[b.type] || 0,
           available: Math.max(0, b.total - (usedByType[b.type] || 0))
         }));
-
-        const existingNonLeave = this.notifications.filter((n: any) => !n.leaveId);
-        this.notifications = [...newNotifications, ...existingNonLeave];
       },
       error: (err) => console.error('Error loading my leaves', err)
     });
+  }
+
+  private loadLatestPayslip(): void {
+    const userId = this.userProfile?._id || this.userProfile?.employeeId || this.userProfile?.id;
+    if (!userId) return;
+
+    this.isLoadingPayroll = true;
+    const MONTH_NAMES = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+
+    this.payrollService.getEmployeePayslips(userId).subscribe({
+      next: (payslips) => {
+        const approved = (payslips || [])
+          .filter((p: any) => p.status === 'locked' || p.status === 'approved')
+          .sort((a: any, b: any) => {
+            if (a.payPeriod.year !== b.payPeriod.year) return b.payPeriod.year - a.payPeriod.year;
+            return b.payPeriod.month - a.payPeriod.month;
+          });
+
+        if (approved.length > 0) {
+          const latest = approved[0];
+          this.recentPayslip = {
+            id: latest._id!,
+            month: MONTH_NAMES[latest.payPeriod.month - 1],
+            year: latest.payPeriod.year,
+            netPay: latest.netPay,
+            downloadUrl: `/dashboard/my-payroll`, // Redirect to detail view
+            status: latest.status
+          };
+        }
+        this.isLoadingPayroll = false;
+      },
+      error: (err) => {
+        console.error('Error loading latest payslip', err);
+        this.isLoadingPayroll = false;
+      }
+    });
+  }
+
+  checkManagerStatus(): void {
+    const managerId = this.userProfile?.reportingManager;
+    if (managerId) {
+      this.leavePolicyService.getManagerStatus(managerId).subscribe({
+        next: (res: any) => {
+          this.managerOnLeave = res.onLeave;
+          this.managerProxyName = res.proxyName;
+        },
+        error: (err) => console.error('Error fetching manager status', err)
+      });
+    }
   }
 
   getLeaveDays(start: string | Date, end: string | Date): number {
@@ -254,6 +299,15 @@ export class HomeComponent implements OnInit {
     const e = typeof end === 'string' ? new Date(end) : end;
     const diff = (e.getTime() - s.getTime()) / (1000 * 60 * 60 * 24);
     return Math.max(0, Math.floor(diff) + 1);
+  }
+
+  isLeaveEditable(leave: any): boolean {
+    if (!leave || !leave.startDate) return false;
+    const start = typeof leave.startDate === 'string' ? new Date(leave.startDate) : leave.startDate;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // Only allow editing if the start date is in the future or today
+    return start >= today;
   }
 
   // Modal Methods
@@ -268,42 +322,21 @@ export class HomeComponent implements OnInit {
   acknowledgePolicy(): void {
     this.isPolicyAcknowledged = true;
     this.closePolicyModal();
-    // Do NOT open leave form automatically. User must click "Apply" explicitly.
+    this.isEditMode = false;
+    this.editingLeaveId = null;
+    this.activeManagerComments = null;
+    this.showLeaveModal = true;
+    this.selectedFiles = [];
+    this.leaveForm = {
+      leaveType: this.leaveBalances.length > 0 ? this.leaveBalances[0].type : '',
+      leaveUnit: 'full-day',
+      halfDayPeriod: 'first-half',
+      startDate: '',
+      endDate: '',
+      reason: ''
+    };
   }
 
-  toggleNotifications(): void {
-    this.showNotifications = !this.showNotifications;
-  }
-
-  // Notification Tabs
-  activeNotificationTab: string = 'All';
-  notificationTabs: string[] = ['All', 'Unread', 'Leave', 'Work', 'General'];
-
-  setActiveNotificationTab(tab: string): void {
-    this.activeNotificationTab = tab;
-  }
-
-  getFilteredNotifications(): Notification[] {
-    if (this.activeNotificationTab === 'All') {
-      return this.notifications;
-    } else if (this.activeNotificationTab === 'Unread') {
-      return this.notifications.filter(n => !n.read);
-    } else {
-      return this.notifications.filter(n => n.category === this.activeNotificationTab);
-    }
-  }
-
-  hasNotificationsByCategory(category: string): boolean {
-    return this.notifications.some(n => n.category === category);
-  }
-
-  hasUnreadNotifications(): boolean {
-    return this.notifications.some(n => !n.read);
-  }
-
-  get unreadNotificationCount(): number {
-    return this.notifications.filter(n => !n.read).length;
-  }
 
   loadAttendanceData(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -335,8 +368,12 @@ export class HomeComponent implements OnInit {
   }
 
   formatWorkingHours(hours: number): string {
-    const h = Math.floor(hours);
-    const m = Math.round((hours - h) * 60);
+    let h = Math.floor(hours);
+    let m = Math.round((hours - h) * 60);
+    if (m === 60) {
+      h += 1;
+      m = 0;
+    }
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
   }
 
@@ -523,8 +560,14 @@ export class HomeComponent implements OnInit {
         };
 
         this.isProcessingAttendance = false;
-        this.attendanceMessage = `Checked in successfully at ${officeName}! Status: Pending Approval`;
-        setTimeout(() => this.attendanceMessage = '', 5000);
+        
+        if (response.escalation) {
+          this.attendanceMessage = `Checked in successfully at ${officeName}! Your reporting manager is unavailable. Request assigned to ${response.escalation.managerName} (${response.escalation.managerDepartment}) - ${response.escalation.managerEmail}`;
+        } else {
+          this.attendanceMessage = `Checked in successfully at ${officeName}! Status: Pending Approval`;
+        }
+        
+        setTimeout(() => this.attendanceMessage = '', 8000);
       },
       error: (error) => {
         this.isProcessingAttendance = false;
@@ -776,12 +819,20 @@ export class HomeComponent implements OnInit {
       });
 
       this.leavePolicyService.applyForLeave(formData).subscribe({
-        next: (res) => {
-          console.log('Leave applied successfully', res);
-          this.isSubmittingLeave = false;
+        next: (res: any) => {
+          console.log('Leave requested successfully', res);
+          
+          let msg = 'Leave request submitted successfully!';
+          if (res.escalated) {
+             msg = this.managerProxyName 
+                 ? `Leave submitted! It has been automatically routed to your Proxy Manager (${this.managerProxyName}) for approval.`
+                 : 'Leave submitted! Since your manager is away, it has been automatically routed to HR for approval.';
+          }
+          
+          this.confirmationModal.alert('Success', msg, 'success');
           this.closeLeaveModal();
-          this.confirmationModal.alert('Success', 'Leave application submitted successfully!', 'success');
           this.loadMyLeavesAndSync();
+          this.isSubmittingLeave = false;
         },
         error: (err) => {
           console.error('Error applying for leave', err);
@@ -824,6 +875,35 @@ export class HomeComponent implements OnInit {
   downloadPayslip(id: string): void {
     console.log('Downloading payslip:', id);
     // Logic to download generic PDF or nav to payslip view
+  }
+
+  loadRealTasks(): void {
+    this.tasksLoading = true;
+    this.taskService.getMyTasks().subscribe({
+      next: (data: any[]) => {
+        this.realTasks = (data || []).slice(0, 5);
+        const now = new Date();
+        let inProgress = 0, done = 0, overdue = 0;
+        (data || []).forEach((t: any) => {
+          if (t.status === 'in_progress') inProgress++;
+          if (t.status === 'done') done++;
+          if (t.dueDate && new Date(t.dueDate) < now && t.status !== 'done') overdue++;
+        });
+        this.taskSummary = { total: data?.length || 0, inProgress, done, overdue };
+        this.tasksLoading = false;
+      },
+      error: () => { this.tasksLoading = false; }
+    });
+  }
+
+  formatTaskStatus(s: string): string { return s?.replace(/_/g, ' ') || ''; }
+
+  formatTime(time: string): string {
+    if (!time) return '';
+    const [hours, minutes] = time.split(':').map(Number);
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
   }
 
   logout(): void {

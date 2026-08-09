@@ -58,7 +58,10 @@ export class HREmployeesComponent implements OnInit {
   loadEmployees() {
     this.authService.getUsers().subscribe({
       next: (data: any[]) => {
-        this.employees = data;
+        // Filter to only show regular employees (exclude admin, hr, manager roles)
+        this.employees = data.filter(emp => 
+          emp.role === 'employee' || !emp.role || emp.role === ''
+        );
       },
       error: (err: any) => {
         console.error('Failed to fetch employees', err);

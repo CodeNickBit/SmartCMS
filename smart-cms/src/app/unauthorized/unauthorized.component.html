@@ -1,0 +1,45 @@
+<div
+    class="min-h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] flex items-center justify-center p-6 transition-colors duration-300">
+    <div class="max-w-md w-full text-center space-y-8">
+
+        <!-- Illustration -->
+        <div class="flex items-center justify-center mb-4 text-rose-500">
+            <svg class="h-32 w-32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+
+        <!-- Message -->
+        <div class="space-y-4">
+            <h2 class="text-3xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white tracking-tight">
+                Access Unauthorized
+            </h2>
+            <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-medium">
+                You don't have permission to access this feature. Please contact an administrator if you believe this is
+                a mistake.
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button routerLink="/home"
+                class="w-full sm:w-auto px-8 py-3 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Go Home
+            </button>
+            <button onclick="window.history.back()"
+                class="w-full sm:w-auto px-8 py-3 bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] hover:bg-slate-50 light:hover:bg-[#c9ddf3] dark:hover:bg-blue-900/30 text-slate-700 light:text-[#1A6DC2] dark:text-white font-semibold rounded-xl transition-all border border-slate-200 light:border-[#1A6DC2]/20 dark:border-blue-900/50 flex items-center justify-center gap-2">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Go Back
+            </button>
+        </div>
+
+    </div>
+</div>

@@ -4,6 +4,11 @@ import { CanActivateFn, Router } from '@angular/router';
 export const adminGuard: CanActivateFn = (route, state) => {
     const router = inject(Router);
 
+    // Prevent redirecting to login on the server where localStorage is not available
+    if (typeof window === 'undefined') {
+        return false;
+    }
+
     // Check for window/localStorage availability (SSR safety)
     if (typeof window !== 'undefined' && window.localStorage) {
         const token = localStorage.getItem('token');
@@ -15,6 +20,10 @@ export const adminGuard: CanActivateFn = (route, state) => {
                 if (user.role === 'admin') {
                     return true;
                 }
+
+                // Authenticated but not an admin
+                router.navigate(['/unauthorized']);
+                return false;
             } catch (e) {
                 console.error('Error parsing user data in admin guard', e);
             }

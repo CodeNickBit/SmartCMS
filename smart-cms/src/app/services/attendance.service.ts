@@ -27,6 +27,14 @@ export interface AttendanceRecord {
   approvedBy?: string;
   approvedAt?: Date;
   managerNotes?: string;
+  // Escalation Fields
+  escalation?: {
+    isEscalated: boolean;
+    originalManagerName: string;
+    reason: string;
+    escalatedToManagerName: string;
+    escalatedToManagerDepartment: string;
+  };
 }
 
 
@@ -88,6 +96,22 @@ export class AttendanceService {
   getApprovalHistory(limit = 30, skip = 0): Observable<AttendanceRecord[]> {
     return this.http.get<AttendanceRecord[]>(`${API_URL}/approval-history`, {
       params: { limit: limit.toString(), skip: skip.toString() }
+    });
+  }
+
+  getEscalationLog(params?: any): Observable<any> {
+    return this.http.get<any>(`${API_URL}/escalation-log`, { params });
+  }
+
+  getMyEscalations(limit = 30): Observable<any> {
+    return this.http.get<any>(`${API_URL}/my-escalations`, {
+      params: { limit: limit.toString() }
+    });
+  }
+
+  getTeamAttendance(year: number, month: number): Observable<any[]> {
+    return this.http.get<any[]>(`${API_URL}/team-attendance`, {
+      params: { year: year.toString(), month: month.toString() }
     });
   }
 }

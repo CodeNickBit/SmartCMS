@@ -1,17 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
+
 <head>
   <meta charset="utf-8">
+  <script>
+    // Sync theme immediately on pageload to prevent flash
+    try {
+      const theme = localStorage.getItem('theme');
+      if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+        // Body classes must be added after body is parsed, handled below
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (_) { }
+  </script>
   <title>SmartCMS - Corporate Management System</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" href="assets/MEAN_Logo_Dark_Title.png">
   <!-- Enterprise Typography: Inter for professional, readable sans-serif -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <app-root></app-root>
 </body>
+
 </html>

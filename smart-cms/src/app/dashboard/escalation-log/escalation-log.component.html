@@ -1,0 +1,93 @@
+<div class="flex h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white font-sans overflow-hidden">
+    <app-admin-sidebar *ngIf="isAdmin" class="flex-shrink-0"></app-admin-sidebar>
+    <app-shared-sidebar *ngIf="!isAdmin && userRole !== 'employee'" class="flex-shrink-0"></app-shared-sidebar>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <app-shared-header></app-shared-header>
+
+        <main class="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] scroll-smooth">
+            <div class="max-w-7xl mx-auto space-y-8 animate-fade-in-up">
+
+                <header class="mb-4">
+                    <button *ngIf="userRole === 'employee'" class="mb-6 px-4 py-2 bg-[#3083DC]/10 text-[#3083DC] hover:bg-[#3083DC]/20 border border-[#3083DC]/30 rounded-lg text-sm font-medium transition-colors" (click)="router.navigate(['/home'])">
+                        ← Back to Dashboard
+                    </button>
+                    <div class="flex items-center gap-3">
+                        <svg class="h-8 w-8 text-[#3083DC]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <h1 class="text-3xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white tracking-tight">Escalation Log</h1>
+                            <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-1 font-medium">View attendance approval escalations</p>
+                        </div>
+                    </div>
+                </header>
+
+                <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-12 space-y-4">
+                    <div class="h-12 w-12 border-4 border-[#3083DC] border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-medium tracking-wide">Loading escalations...</p>
+                </div>
+
+                <div *ngIf="!isLoading" class="space-y-4">
+                    <div *ngIf="escalations.length === 0"
+                        class="glass-card rounded-2xl p-12 text-center text-slate-500 light:text-[#7A96B2] dark:text-slate-400 border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30">
+                        <svg class="h-20 w-20 mx-auto text-slate-400 dark:text-slate-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p class="text-lg font-medium">No escalations found</p>
+                    </div>
+
+                    <div *ngFor="let escalation of escalations"
+                        class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 rounded-2xl p-6 shadow-lg hover:border-[#3083DC]/50 transition-all duration-300">
+                        
+                        <div class="flex items-start justify-between gap-6">
+                            <div class="flex-1 space-y-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="h-12 w-12 rounded-full bg-gradient-to-br from-[#3083DC] to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                        {{ getEmployeeName(escalation).charAt(0) }}
+                                    </div>
+
+                                    <div class="flex-1">
+                                        <h3 class="text-xl font-bold text-slate-800 light:text-[#0D1B35] dark:text-white">{{ getEmployeeName(escalation) }}</h3>
+                                        <p class="text-sm text-slate-500 light:text-[#7A96B2] dark:text-slate-400">{{ escalation.checkInDate | date:'MMM d, y' }}</p>
+                                    </div>
+
+                                    <div [class]="'px-4 py-2 rounded-lg border flex items-center gap-2 ' + getStatusBadgeClass(escalation.status)">
+                                        <div class="h-2 w-2 rounded-full bg-current animate-pulse"></div>
+                                        <span class="text-sm font-bold uppercase">{{ escalation.status }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-slate-50 light:bg-[#EEF3FA]/50 dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-slate-700 rounded-xl p-4">
+                                        <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-bold mb-2">Original Manager</p>
+                                        <p class="text-slate-800 light:text-[#0D1B35] dark:text-white font-bold">{{ escalation.originalManagerName }}</p>
+                                    </div>
+
+                                    <div class="bg-slate-50 light:bg-[#EEF3FA]/50 dark:bg-[#101935] border border-slate-200 light:border-[#1A6DC2]/18 dark:border-slate-700 rounded-xl p-4">
+                                        <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 font-bold mb-2">Escalated To</p>
+                                        <p class="text-[#3083DC] font-bold">{{ escalation.escalatedToManagerName }}</p>
+                                        <p class="text-xs text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-1">{{ escalation.escalatedToManagerDepartment }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="bg-purple-900/20 border border-purple-700/30 rounded-xl p-4">
+                                    <p class="text-xs text-purple-400 font-bold mb-2">Reason</p>
+                                    <p class="text-slate-800 light:text-[#0D1B35] dark:text-white text-sm">{{ getReasonLabel(escalation.reason) }}</p>
+                                </div>
+
+                                <div *ngIf="escalation.notes" class="bg-blue-900/20 border border-blue-700/30 rounded-xl p-4">
+                                    <p class="text-xs text-blue-400 font-bold mb-2">Notes</p>
+                                    <p class="text-slate-800 light:text-[#0D1B35] dark:text-white text-sm">{{ escalation.notes }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>

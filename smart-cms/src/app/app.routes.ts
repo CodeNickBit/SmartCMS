@@ -10,6 +10,14 @@ import { managerHrGuard } from './guards/manager-hr.guard';
 import { AddUserComponent } from './admin/add-user/add-user.component';
 import { LeaveApprovalsComponent } from './dashboard/leave-approvals/leave-approvals.component';
 import { TeamCalendarComponent } from './dashboard/team-calendar/team-calendar.component';
+import { ProjectListComponent } from './projects/project-list/project-list.component';
+import { ProjectDetailComponent } from './projects/project-detail/project-detail.component';
+import { ProjectFormComponent } from './projects/project-form/project-form.component';
+import { MyTasksComponent } from './projects/my-tasks/my-tasks.component';
+import { TaskDetailComponent } from './projects/task-detail/task-detail.component';
+import { ProjectAnalyticsComponent } from './projects/project-analytics/project-analytics.component';
+import { TimesheetComponent } from './projects/timesheet/timesheet.component';
+import { WorkloadComponent } from './projects/workload/workload.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -65,8 +73,18 @@ export const routes: Routes = [
     canActivate: [managerHrGuard]
   },
   {
+    path: 'dashboard/manage-managers',
+    loadComponent: () => import('./dashboard/manage-managers/manage-managers.component').then(m => m.HRManageManagersComponent),
+    canActivate: [managerHrGuard]
+  },
+  {
     path: 'dashboard/leave-approvals',
     loadComponent: () => import('./dashboard/leave-approvals/leave-approvals.component').then(m => m.LeaveApprovalsComponent),
+    canActivate: [managerHrGuard]
+  },
+  {
+    path: 'dashboard/my-leaves',
+    loadComponent: () => import('./dashboard/my-leaves/my-leaves.component').then(m => m.MyLeavesComponent),
     canActivate: [managerHrGuard]
   },
   {
@@ -79,9 +97,49 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/year-end-processing/year-end-processing.component').then(m => m.YearEndProcessingComponent),
     canActivate: [adminGuard]
   },
+  {
+    path: 'admin/payroll-settings',
+    loadComponent: () => import('./admin/payroll-settings/payroll-settings.component').then(m => m.PayrollSettingsComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/payroll-dashboard',
+    loadComponent: () => import('./admin/payroll-dashboard/payroll-dashboard.component').then(m => m.PayrollDashboardComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/reports',
+    loadComponent: () => import('./admin/reports/reports.component').then(m => m.ReportsComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/workflow-templates',
+    loadComponent: () => import('./admin/workflow-templates/workflow-templates.component').then(m => m.WorkflowTemplatesComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/workflow-templates',
+    loadComponent: () => import('./admin/workflow-templates/workflow-templates.component').then(m => m.WorkflowTemplatesComponent),
+    canActivate: [managerHrGuard]
+  },
+  {
+    path: 'admin/employee-workflow/:id',
+    loadComponent: () => import('./admin/employee-workflow/employee-workflow.component').then(m => m.EmployeeWorkflowComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/employee-workflow/:id',
+    loadComponent: () => import('./admin/employee-workflow/employee-workflow.component').then(m => m.EmployeeWorkflowComponent),
+    canActivate: [managerHrGuard]
+  },
   { path: 'dashboard/add-users', component: AddUserComponent },
   { path: 'dashboard/leave-approvals', component: LeaveApprovalsComponent },
   { path: 'dashboard/team-calendar', component: TeamCalendarComponent },
+  {
+    path: 'dashboard/my-payroll',
+    loadComponent: () => import('./dashboard/my-payroll/my-payroll.component').then(m => m.MyPayrollComponent),
+    canActivate: [authGuard]
+  },
   {
     path: 'dashboard/attendance',
     loadComponent: () => import('./dashboard/attendance/attendance.component').then(m => m.AttendanceComponent),
@@ -97,8 +155,52 @@ export const routes: Routes = [
     loadComponent: () => import('./dashboard/my-team/my-team.component').then(m => m.MyTeamComponent),
     canActivate: [managerHrGuard]
   },
+  {
+    path: 'dashboard/escalation-log',
+    loadComponent: () => import('./dashboard/escalation-log/escalation-log.component').then(m => m.EscalationLogComponent),
+    canActivate: [authGuard]
+  },
   { path: 'home', component: HomeComponent, canActivate: [authGuard] },
 
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login' }
+  { path: 'projects', component: ProjectListComponent, canActivate: [authGuard] },
+  { path: 'projects/new', component: ProjectFormComponent, canActivate: [authGuard] },
+  { path: 'projects/analytics', component: ProjectAnalyticsComponent, canActivate: [authGuard] },
+  { path: 'projects/:id', component: ProjectDetailComponent, canActivate: [authGuard] },
+  { path: 'projects/:id/edit', component: ProjectFormComponent, canActivate: [authGuard] },
+  { path: 'projects/:id/workload', component: WorkloadComponent, canActivate: [authGuard] },
+  { path: 'my-tasks', component: MyTasksComponent, canActivate: [authGuard] },
+  { path: 'tasks/:id', component: TaskDetailComponent, canActivate: [authGuard] },
+  { path: 'timesheets/:employeeId', component: TimesheetComponent, canActivate: [authGuard] },
+
+  {
+    path: 'admin/manage-assets',
+    loadComponent: () => import('./admin/manage-assets/manage-assets.component').then(m => m.ManageAssetsComponent),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'dashboard/my-assets',
+    loadComponent: () => import('./dashboard/my-assets/my-assets.component').then(m => m.MyAssetsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'dashboard/my-expenses',
+    loadComponent: () => import('./dashboard/my-expenses/my-expenses.component').then(m => m.MyExpensesComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'dashboard/expense-approvals',
+    loadComponent: () => import('./dashboard/expense-approvals/expense-approvals.component').then(m => m.ExpenseApprovalsComponent),
+    canActivate: [managerHrGuard]
+  },
+
+  {
+    path: 'unauthorized',
+    loadComponent: () => import('./unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent)
+  },
+  {
+    path: '',
+    loadComponent: () => import('./landing/landing.component').then(m => m.LandingComponent),
+    pathMatch: 'full'
+  },
+  { path: '**', loadComponent: () => import('./not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];

@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { DepartmentService, Department } from '../services/department.service';
 import { DesignationService, Designation } from '../services/designation.service';
 import { ManagerService, Manager } from '../services/manager.service';
+import { PayrollService, SalaryTemplate } from '../services/payroll.service';
 import { EmailVerificationModalComponent } from '../components/email-verification-modal.component';
 import { ConfirmationModalService } from '../shared/confirmation-modal.service';
 
@@ -40,6 +41,9 @@ export class SignupComponent implements OnInit {
   dbDesignations: Designation[] = [];
   dbManagers: { _id: string; name: string; email: string }[] = [];
   activeManagers: Manager[] = [];
+  dbSalaryTemplates: SalaryTemplate[] = [];
+  standardWorkHours: number = 8;
+  shiftTimeOptions: { value: string; label: string }[] = [];
 
   constructor(
     private router: Router,
@@ -48,23 +52,20 @@ export class SignupComponent implements OnInit {
     private departmentService: DepartmentService,
     private designationService: DesignationService,
     private managerService: ManagerService,
-    private confirmationModal: ConfirmationModalService
+    private confirmationModal: ConfirmationModalService,
+    private payrollService: PayrollService
   ) { }
 
   ngOnInit(): void {
+    this.forceDarkMode();
     this.initializeForm();
     this.loadDepartments();
     this.loadDesignations();
     this.loadManagers();
+    this.loadSalaryTemplates();
+    this.loadPayrollSettings();
 
-    // Watch for gender and marital status changes to show/hide conditional fields
-    this.registrationForm.get('gender')?.valueChanges.subscribe(() => {
-      this.updateConditionalFields();
-    });
-
-    this.registrationForm.get('maritalStatus')?.valueChanges.subscribe(() => {
-      this.updateConditionalFields();
-    });
+    // Removed conditional fields logic for simplicity
 
     // Watch for date of birth changes to calculate age
     this.registrationForm.get('dateOfBirth')?.valueChanges.subscribe(() => {
@@ -74,6 +75,25 @@ export class SignupComponent implements OnInit {
     this.registrationForm.get('department')?.valueChanges.subscribe(() => {
       this.onDepartmentChange();
     });
+
+    this.registrationForm.get('shiftType')?.valueChanges.subscribe(() => {
+      this.onShiftTypeChange();
+    });
+
+    this.registrationForm.get('workingHoursStart')?.valueChanges.subscribe(() => {
+      this.calculateEndTime();
+    });
+  }
+
+  private forceDarkMode(): void {
+    if (typeof document !== 'undefined') {
+      const body = document.body;
+      const html = document.documentElement;
+      body.classList.remove('theme-light');
+      html.classList.remove('theme-light');
+      body.classList.add('dark');
+      html.classList.add('dark');
+    }
   }
 
   loadDepartments() {
@@ -99,11 +119,10 @@ export class SignupComponent implements OnInit {
   }
 
   loadManagers() {
-    console.log('Signup: Loading all active managers...');
     this.managerService.getActiveManagers().subscribe({
       next: (data) => {
-        console.log('Signup: Managers loaded:', data);
         this.activeManagers = data;
+        this.dbManagers = data.map(m => ({ _id: m._id, name: m.name, email: m.email }));
       },
       error: (error) => {
         console.error('Signup: Error fetching managers:', error);
@@ -111,22 +130,77 @@ export class SignupComponent implements OnInit {
     });
   }
 
+  loadSalaryTemplates() {
+    this.payrollService.getTemplates().subscribe({
+      next: (data) => this.dbSalaryTemplates = data,
+      error: (error) => console.error('Error fetching templates', error)
+    });
+  }
+
+  loadPayrollSettings() {
+    this.payrollService.getPayrollSettings().subscribe({
+      next: (data) => {
+        if (data?.payrollSettings?.overtimeRules?.standardWorkHoursPerDay) {
+          this.standardWorkHours = data.payrollSettings.overtimeRules.standardWorkHoursPerDay;
+        }
+      },
+      error: (error) => console.error('Error fetching payroll settings', error)
+    });
+  }
+
+  onShiftTypeChange() {
+    const shiftType = this.registrationForm.get('shiftType')?.value;
+    this.registrationForm.patchValue({ workingHoursStart: '', workingHoursEnd: '' });
+    
+    if (shiftType === 'day') {
+      this.shiftTimeOptions = [
+        { value: '09:00', label: '9:00 AM - ' + this.calculateEndTimeLabel('09:00') },
+        { value: '10:00', label: '10:00 AM - ' + this.calculateEndTimeLabel('10:00') },
+        { value: '11:00', label: '11:00 AM - ' + this.calculateEndTimeLabel('11:00') }
+      ];
+    } else if (shiftType === 'night') {
+      this.shiftTimeOptions = [
+        { value: '20:00', label: '8:00 PM - ' + this.calculateEndTimeLabel('20:00') },
+        { value: '21:00', label: '9:00 PM - ' + this.calculateEndTimeLabel('21:00') },
+        { value: '22:00', label: '10:00 PM - ' + this.calculateEndTimeLabel('22:00') }
+      ];
+    } else {
+      this.shiftTimeOptions = [];
+    }
+  }
+
+  calculateEndTimeLabel(startTime: string): string {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const endHour = (hours + this.standardWorkHours) % 24;
+    const period = endHour >= 12 ? 'PM' : 'AM';
+    const displayHour = endHour === 0 ? 12 : endHour > 12 ? endHour - 12 : endHour;
+    return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+  }
+
+  calculateEndTime() {
+    const startTime = this.registrationForm.get('workingHoursStart')?.value;
+    if (!startTime) return;
+
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const endHour = hours + this.standardWorkHours;
+    const endTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+    this.registrationForm.patchValue({ workingHoursEnd: endTime }, { emitEvent: false });
+  }
+
   onDepartmentChange() {
     const department = this.registrationForm.get('department')?.value;
-    console.log('Signup: Department changed to:', department);
     if (department) {
       this.loadManagersByDepartment(department);
     }
   }
 
   loadManagersByDepartment(department: string) {
-    console.log('Signup: Loading managers for department:', department);
     this.managerService.getActiveManagers(department).subscribe({
       next: (data) => {
-        console.log('Signup: Filtered managers:', data);
         this.activeManagers = data;
+        this.dbManagers = data.map(m => ({ _id: m._id, name: m.name, email: m.email }));
         const currentManager = this.registrationForm.get('reportingManager')?.value;
-        if (currentManager && !data.find(m => m.name === currentManager)) {
+        if (currentManager && !data.find(m => m._id === currentManager)) {
           this.registrationForm.patchValue({ reportingManager: '' });
         }
       },
@@ -144,27 +218,14 @@ export class SignupComponent implements OnInit {
     this.registrationForm = this.fb.group({
       // Personal Details
       firstName: ['', [Validators.required, Validators.minLength(2)]],
-      middleName: [''],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
       gender: ['', Validators.required],
       dateOfBirth: ['', Validators.required],
-      age: [{ value: '', disabled: true }],
-      maritalStatus: [''],
+      age: [{ value: '', disabled: true }], // Auto-calculated, read-only
       phone: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
       email: ['', [Validators.required, Validators.email]],
-      currentAddress: ['', Validators.required],
-      permanentAddress: ['', Validators.required],
       emergencyContactName: ['', Validators.required],
       emergencyContactNumber: ['', [Validators.required, Validators.pattern(/^\d{10}$/)]],
-
-      // Gender-based conditional fields
-      fatherGuardianName: [''],
-      guardianContact: [''],
-      spouseName: [''],
-      spouseContactNumber: [''],
-      marriageDate: [''],
-      preferredName: [''],
-      pronouns: [''],
 
       // Professional Details
       employeeId: [{ value: 'TO BE GENERATED', disabled: false }],
@@ -177,27 +238,19 @@ export class SignupComponent implements OnInit {
       shiftType: [''],
 
       // Work & Pay Details
+      salaryTemplate: [''],
       workingHoursStart: [''],
       workingHoursEnd: [''],
       weeklyWorkingDays: [5, [Validators.min(1), Validators.max(7)]],
-      wageType: [''],
-      salaryAmount: ['', [Validators.min(0)]],
-      allowances: [0, [Validators.min(0)]],
-      overtimeEligible: [false],
       bankAccountNumber: [''],
       bankName: [''],
       bankIFSC: [''],
-      pfApplicable: [false],
-      esicApplicable: [false],
 
       // Maternity & Flexible Hours
       maternityEligible: [false],
       flexibleWorkingHours: [false],
 
-      // Phase 2: Pregnancy tracking
-      pregnancyStatus: ['Not Pregnant'],
-      expectedDeliveryDate: [''],
-      medicalFitnessCertificate: [''],
+
 
       // Authentication
       password: ['', [Validators.required, Validators.minLength(8)]]
@@ -205,58 +258,27 @@ export class SignupComponent implements OnInit {
   }
 
   updateConditionalFields(): void {
-    const gender = this.registrationForm.get('gender')?.value;
-    const maritalStatus = this.registrationForm.get('maritalStatus')?.value;
-
-    // Reset conditional field validators
-    const fatherGuardianName = this.registrationForm.get('fatherGuardianName');
-    const guardianContact = this.registrationForm.get('guardianContact');
-    const spouseName = this.registrationForm.get('spouseName');
-    const spouseContactNumber = this.registrationForm.get('spouseContactNumber');
-    const marriageDate = this.registrationForm.get('marriageDate');
-    const preferredName = this.registrationForm.get('preferredName');
-    const pronouns = this.registrationForm.get('pronouns');
-
-    // Clear validators first
-    [fatherGuardianName, guardianContact, spouseName, spouseContactNumber, marriageDate, preferredName, pronouns].forEach(control => {
-      control?.clearValidators();
-      control?.updateValueAndValidity();
-    });
-
-    // Unmarried Female
-    if (gender === 'Female' && maritalStatus === 'Single') {
-      fatherGuardianName?.setValidators([Validators.required]);
-      guardianContact?.setValidators([Validators.required, Validators.pattern(/^\d{10}$/)]);
-      fatherGuardianName?.updateValueAndValidity();
-      guardianContact?.updateValueAndValidity();
-    }
-
-    // Married Female
-    if (gender === 'Female' && maritalStatus === 'Married') {
-      spouseName?.setValidators([Validators.required]);
-      spouseContactNumber?.setValidators([Validators.required, Validators.pattern(/^\d{10}$/)]);
-      spouseName?.updateValueAndValidity();
-      spouseContactNumber?.updateValueAndValidity();
-    }
-
-    // Other/Prefer Not to Say
-    if (gender === 'Other') {
-      // Optional fields, no required validators
-    }
+    // No conditional fields to update
   }
 
   calculateAge(): void {
-    const dateOfBirth = this.registrationForm.get('dateOfBirth')?.value;
-    if (dateOfBirth) {
-      const today = new Date();
-      const birthDate = new Date(dateOfBirth);
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-      this.registrationForm.patchValue({ age }, { emitEvent: false });
+    const dobValue = this.registrationForm.get('dateOfBirth')?.value;
+    if (!dobValue) {
+      this.registrationForm.patchValue({ age: '' });
+      return;
     }
+
+    const dob = new Date(dobValue);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    
+    // Adjust age if birthday hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    this.registrationForm.patchValue({ age: age > 0 ? age : '' });
   }
 
   getFieldError(fieldName: string): string {
@@ -338,26 +360,16 @@ export class SignupComponent implements OnInit {
     const registrationData: RegisterRequest = {
       // Personal Details
       firstName: formValue.firstName.trim(),
-      middleName: formValue.middleName?.trim() || undefined,
       lastName: formValue.lastName.trim(),
       gender: formValue.gender,
       dateOfBirth: formValue.dateOfBirth,
-      maritalStatus: formValue.maritalStatus || undefined,
+      age: formValue.age || 0,
       phone: formValue.phone.trim(),
       email: formValue.email.trim().toLowerCase(),
-      currentAddress: formValue.currentAddress.trim(),
-      permanentAddress: formValue.permanentAddress.trim(),
+      currentAddress: 'Not Provided',
+      permanentAddress: 'Not Provided',
       emergencyContactName: formValue.emergencyContactName.trim(),
       emergencyContactNumber: formValue.emergencyContactNumber.trim(),
-
-      // Gender-based conditional fields
-      fatherGuardianName: formValue.fatherGuardianName?.trim() || undefined,
-      guardianContact: formValue.guardianContact?.trim() || undefined,
-      spouseName: formValue.spouseName?.trim() || undefined,
-      spouseContactNumber: formValue.spouseContactNumber?.trim() || undefined,
-      marriageDate: formValue.marriageDate || undefined,
-      preferredName: formValue.preferredName?.trim() || undefined,
-      pronouns: formValue.pronouns?.trim() || undefined,
 
       // Professional Details
       employeeId: formValue.employeeId.trim().toUpperCase(),
@@ -387,10 +399,8 @@ export class SignupComponent implements OnInit {
       maternityEligible: formValue.maternityEligible || false,
       flexibleWorkingHours: formValue.flexibleWorkingHours || false,
 
-      // Phase 2: Pregnancy tracking
-      pregnancyStatus: formValue.pregnancyStatus || 'Not Pregnant',
-      expectedDeliveryDate: formValue.expectedDeliveryDate || undefined,
-      medicalFitnessCertificate: formValue.medicalFitnessCertificate?.trim() || undefined,
+      // Phase 2: Pregnancy tracking (removed from UI, relying on defaults)
+      pregnancyStatus: 'Not Pregnant',
 
       // Authentication
       // Authentication
