@@ -65,3 +65,7 @@ backend/uploads/*
 /backend/node_modules
 backend/package-lock.json
 backend/node_modules/node-cron/package.json
+
+#Nick's Personal
+SmartCMS_MEAN.docx
+docs/FEASIBILITY_STUDY_AND_REQUIREMENTS.md
