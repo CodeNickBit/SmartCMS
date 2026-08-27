@@ -1,87 +1,94 @@
-<div class="p-6">
-  <div class="mb-6">
-    <h1 class="text-2xl font-semibold text-gray-800">Expense Approvals</h1>
-    <p class="text-sm text-gray-500 mt-1">Review and manage employee expense claims.</p>
-  </div>
-
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm text-left">
-        <thead class="text-xs text-gray-500 uppercase bg-gray-50/50">
-          <tr>
-            <th class="px-6 py-4 font-medium">Employee</th>
-            <th class="px-6 py-4 font-medium">Date & Desc</th>
-            <th class="px-6 py-4 font-medium">Category</th>
-            <th class="px-6 py-4 font-medium">Amount</th>
-            <th class="px-6 py-4 font-medium">Status</th>
-            <th class="px-6 py-4 font-medium text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr *ngFor="let exp of expenses" class="hover:bg-gray-50/50 transition-colors">
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">
-                  {{ exp.employee?.firstName?.[0] }}{{ exp.employee?.lastName?.[0] }}
-                </div>
-                <div>
-                  <div class="font-medium text-gray-900">{{ exp.employee?.firstName }} {{ exp.employee?.lastName }}</div>
-                  <div class="text-xs text-gray-500">{{ exp.employee?.email }}</div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <div class="font-medium text-gray-900">{{ exp.description }}</div>
-              <div class="text-xs text-gray-500">{{ exp.expenseDate | date:'mediumDate' }}</div>
-            </td>
-            <td class="px-6 py-4 text-gray-600">{{ exp.category }}</td>
-            <td class="px-6 py-4 font-semibold text-gray-900">{{ exp.amount | currency:exp.currency }}</td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                [ngClass]="{
-                  'bg-yellow-100 text-yellow-800': exp.status === 'Pending',
-                  'bg-green-100 text-green-800': exp.status === 'Approved',
-                  'bg-indigo-100 text-indigo-800': exp.status === 'Reimbursed',
-                  'bg-red-100 text-red-800': exp.status === 'Rejected'
-                }">
-                {{ exp.status }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-right space-x-3">
-              <a *ngIf="exp.receiptUrl" [href]="'http://localhost:3000' + exp.receiptUrl" target="_blank" class="text-blue-600 hover:text-blue-900 text-sm font-medium">Receipt</a>
-              
-              <button *ngIf="exp.status === 'Pending'" (click)="approveExpense(exp._id!)" class="text-green-600 hover:text-green-900 text-sm font-medium">Approve</button>
-              <button *ngIf="exp.status === 'Pending'" (click)="openRejectModal(exp._id!)" class="text-red-600 hover:text-red-900 text-sm font-medium">Reject</button>
-              
-              <button *ngIf="exp.status === 'Approved'" (click)="markReimbursed(exp._id!)" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">Mark Reimbursed</button>
-            </td>
-          </tr>
-          <tr *ngIf="expenses.length === 0">
-            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-              No expense claims found.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- Reject Modal -->
-<div *ngIf="showRejectModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-    <div class="p-6 border-b border-gray-100">
-      <h3 class="text-lg font-semibold text-gray-900">Reject Expense Claim</h3>
-    </div>
-    <div class="p-6 space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Rejection</label>
-        <textarea [(ngModel)]="rejectionReason" rows="3" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Please provide a reason..."></textarea>
+<div class="flex h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white font-sans overflow-hidden">
+  <app-shared-sidebar class="flex-shrink-0"></app-shared-sidebar>
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <app-shared-header></app-shared-header>
+    <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935]">
+      
+      <div class="mb-6">
+        <h1 class="text-2xl font-semibold text-slate-800 light:text-[#0D1B35] dark:text-white">Expense Approvals</h1>
+        <p class="text-sm text-slate-500 light:text-[#7A96B2] dark:text-slate-400 mt-1">Review and manage employee expense claims.</p>
       </div>
-      <div class="pt-4 flex justify-end gap-3">
-        <button type="button" (click)="closeRejectModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-        <button type="button" (click)="rejectExpense()" [disabled]="!rejectionReason" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50">Confirm Reject</button>
+
+      <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] rounded-xl shadow-sm border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="text-xs text-slate-500 uppercase bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border-b border-blue-900/30">
+              <tr>
+                <th class="px-6 py-4 font-medium">Employee</th>
+                <th class="px-6 py-4 font-medium">Date & Desc</th>
+                <th class="px-6 py-4 font-medium">Category</th>
+                <th class="px-6 py-4 font-medium">Amount</th>
+                <th class="px-6 py-4 font-medium">Status</th>
+                <th class="px-6 py-4 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-blue-900/20">
+              <tr *ngFor="let exp of expenses" class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold">
+                      {{ exp.employee?.firstName?.[0] }}{{ exp.employee?.lastName?.[0] }}
+                    </div>
+                    <div>
+                      <div class="font-medium text-slate-900 dark:text-white">{{ exp.employee?.firstName }} {{ exp.employee?.lastName }}</div>
+                      <div class="text-xs text-slate-500 dark:text-slate-400">{{ exp.employee?.email }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="font-medium text-slate-900 dark:text-white">{{ exp.description }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400">{{ exp.expenseDate | date:'mediumDate' }}</div>
+                </td>
+                <td class="px-6 py-4 text-slate-600 dark:text-slate-300">{{ exp.category }}</td>
+                <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">{{ exp.amount | currency:exp.currency }}</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    [ngClass]="{
+                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': exp.status === 'Pending',
+                      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': exp.status === 'Approved',
+                      'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300': exp.status === 'Reimbursed',
+                      'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': exp.status === 'Rejected'
+                    }">
+                    {{ exp.status }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right space-x-3">
+                  <a *ngIf="exp.receiptUrl" [href]="'http://localhost:3000' + exp.receiptUrl" target="_blank" class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm font-medium">Receipt</a>
+                  
+                  <button *ngIf="exp.status === 'Pending'" (click)="approveExpense(exp._id!)" class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 text-sm font-medium">Approve</button>
+                  <button *ngIf="exp.status === 'Pending'" (click)="openRejectModal(exp._id!)" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm font-medium">Reject</button>
+                  
+                  <button *ngIf="exp.status === 'Approved'" (click)="markReimbursed(exp._id!)" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 text-sm font-medium">Mark Reimbursed</button>
+                </td>
+              </tr>
+              <tr *ngIf="expenses.length === 0">
+                <td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
+                  No expense claims found.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+
+      <!-- Reject Modal -->
+      <div *ngIf="showRejectModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-[#1B264F] rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-blue-900/30">
+          <div class="p-6 border-b border-slate-100 dark:border-blue-900/30">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Reject Expense Claim</h3>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reason for Rejection</label>
+              <textarea [(ngModel)]="rejectionReason" rows="3" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-[#101935] text-slate-900 dark:text-white shadow-sm focus:border-[#3083DC] focus:ring-[#3083DC] sm:text-sm" placeholder="Please provide a reason..."></textarea>
+            </div>
+            <div class="pt-4 flex justify-end gap-3">
+              <button type="button" (click)="closeRejectModal()" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button>
+              <button type="button" (click)="rejectExpense()" [disabled]="!rejectionReason" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50">Confirm Reject</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 </div>

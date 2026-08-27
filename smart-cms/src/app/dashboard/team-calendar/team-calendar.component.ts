@@ -249,7 +249,7 @@ export class TeamCalendarComponent implements OnInit {
             map.set(id, { name, initials, isManager: false, leaves: [], attendance: new Map() });
           }
 
-          const day = new Date(rec.date).getUTCDate();
+          const day = new Date(rec.date).getDate();
           let category: 'present' | 'late' | 'overtime' | 'absent';
           if (rec.status === 'absent') {
             category = 'absent';

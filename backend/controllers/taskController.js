@@ -237,16 +237,25 @@ exports.getTaskById = async (req, res) => {
 
     if (!['admin', 'hr'].includes(role)) {
       const allowedIds = await getAllIdentities(req);
-      const project = await Project.findById(task.projectId);
+      const project = task.projectId ? await Project.findById(task.projectId) : null;
       const isProjectManager = project && ((userEmail && project.projectManagerEmail && project.projectManagerEmail.toLowerCase() === userEmail.toLowerCase()) || allowedIds.includes(String(project.projectManager)));
       const isMember = project && (allowedIds.includes(String(project.createdBy)) || isProjectManager || project.members.some(m => allowedIds.includes(String(m.userId)) || (userEmail && m.email && m.email.toLowerCase() === userEmail.toLowerCase())));
-      const isAssigned = allowedIds.includes(String(task.assignedTo));
+      
+      let assignedModelMatch = false;
+      if (task.assignedToModel) {
+        if (role === 'manager' && (task.assignedToModel === 'Manager' || task.assignedToModel === 'Reporting_Manager')) assignedModelMatch = true;
+        else if (role === 'hr' && task.assignedToModel === 'Hr') assignedModelMatch = true;
+        else if (role === 'admin' && task.assignedToModel === 'Admin') assignedModelMatch = true;
+        else if (role === 'employee' && task.assignedToModel === 'User') assignedModelMatch = true;
+      }
+      
+      const isAssigned = allowedIds.includes(String(task.assignedTo)) || assignedModelMatch;
       if (!isMember && !isAssigned) return res.status(403).json({ message: 'Access denied' });
     }
 
     const timeLogs = await TimeLog.find({ taskId: task._id }).sort({ date: -1 });
     const subtasks = await Task.find({ parentTask: task._id });
-    const project = await Project.findById(task.projectId).select('title members projectManager createdBy');
+    const project = task.projectId ? await Project.findById(task.projectId).select('title members projectManager createdBy') : null;
     const enrichedMembers = await enrichMembers(project?.members || []);
     res.json({ task, timeLogs, subtasks, projectMembers: enrichedMembers });
   } catch (err) {

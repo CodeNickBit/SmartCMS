@@ -13,4 +13,8 @@ export class CompanySettingsService {
       expenseCategories: ['Travel', 'Meals', 'Office Supplies', 'Client Entertainment', 'Training', 'Internet']
     });
   }
+
+  updateSettings(settings: any): Observable<any> {
+    return of(settings); // Mock saving for now
+  }
 }

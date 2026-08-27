@@ -9,7 +9,7 @@ exports.getAllAssets = async (req, res) => {
         if (req.query.status) query.status = req.query.status;
         if (req.query.assignedTo) query.assignedTo = req.query.assignedTo;
 
-        const assets = await Asset.find(query).populate('assignedTo', 'firstName lastName _id email');
+        const assets = await Asset.find(query).populate('assignedTo', 'firstName lastName name _id email role department');
         res.json(assets);
     } catch (error) {
         res.status(500).json({ message: 'Server error fetching assets', error: error.message });
@@ -19,7 +19,7 @@ exports.getAllAssets = async (req, res) => {
 // Get asset by ID
 exports.getAssetById = async (req, res) => {
     try {
-        const asset = await Asset.findById(req.params.id).populate('assignedTo', 'firstName lastName _id email');
+        const asset = await Asset.findById(req.params.id).populate('assignedTo', 'firstName lastName name _id email role department');
         if (!asset) return res.status(404).json({ message: 'Asset not found' });
         res.json(asset);
     } catch (error) {
@@ -62,22 +62,37 @@ exports.updateAsset = async (req, res) => {
     }
 };
 
-// Delete asset
+// Soft Delete asset
 exports.deleteAsset = async (req, res) => {
     try {
-        const asset = await Asset.findByIdAndDelete(req.params.id);
+        const asset = await Asset.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
         if (!asset) return res.status(404).json({ message: 'Asset not found' });
-        res.json({ message: 'Asset deleted successfully' });
+        res.json({ message: 'Asset inactivated successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Server error deleting asset', error: error.message });
+        res.status(500).json({ message: 'Server error inactivating asset', error: error.message });
     }
 };
 
 // Assign asset to user
 exports.assignAsset = async (req, res) => {
     try {
-        const { assignedTo } = req.body;
-        const user = await User.findById(assignedTo);
+        const { assignedTo, assignedToModel } = req.body;
+        
+        let user = null;
+        if (assignedToModel === 'User') user = await User.findById(assignedTo);
+        else if (assignedToModel === 'Manager') {
+            const Manager = require('../models/Manager');
+            user = await Manager.findById(assignedTo);
+        }
+        else if (assignedToModel === 'Hr') {
+            const Hr = require('../models/Hr');
+            user = await Hr.findById(assignedTo);
+        }
+        else if (assignedToModel === 'Admin') {
+            const Admin = require('../models/Admin');
+            user = await Admin.findById(assignedTo);
+        }
+
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         const asset = await Asset.findById(req.params.id);
@@ -85,6 +100,7 @@ exports.assignAsset = async (req, res) => {
         if (asset.status === 'Assigned') return res.status(400).json({ message: 'Asset is already assigned' });
 
         asset.assignedTo = assignedTo;
+        asset.assignedToModel = assignedToModel || 'User';
         asset.status = 'Assigned';
         asset.assignmentDate = new Date();
         asset.returnDate = null;

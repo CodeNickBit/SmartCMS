@@ -5,17 +5,17 @@
 
   <!-- Main Content -->
   <div class="flex-1 flex flex-col h-full relative">
-    
+
     <!-- Header Component -->
     <app-admin-header title="Add Admins & Users" [(searchQuery)]="searchQuery"></app-admin-header>
 
     <main class="flex-1 overflow-y-auto bg-[#101935] p-6 lg:p-8 space-y-8">
 
       <!-- Action Bar -->
-      <div class="border border-blue-900/30 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 bg-[#1B264F]">
+      <div class="flex flex-col md:flex-row items-center justify-between">
         <div class="flex items-center gap-6">
-          <h2 class="text-xl font-extrabold text-[#3083DC] tracking-tight">User Management</h2>
-          <div *ngIf="successMessage" class="px-4 py-1.5 bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium rounded-lg flex items-center gap-2">
+          <div *ngIf="successMessage"
+            class="px-4 py-1.5 bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium rounded-lg flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
@@ -24,17 +24,12 @@
         </div>
 
         <div class="flex gap-3 w-full md:w-auto">
-          <button (click)="openModal('Admin')" class="flex-1 md:flex-none px-6 py-2.5 bg-[#3083DC] hover:bg-[#206bc4] text-white text-sm font-bold rounded-lg shadow-md transition-all flex items-center justify-center gap-2 border border-transparent active:scale-95">
+          <button (click)="openModal('Admin')"
+            class="flex-1 md:flex-none px-6 py-2.5 bg-[#3083DC] hover:bg-[#206bc4] text-white text-sm font-bold rounded-lg shadow-md transition-all flex items-center justify-center gap-2 border border-transparent active:scale-95">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Add Admin
-          </button>
-          <button (click)="openModal('HR')" class="flex-1 md:flex-none px-6 py-2.5 bg-[#3083DC] hover:bg-[#206bc4] text-white text-sm font-bold rounded-lg shadow-md transition-all flex items-center justify-center gap-2 border border-transparent active:scale-95">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Add HR
           </button>
         </div>
       </div>
@@ -43,24 +38,11 @@
       <div class="space-y-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h2 class="text-lg font-bold text-white">
-            {{ filterRole === 'All' ? 'All Users' : (filterRole | titlecase) + ' List' }}
+            Admins List
           </h2>
 
           <div class="flex items-center gap-3">
-            <div class="relative">
-              <select #roleSelect (change)="setRole(roleSelect.value)"
-                class="bg-[#1B264F] border border-blue-900/50 text-slate-300 text-sm rounded-lg focus:ring-[#3083DC] focus:border-[#3083DC] block pl-3 pr-8 py-2.5 outline-none cursor-pointer appearance-none hover:bg-white/5 transition-colors">
-                <option value="All">Show all roles</option>
-                <option value="admin">Admin</option>
-                <option value="hr">HR</option>
-                <option value="manager">Manager</option>
-              </select>
-              <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </div>
-            </div>
+            <!-- Search is now handled in header, role filtering is removed as it's admin only -->
           </div>
         </div>
 
@@ -83,7 +65,8 @@
                 <td class="px-6 py-4 font-bold text-white">{{ user.name }}</td>
                 <td class="px-6 py-4 text-slate-400">{{ user.email }}</td>
                 <td class="px-6 py-4">
-                  <span class="px-2 py-1 rounded text-xs font-bold bg-[#3083DC]/20 text-[#3083DC] border border-[#3083DC]/30">
+                  <span
+                    class="px-2 py-1 rounded text-xs font-bold bg-[#3083DC]/20 text-[#3083DC] border border-[#3083DC]/30">
                     {{ user.role }}
                   </span>
                 </td>
@@ -97,8 +80,11 @@
                   </span>
                 </td>
                 <td class="px-6 py-4 text-right">
-                  <button class="text-[#3083DC] hover:text-blue-400 font-medium text-xs mr-3 transition-colors">View</button>
-                  <button class="text-slate-500 hover:text-red-400 font-medium text-xs transition-colors">Disable</button>
+                  <button (click)="confirmToggleStatus(user)" 
+                          [class]="user.status === 'Active' ? 'text-slate-500 hover:text-red-400' : 'text-slate-500 hover:text-green-400'"
+                          class="font-medium text-xs transition-colors">
+                    {{ user.status === 'Active' ? 'Deactivate' : 'Activate' }}
+                  </button>
                 </td>
               </tr>
               <tr *ngIf="filteredUsers.length === 0">
@@ -120,12 +106,14 @@
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
           <div class="h-8 w-8 rounded-lg bg-[#3083DC]/20 flex items-center justify-center text-[#3083DC]">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
           </div>
           Add New {{ modalRole }}
         </h3>
-        <button (click)="closeModal()" class="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5">
+        <button (click)="closeModal()"
+          class="text-slate-400 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/5">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -136,8 +124,7 @@
       <div class="p-6 space-y-6">
         <div class="space-y-2">
           <label class="text-sm font-medium text-slate-300 ml-1">Full Name</label>
-          <input type="text" [(ngModel)]="newUser.name" (blur)="validateField('name')"
-            placeholder="Enter full name" 
+          <input type="text" [(ngModel)]="newUser.name" (blur)="validateField('name')" placeholder="Enter full name"
             class="w-full bg-[#101935] border border-slate-600 text-white text-sm rounded-xl focus:ring-2 focus:ring-[#3083DC] block p-3.5 outline-none transition-all placeholder-slate-500">
           <p *ngIf="errors['name']" class="text-red-400 text-xs mt-1 ml-1">{{ errors['name'] }}</p>
         </div>
@@ -156,13 +143,17 @@
             <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="newUser.password"
               (blur)="validateField('password')" placeholder="Create password"
               class="w-full bg-[#101935] border border-slate-600 text-white text-sm rounded-xl focus:ring-2 focus:ring-[#3083DC] block p-3.5 outline-none transition-all placeholder-slate-500">
-            <button type="button" (click)="togglePasswordVisibility()" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
+            <button type="button" (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
               <svg *ngIf="!showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <svg *ngIf="showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
               </svg>
             </button>
           </div>
@@ -172,8 +163,10 @@
 
       <!-- Footer -->
       <div class="px-6 py-4 border-t border-blue-900/50 bg-[#101935]/30 flex justify-end gap-3">
-        <button (click)="closeModal()" class="px-4 py-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">Cancel</button>
-        <button (click)="submitUser()" class="px-6 py-2 bg-[#3083DC] hover:bg-[#206bc4] text-white text-sm font-bold rounded-lg transition-all active:scale-95">
+        <button (click)="closeModal()"
+          class="px-4 py-2 text-sm font-bold text-slate-400 hover:text-white transition-colors">Cancel</button>
+        <button (click)="submitUser()"
+          class="px-6 py-2 bg-[#3083DC] hover:bg-[#206bc4] text-white text-sm font-bold rounded-lg transition-all active:scale-95">
           Create {{ modalRole }}
         </button>
       </div>

@@ -4,10 +4,14 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ExpenseService, Expense } from '../../services/expense.service';
 import { CompanySettingsService } from '../../services/company-settings.service';
 
+
+import { SharedSidebarComponent } from '../components/sidebar/sidebar.component';
+import { SharedHeaderComponent } from '../components/header/header.component';
+
 @Component({
   selector: 'app-my-expenses',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, SharedSidebarComponent, SharedHeaderComponent],
   templateUrl: './my-expenses.component.html',
   styleUrls: ['./my-expenses.component.css']
 })

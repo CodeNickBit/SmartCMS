@@ -2,11 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ExpenseService, Expense } from '../../services/expense.service';
+import { SharedSidebarComponent } from '../components/sidebar/sidebar.component';
+import { SharedHeaderComponent } from '../components/header/header.component';
 
 @Component({
   selector: 'app-expense-approvals',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, SharedSidebarComponent, SharedHeaderComponent],
   templateUrl: './expense-approvals.component.html',
   styleUrls: ['./expense-approvals.component.css']
 })

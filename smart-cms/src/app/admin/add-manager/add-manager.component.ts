@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ManagerService, ManagerRegistrationRequest } from '../../services/manager.service';
 import { DepartmentService, Department } from '../../services/department.service';
 import { DesignationService, Designation } from '../../services/designation.service';
+import { AuthService } from '../../services/auth.service';
 import { AdminSidebarComponent } from '../components/sidebar/sidebar.component';
 import { AdminHeaderComponent } from '../components/header/header.component';
 import { ConfirmationModalService } from '../../shared/confirmation-modal.service';
@@ -55,7 +56,8 @@ export class AddManagerComponent implements OnInit {
     private managerService: ManagerService,
     private departmentService: DepartmentService,
     private designationService: DesignationService,
-    private confirmationModal: ConfirmationModalService
+    private confirmationModal: ConfirmationModalService,
+    private authService: AuthService
   ) {
     afterNextRender(() => {
       this.loadManagers();
@@ -194,30 +196,6 @@ export class AddManagerComponent implements OnInit {
     });
   }
 
-  confirmDelete(manager: any) {
-    this.confirmationModal.confirm({
-      title: 'Delete Manager',
-      message: 'Are you sure you want to delete manager ' + manager.name + '?',
-      confirmText: 'Yes, Delete',
-      cancelText: 'Cancel',
-      type: 'warning'
-    }).then(confirmed => {
-      if (!confirmed) return;
-      const id = manager._id || manager.id;
-      this.managerService.deleteManager(id).subscribe({
-        next: () => {
-          this.successMessage = 'Manager deleted successfully';
-          this.loadManagers();
-          setTimeout(() => this.successMessage = '', 3000);
-        },
-        error: (error) => {
-          this.errorMessage = error.error?.message || 'Failed to delete manager';
-          setTimeout(() => this.errorMessage = '', 3000);
-        }
-      });
-    });
-  }
-
   submitManager() {
     if (!this.validateForm()) return;
 
@@ -230,6 +208,22 @@ export class AddManagerComponent implements OnInit {
       },
       error: (error) => {
         this.errorMessage = error.error?.message || 'Failed to register manager';
+      }
+    });
+  }
+
+  toggleStatus(manager: any) {
+    const newStatus = !manager.isActive;
+    const id = manager._id || manager.id;
+    this.authService.updateUserStatus(id, newStatus).subscribe({
+      next: () => {
+        this.successMessage = `Manager ${newStatus ? 'activated' : 'deactivated'} successfully`;
+        this.loadManagers();
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (error) => {
+        this.errorMessage = error.error?.message || `Failed to ${newStatus ? 'activate' : 'deactivate'} manager`;
+        setTimeout(() => this.errorMessage = '', 3000);
       }
     });
   }

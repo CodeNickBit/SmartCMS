@@ -24,8 +24,13 @@ const assetSchema = new mongoose.Schema({
     },
     assignedTo: {
         type: String,
-        ref: 'User',
+        refPath: 'assignedToModel',
         default: null
+    },
+    assignedToModel: {
+        type: String,
+        enum: ['User', 'Manager', 'Hr', 'Admin'],
+        default: 'User'
     },
     assignmentDate: {
         type: Date,
@@ -44,6 +49,10 @@ const assetSchema = new mongoose.Schema({
     notes: {
         type: String,
         trim: true
+    },
+    isActive: {
+        type: Boolean,
+        default: true
     }
 }, {
     timestamps: true

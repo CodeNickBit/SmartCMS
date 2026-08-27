@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Admin = require('../models/Admin');
 const Manager = require('../models/Manager');
+const Hr = require('../models/Hr');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
@@ -104,9 +105,9 @@ exports.register = async (req, res) => {
     }
 
     await user.save();
-    
+
     workflowService.triggerOnboarding(user).catch(err => console.error('Workflow trigger error:', err));
-    
+
     const userResponse = user.toObject();
     delete userResponse.password;
     res.status(201).json({ message: 'User registered successfully', user: userResponse });
@@ -355,13 +356,22 @@ exports.updateUserStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    const user = await User.findByIdAndUpdate(id, { active_inactive: status }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (req.user && status === false && String(req.user._id) === String(id)) {
+      return res.status(403).json({ message: 'You cannot deactivate your own account.' });
+    }
+
+    let user = await User.findByIdAndUpdate(id, { active_inactive: status }, { new: true }).select('-password');
+    if (!user) user = await Manager.findByIdAndUpdate(id, { isActive: status }, { new: true }).select('-temporaryPassword');
+    if (!user) user = await Hr.findByIdAndUpdate(id, { isActive: status }, { new: true }).select('-password');
+    if (!user) user = await Admin.findByIdAndUpdate(id, { isActive: status }, { new: true }).select('-password');
     
-    if (status === false) {
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (status === false && user.role !== 'admin' && user.role !== 'hr' && user.role !== 'manager') {
       workflowService.triggerOffboarding(user).catch(err => console.error('Workflow trigger error:', err));
     }
-    
+
     res.json(user);
   } catch (error) {
     res.status(500).json({ message: 'Failed to update user status', error: error.message });
@@ -405,7 +415,7 @@ exports.getUserById = async (req, res) => {
     if (user) {
       return res.json({ ...user, role: 'employee' });
     }
-    
+
     // Fallback to checking other models if necessary, though mostly used for employees now
     const HrModel = require('../models/Hr');
     user = await HrModel.findById(id).select('-password').lean();
@@ -428,7 +438,7 @@ exports.getUsers = async (req, res) => {
   try {
     const ManagerModel = require('../models/Manager');
     const AdminModel = require('../models/Admin');
-    
+
     const [employees, managers, admins] = await Promise.all([
       User.find({}).select('_id firstName lastName email role employeeId department designation salaryTemplate salaryOverrides reportingManager backupManager active_inactive').lean(),
       ManagerModel.find({}).select('_id name email role department designation isActive').lean(),
@@ -443,15 +453,15 @@ exports.getUsers = async (req, res) => {
       if (!managerRef) return null;
       const refString = String(managerRef).trim();
       if (!refString) return null;
-      
+
       // Look up by exact ID first
       let found = managers.find(m => String(m._id) === refString);
       if (found) return found.name;
-      
+
       // Fallback for corrupted data holding plain names directly (e.g. "Atik")
       found = managers.find(m => m.name.toLowerCase() === refString.toLowerCase());
       if (found) return found.name;
-      
+
       return refString; // Give back the raw corrupted value so it's not invisible
     };
 

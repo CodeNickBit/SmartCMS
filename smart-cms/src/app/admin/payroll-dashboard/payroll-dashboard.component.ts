@@ -40,10 +40,13 @@ const MONTHS = [
             
             <ng-container *ngIf="!isAnalyticsLoading">
               <!-- KPI Cards -->
+              <h2 *ngIf="currentMonthStats" class="text-xl font-bold text-slate-200 mb-2 mt-4">
+                Metrics for {{ months[currentMonthStats.month - 1] }} {{ currentMonthStats.year }}
+              </h2>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div class="bg-gradient-to-br from-[#1B264F] to-[#151f42] rounded-2xl border border-blue-900/40 p-6 relative overflow-hidden shadow-xl shadow-blue-900/10">
                   <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
-                  <h3 class="text-sm font-semibold text-slate-400 mb-1">Current Month Outgoing</h3>
+                  <h3 class="text-sm font-semibold text-slate-400 mb-1">Total Net Outgoing</h3>
                   <div class="text-3xl font-black text-white tracking-tight">₹{{ (currentMonthStats?.totalNetPay || 0) | number:'1.0-0' }}</div>
                   <p class="text-xs text-slate-500 mt-2">Total Net Pay Across {{ currentMonthStats?.headcount || 0 }} Employees</p>
                 </div>
@@ -76,8 +79,16 @@ const MONTHS = [
                 <div class="lg:col-span-2 bg-[#1B264F] rounded-2xl border border-blue-900/30 p-6 shadow-xl">
                   <h2 class="text-lg font-bold text-slate-200 mb-6">6-Month Expenditure Trend</h2>
                   
-                  <div class="flex items-end space-x-2 h-64 mt-4">
-                    <div *ngFor="let t of trendData" class="flex-1 flex flex-col items-center group relative">
+                  <div class="relative flex items-end space-x-2 h-64 mt-4 pb-1 border-b border-blue-900/50">
+                    <!-- Grid Lines -->
+                    <div class="absolute inset-x-0 top-0 bottom-8 flex flex-col justify-between pointer-events-none">
+                      <div class="w-full border-t border-dashed border-blue-900/30"></div>
+                      <div class="w-full border-t border-dashed border-blue-900/30"></div>
+                      <div class="w-full border-t border-dashed border-blue-900/30"></div>
+                      <div class="w-full border-t border-dashed border-blue-900/30"></div>
+                    </div>
+                    
+                    <div *ngFor="let t of trendData" class="flex-1 flex flex-col items-center group relative z-10 h-full">
                       
                       <!-- Hover Tooltip -->
                       <div class="opacity-0 group-hover:opacity-100 absolute -top-16 bg-[#0D1B35] border border-blue-900/50 rounded-lg p-2 text-xs w-32 shadow-2xl z-10 transition-opacity pointer-events-none">
@@ -86,18 +97,18 @@ const MONTHS = [
                         <div class="flex justify-between"><span class="text-slate-400">Deducted:</span><span class="text-red-400">₹{{ t.totalDeductions | number:'1.0-0' }}</span></div>
                       </div>
 
-                      <div class="w-full flex justify-center items-end h-full relative space-x-1 px-1">
+                      <div class="w-full flex justify-center items-end flex-1 relative space-x-1 px-1 mt-2">
                         <!-- Gross Background bar -->
-                        <div class="w-full max-w-[40px] bg-blue-900/20 rounded-t-lg absolute bottom-0" 
-                            [style.height.%]="(t.totalGross / getMaxTrendNetPay()) * 100">
+                        <div class="w-full max-w-[40px] bg-blue-900/20 rounded-t-lg absolute bottom-0 transition-all duration-500" 
+                            [style.height.%]="(t.totalGross / getMaxTrendGrossPay()) * 100">
                         </div>
                         <!-- Net Pay overlay bar -->
-                        <div class="w-full max-w-[40px] bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg relative z-0 transition-transform group-hover:scale-y-[1.02] origin-bottom shadow-lg"
-                             [style.height.%]="(t.totalNet / getMaxTrendNetPay()) * 100">
+                        <div class="w-full max-w-[40px] bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg relative z-0 transition-all duration-500 group-hover:scale-y-[1.02] origin-bottom shadow-lg"
+                             [style.height.%]="(t.totalNet / getMaxTrendGrossPay()) * 100">
                         </div>
                       </div>
                       
-                      <span class="text-[10px] sm:text-xs font-semibold text-slate-400 mt-3">{{ months[t._id.month - 1].substring(0,3) }}</span>
+                      <span class="text-[10px] sm:text-xs font-semibold text-slate-400 mt-2 h-6 flex items-center">{{ months[t._id.month - 1].substring(0,3) }}</span>
                     </div>
                     
                     <div *ngIf="trendData.length === 0" class="w-full text-center text-slate-500 py-20 text-sm">No historical data available</div>
@@ -106,7 +117,7 @@ const MONTHS = [
 
                 <!-- Current Distribution -->
                 <div class="bg-[#1B264F] rounded-2xl border border-blue-900/30 p-6 shadow-xl flex flex-col">
-                  <h2 class="text-lg font-bold text-slate-200 mb-6">Current Month Spread</h2>
+                  <h2 class="text-lg font-bold text-slate-200 mb-6">Spread ({{ months[(currentMonthStats?.month || 1) - 1] }} {{ currentMonthStats?.year }})</h2>
                   
                   <div *ngIf="currentMonthStats" class="flex-1 flex flex-col justify-center space-y-6">
                     <div>
@@ -494,7 +505,31 @@ export class PayrollDashboardComponent implements OnInit {
     this.isAnalyticsLoading = true;
     this.payrollService.getPayrollAnalytics().subscribe({
       next: (res) => {
-        this.trendData = res.trendData || [];
+        const rawData = res.trendData || [];
+        
+        // Ensure exactly 6 months of data is present
+        const paddedData = [];
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date();
+            d.setMonth(d.getMonth() - i);
+            const year = d.getFullYear();
+            const month = d.getMonth() + 1;
+            
+            const existing = rawData.find((r: any) => r._id.year === year && r._id.month === month);
+            if (existing) {
+                paddedData.push(existing);
+            } else {
+                paddedData.push({
+                    _id: { year, month },
+                    totalGross: 0,
+                    totalNet: 0,
+                    totalDeductions: 0,
+                    headcount: 0
+                });
+            }
+        }
+        
+        this.trendData = paddedData;
         this.currentMonthStats = res.currentMonthStats;
         this.isAnalyticsLoading = false;
       },
@@ -506,9 +541,10 @@ export class PayrollDashboardComponent implements OnInit {
   }
 
   // --- Utility for CSS Trend Bars ---
-  getMaxTrendNetPay(): number {
+  getMaxTrendGrossPay(): number {
       if(!this.trendData || this.trendData.length === 0) return 1;
-      return Math.max(...this.trendData.map(d => d.totalNet));
+      const max = Math.max(...this.trendData.map(d => d.totalGross));
+      return max > 0 ? max : 1;
   }
 
   initSettingsForm() {

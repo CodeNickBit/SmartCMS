@@ -15,6 +15,8 @@ export interface Asset {
   purchaseDate?: string;
   purchaseCost?: number;
   notes?: string;
+  isActive?: boolean;
+  assignedToModel?: string;
 }
 
 @Injectable({
@@ -53,8 +55,8 @@ export class AssetService {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
 
-  assignAsset(id: string, assignedTo: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${id}/assign`, { assignedTo });
+  assignAsset(id: string, assignedTo: string, assignedToModel: string = 'User'): Observable<Asset> {
+    return this.http.post<Asset>(`${this.apiUrl}/${id}/assign`, { assignedTo, assignedToModel });
   }
 
   returnAsset(id: string, notes?: string): Observable<any> {

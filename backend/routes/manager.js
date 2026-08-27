@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const managers = await Manager.find({ isActive: true })
+    const managers = await Manager.find({})
       .select('-temporaryPassword')
       .lean();
     res.json(managers);

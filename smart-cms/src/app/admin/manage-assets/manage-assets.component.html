@@ -11,13 +11,34 @@
           <div class="flex items-center gap-2">
             <h1 class="text-2xl font-semibold text-white tracking-tight">Assets Inventory</h1>
           </div>
-          <button (click)="openAddModal()"
-            class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/25 text-white rounded-xl text-sm font-bold transition-all border border-blue-500/50 flex items-center gap-2">
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            Add New Asset
-          </button>
+          <div class="flex items-center gap-3 w-full md:w-auto overflow-x-auto">
+            <select [(ngModel)]="statusFilter" class="bg-[#1B264F] border border-blue-900/30 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none">
+              <option value="All">All Statuses</option>
+              <option value="Active">Active Only</option>
+              <option value="Inactive">Inactive Only</option>
+            </select>
+            <select [(ngModel)]="roleFilter" class="bg-[#1B264F] border border-blue-900/30 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none">
+              <option value="All">All Roles</option>
+              <option value="Admin">Admin</option>
+              <option value="Manager">Manager</option>
+              <option value="Hr">HR</option>
+              <option value="Employee">Employee</option>
+            </select>
+            <select [(ngModel)]="departmentFilter" class="bg-[#1B264F] border border-blue-900/30 rounded-xl px-3 py-2 text-sm text-slate-200 focus:outline-none">
+              <option value="All">All Departments</option>
+              <option *ngFor="let dep of uniqueDepartments" [value]="dep">{{ dep }}</option>
+            </select>
+            <button (click)="resetFilters()" class="p-2 bg-[#1B264F] hover:bg-slate-700 rounded-xl text-slate-400 hover:text-white transition-colors border border-blue-900/30" title="Reset Filters">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+            <button (click)="openAddModal()"
+              class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/25 text-white rounded-xl text-sm font-bold transition-all border border-blue-500/50 flex items-center gap-2 whitespace-nowrap ml-2">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add New Asset
+            </button>
+          </div>
         </div>
 
         <!-- Asset Table -->
@@ -35,8 +56,13 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-700">
-                <tr *ngFor="let asset of assets" class="hover:bg-[#101935]/50 transition-colors">
-                  <td class="px-6 py-4 font-medium text-slate-300">{{ asset.name }}</td>
+                <tr *ngFor="let asset of filteredAssets" class="hover:bg-[#101935]/50 transition-colors" [class.opacity-50]="asset.isActive === false">
+                  <td class="px-6 py-4 font-medium text-slate-300">
+                    <div class="flex items-center gap-2">
+                      {{ asset.name }}
+                      <span *ngIf="asset.isActive === false" class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">INACTIVE</span>
+                    </div>
+                  </td>
                   <td class="px-6 py-4">
                     <span class="px-2.5 py-1 rounded-full text-xs font-bold border bg-blue-900/30 text-blue-300 border-blue-700">
                       {{ asset.category }}
@@ -57,25 +83,28 @@
                   <td class="px-6 py-4 text-slate-300">
                     <div *ngIf="asset.assignedTo" class="flex items-center gap-3">
                       <div class="h-8 w-8 rounded-full bg-[#3083DC]/20 flex items-center justify-center text-[#3083DC] font-bold text-xs uppercase">
-                        {{ asset.assignedTo.firstName?.[0] || 'U' }}{{ asset.assignedTo.lastName?.[0] || 'N' }}
+                        {{ asset.assignedTo.firstName?.[0] || asset.assignedTo.name?.[0] || 'U' }}{{ asset.assignedTo.lastName?.[0] || '' }}
                       </div>
-                      <span class="font-bold text-white">{{ asset.assignedTo.firstName }} {{ asset.assignedTo.lastName }}</span>
+                      <span class="font-bold text-white">{{ asset.assignedTo.name || (asset.assignedTo.firstName + ' ' + asset.assignedTo.lastName) }}</span>
                     </div>
                     <span *ngIf="!asset.assignedTo" class="text-slate-500 italic">Unassigned</span>
                   </td>
                   <td class="px-6 py-4 text-right">
                     <div class="flex justify-end gap-1">
-                      <button *ngIf="asset.status === 'Available'" (click)="openAssignModal(asset)" class="px-3 py-1.5 text-xs font-bold text-blue-400 hover:text-white bg-blue-900/20 hover:bg-blue-600 rounded-lg transition-all border border-blue-500/30">Assign</button>
-                      <button *ngIf="asset.status === 'Assigned'" (click)="openReturnModal(asset)" class="px-3 py-1.5 text-xs font-bold text-orange-400 hover:text-white bg-orange-900/20 hover:bg-orange-600 rounded-lg transition-all border border-orange-500/30">Return</button>
-                      <button (click)="deleteAsset(asset._id!)" class="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Delete Asset">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                      <button *ngIf="asset.status === 'Available' && asset.isActive !== false" (click)="openAssignModal(asset)" class="px-3 py-1.5 text-xs font-bold text-blue-400 hover:text-white bg-blue-900/20 hover:bg-blue-600 rounded-lg transition-all border border-blue-500/30">Assign</button>
+                      <button *ngIf="asset.status === 'Assigned' && asset.isActive !== false" (click)="openReturnModal(asset)" class="px-3 py-1.5 text-xs font-bold text-orange-400 hover:text-white bg-orange-900/20 hover:bg-orange-600 rounded-lg transition-all border border-orange-500/30">Return</button>
+                      <button *ngIf="asset.isActive !== false" (click)="openInactivateModal(asset)" class="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Inactivate Asset">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                      </button>
+                      <button *ngIf="asset.isActive === false" (click)="activateAsset(asset)" class="p-2 text-slate-400 hover:text-emerald-400 transition-colors" title="Activate Asset">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                       </button>
                     </div>
                   </td>
                 </tr>
-                <tr *ngIf="assets.length === 0">
+                <tr *ngIf="filteredAssets.length === 0">
                   <td colspan="6" class="px-6 py-10 text-center text-slate-400 italic">
-                    No assets found. Click "Add New Asset" to create one.
+                    No assets found. Try adjusting filters or click "Add New Asset".
                   </td>
                 </tr>
               </tbody>
@@ -110,9 +139,19 @@
       </div>
       <div class="space-y-2">
         <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Category</label>
-        <select formControlName="category" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
-          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-        </select>
+        <div class="flex gap-2" *ngIf="!showNewCategoryInput">
+          <select formControlName="category" class="flex-1 bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+          <button type="button" (click)="showNewCategoryInput = true" class="px-4 py-3 bg-[#101935] hover:bg-slate-800 text-blue-400 border border-blue-900/40 rounded-xl transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          </button>
+        </div>
+        <div class="flex gap-2" *ngIf="showNewCategoryInput">
+          <input type="text" [(ngModel)]="newCategory" [ngModelOptions]="{standalone: true}" placeholder="Enter new category..." class="flex-1 bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none">
+          <button type="button" (click)="addCustomCategory()" [disabled]="!newCategory" class="px-4 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl transition-colors font-bold">Add</button>
+          <button type="button" (click)="showNewCategoryInput = false; newCategory = ''" class="px-4 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors">Cancel</button>
+        </div>
       </div>
       <div class="space-y-2">
         <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Status</label>
@@ -137,11 +176,33 @@
       <h3 class="text-xl font-bold text-white tracking-tight">Assign {{ selectedAsset?.name }}</h3>
     </div>
     <div class="p-6 space-y-4">
+      <div class="flex gap-4">
+        <div class="space-y-2 flex-1">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Filter Role</label>
+          <select [(ngModel)]="assignRoleFilter" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+            <option value="All">All Roles</option>
+            <option value="Admin">Admin</option>
+            <option value="Manager">Manager</option>
+            <option value="Hr">HR</option>
+            <option value="Employee">Employee</option>
+          </select>
+        </div>
+        <div class="space-y-2 flex-1">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Filter Department</label>
+          <select [(ngModel)]="assignDepartmentFilter" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
+            <option value="All">All Departments</option>
+            <option *ngFor="let dep of uniqueDepartments" [value]="dep">{{ dep }}</option>
+          </select>
+        </div>
+      </div>
+      
       <div class="space-y-2">
         <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Select Employee</label>
         <select [(ngModel)]="assignUserId" class="w-full bg-[#101935] border border-blue-900/40 text-white rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all outline-none appearance-none">
           <option value="">-- Select Employee --</option>
-          <option *ngFor="let user of users" [value]="user._id">{{ user.firstName }} {{ user.lastName }} ({{ user.email }})</option>
+          <option *ngFor="let user of assignFilteredUsers" [value]="user._id">
+            {{ user.name || (user.firstName + ' ' + user.lastName) }} ({{ user.role }}) - {{ user.department || 'No Dept' }}
+          </option>
         </select>
       </div>
       <div class="mt-6 flex items-center justify-end gap-3 pt-4 border-t border-blue-900/30">
@@ -168,6 +229,28 @@
         <button type="button" (click)="closeReturnModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:text-white bg-[#101935] hover:bg-slate-800 transition-all border border-blue-900/50">Cancel</button>
         <button type="button" (click)="returnAsset()" class="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 hover:shadow-lg hover:shadow-orange-500/25 text-white rounded-xl text-sm font-bold transition-all border border-orange-500/50">Mark as Returned</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inactivate Asset Modal (Dark Theme) -->
+<div *ngIf="showInactivateModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+  <div class="bg-[#1B264F] text-white rounded-2xl shadow-2xl border border-red-900/50 w-full max-w-md flex flex-col animate-in zoom-in-95 duration-300">
+    <div class="p-6 border-b border-red-900/30 flex items-center gap-3">
+      <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-500">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold tracking-tight">Inactivate Asset</h3>
+    </div>
+    <div class="p-6 text-slate-300 text-sm">
+      <p>Are you sure you want to mark <strong>{{ assetToInactivate?.name }}</strong> ({{ assetToInactivate?.serialNumber }}) as inactive?</p>
+      <p class="mt-2">This action does not delete the record, but marks it as inactive in the system.</p>
+    </div>
+    <div class="px-6 py-4 border-t border-red-900/30 bg-[#101935]/50 flex justify-end gap-3 rounded-b-2xl">
+      <button type="button" (click)="closeInactivateModal()" class="px-5 py-2.5 rounded-xl text-sm font-bold text-slate-300 hover:text-white bg-[#101935] hover:bg-slate-800 transition-all border border-blue-900/50">Cancel</button>
+      <button type="button" (click)="inactivateAsset()" class="px-6 py-2.5 bg-red-600 hover:bg-red-500 hover:shadow-lg hover:shadow-red-500/25 text-white rounded-xl text-sm font-bold transition-all border border-red-500/50">Yes, Inactivate</button>
     </div>
   </div>
 </div>

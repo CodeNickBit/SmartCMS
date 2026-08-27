@@ -51,9 +51,8 @@ export class AddUserComponent implements OnInit {
   loadUsers() {
     this.authService.getUsers().subscribe({
       next: (data: any[]) => {
-        // Filter to only show admin, hr, and manager roles
-        this.users = data.filter(user => 
-          user.role === 'admin' || user.role === 'hr' || user.role === 'manager'
+        // Filter to only show admin roles
+        this.users = data.filter(user => user.role === 'admin'
         ).map(user => ({
           id: user._id,
           name: user.name,
@@ -182,5 +181,45 @@ export class AddUserComponent implements OnInit {
       password: '',
       role: 'admin'
     };
+  }
+
+  confirmToggleStatus(user: any) {
+    const isCurrentlyActive = user.status === 'Active';
+    const action = isCurrentlyActive ? 'deactivate' : 'activate';
+    const targetStatus = !isCurrentlyActive;
+
+    // Prevent self-deactivation
+    const currentUser = this.authService.getUser();
+    const currentUserId = currentUser?.id || currentUser?._id;
+    const targetUserId = user.id || user._id;
+
+    if (isCurrentlyActive && currentUserId === targetUserId) {
+      this.confirmationModal.alert(
+        'Action Denied', 
+        'For security reasons, you cannot deactivate your own admin account. Another admin must perform this action.', 
+        'error'
+      );
+      return;
+    }
+
+    this.confirmationModal.confirm({
+      title: `${isCurrentlyActive ? 'Deactivate' : 'Activate'} Admin`,
+      message: `Are you sure you want to ${action} admin ${user.name}?`,
+      confirmText: `Yes, ${isCurrentlyActive ? 'Deactivate' : 'Activate'}`,
+      cancelText: 'Cancel',
+      type: isCurrentlyActive ? 'warning' : 'info'
+    }).then(confirmed => {
+      if (!confirmed) return;
+      this.authService.updateUserStatus(user.id, targetStatus).subscribe({
+        next: () => {
+          this.successMessage = `Admin ${action}d successfully`;
+          this.loadUsers();
+          setTimeout(() => this.successMessage = '', 3000);
+        },
+        error: (error) => {
+          this.confirmationModal.alert('Error', error.error?.message || `Failed to ${action} admin`, 'error');
+        }
+      });
+    });
   }
 }

@@ -1,110 +1,117 @@
-<div class="p-6">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-semibold text-gray-800">My Expense Claims</h1>
-    <button (click)="openAddModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
-      + Submit Claim
-    </button>
-  </div>
-
-  <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full text-sm text-left">
-        <thead class="text-xs text-gray-500 uppercase bg-gray-50/50">
-          <tr>
-            <th class="px-6 py-4 font-medium">Date</th>
-            <th class="px-6 py-4 font-medium">Description</th>
-            <th class="px-6 py-4 font-medium">Category</th>
-            <th class="px-6 py-4 font-medium">Amount</th>
-            <th class="px-6 py-4 font-medium">Status</th>
-            <th class="px-6 py-4 font-medium text-right">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr *ngFor="let exp of expenses" class="hover:bg-gray-50/50 transition-colors">
-            <td class="px-6 py-4 text-gray-600">{{ exp.expenseDate | date:'mediumDate' }}</td>
-            <td class="px-6 py-4 font-medium text-gray-900">{{ exp.description }}</td>
-            <td class="px-6 py-4 text-gray-600">{{ exp.category }}</td>
-            <td class="px-6 py-4 font-semibold text-gray-900">{{ exp.amount | currency:exp.currency }}</td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                [ngClass]="{
-                  'bg-yellow-100 text-yellow-800': exp.status === 'Pending',
-                  'bg-green-100 text-green-800': exp.status === 'Approved' || exp.status === 'Reimbursed',
-                  'bg-red-100 text-red-800': exp.status === 'Rejected'
-                }">
-                {{ exp.status }}
-              </span>
-              <div *ngIf="exp.rejectionReason && exp.status === 'Rejected'" class="text-xs text-red-500 mt-1">
-                {{ exp.rejectionReason }}
-              </div>
-            </td>
-            <td class="px-6 py-4 text-right space-x-3">
-              <a *ngIf="exp.receiptUrl" [href]="'http://localhost:3000' + exp.receiptUrl" target="_blank" class="text-indigo-600 hover:text-indigo-900 text-sm font-medium">View Receipt</a>
-              <button *ngIf="exp.status === 'Pending'" (click)="deleteExpense(exp._id!)" class="text-red-600 hover:text-red-900 text-sm font-medium">Delete</button>
-            </td>
-          </tr>
-          <tr *ngIf="expenses.length === 0">
-            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-              No expense claims found.
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- Add Claim Modal -->
-<div *ngIf="showModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
-  <div class="bg-white rounded-xl shadow-xl w-full max-w-md my-8">
-    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-      <h3 class="text-lg font-semibold text-gray-900">Submit Expense Claim</h3>
-      <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600">&times;</button>
-    </div>
-    <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="p-6 space-y-4">
+<div class="flex h-screen bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] text-slate-800 light:text-[#0D1B35] dark:text-white font-sans overflow-hidden">
+  <app-shared-sidebar class="flex-shrink-0"></app-shared-sidebar>
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <app-shared-header></app-shared-header>
+    <main class="flex-1 overflow-y-auto p-6 lg:p-8 space-y-6 custom-scrollbar bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935]">
       
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-          <input type="number" formControlName="amount" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="e.g. 50">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold text-slate-800 light:text-[#0D1B35] dark:text-white">My Expense Claims</h1>
+        <button (click)="openAddModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+          + Submit Claim
+        </button>
+      </div>
+
+      <div class="bg-white light:bg-[#DDEAF8] dark:bg-[#1B264F] rounded-xl shadow-sm border border-slate-200 light:border-[#1A6DC2]/18 dark:border-blue-900/30 overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="text-xs text-slate-500 uppercase bg-slate-50 light:bg-[#EEF3FA] dark:bg-[#101935] border-b border-blue-900/30">
+              <tr>
+                <th class="px-6 py-4 font-medium">Date</th>
+                <th class="px-6 py-4 font-medium">Description</th>
+                <th class="px-6 py-4 font-medium">Category</th>
+                <th class="px-6 py-4 font-medium">Amount</th>
+                <th class="px-6 py-4 font-medium">Status</th>
+                <th class="px-6 py-4 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-blue-900/20">
+              <tr *ngFor="let exp of expenses" class="hover:bg-white/5 transition-colors">
+                <td class="px-6 py-4 text-slate-600 dark:text-slate-300">{{ exp.expenseDate | date:'mediumDate' }}</td>
+                <td class="px-6 py-4 font-medium text-slate-900 dark:text-white">{{ exp.description }}</td>
+                <td class="px-6 py-4 text-slate-600 dark:text-slate-300">{{ exp.category }}</td>
+                <td class="px-6 py-4 font-semibold text-slate-900 dark:text-white">{{ exp.amount | currency:exp.currency }}</td>
+                <td class="px-6 py-4">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    [ngClass]="{
+                      'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': exp.status === 'Pending',
+                      'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': exp.status === 'Approved' || exp.status === 'Reimbursed',
+                      'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': exp.status === 'Rejected'
+                    }">
+                    {{ exp.status }}
+                  </span>
+                  <div *ngIf="exp.rejectionReason && exp.status === 'Rejected'" class="text-xs text-red-500 mt-1">
+                    {{ exp.rejectionReason }}
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-right space-x-3">
+                  <a *ngIf="exp.receiptUrl" [href]="'http://localhost:3000' + exp.receiptUrl" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 text-sm font-medium">View Receipt</a>
+                  <button *ngIf="exp.status === 'Pending'" (click)="deleteExpense(exp._id!)" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm font-medium">Delete</button>
+                </td>
+              </tr>
+              <tr *ngIf="expenses.length === 0">
+                <td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
+                  No expense claims found.
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
-          <select formControlName="currency" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="INR">INR</option>
-            <option value="GBP">GBP</option>
-          </select>
+      </div>
+
+      <!-- Add Claim Modal -->
+      <div *ngIf="showModal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white dark:bg-[#1B264F] rounded-xl shadow-xl w-full max-w-md my-8 border border-slate-200 dark:border-blue-900/30">
+          <div class="p-6 border-b border-slate-100 dark:border-blue-900/30 flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-white">Submit Expense Claim</h3>
+            <button (click)="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">&times;</button>
+          </div>
+          <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="p-6 space-y-4">
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Amount</label>
+                <input type="number" formControlName="amount" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-[#101935] text-slate-900 dark:text-white shadow-sm focus:border-[#3083DC] focus:ring-[#3083DC] sm:text-sm" placeholder="e.g. 50">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Currency</label>
+                <select formControlName="currency" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-[#101935] text-slate-900 dark:text-white shadow-sm focus:border-[#3083DC] focus:ring-[#3083DC] sm:text-sm">
+                  <option value="USD">USD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="INR">INR</option>
+                  <option value="GBP">GBP</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date of Expense</label>
+              <input type="date" formControlName="expenseDate" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-[#101935] text-slate-900 dark:text-white shadow-sm focus:border-[#3083DC] focus:ring-[#3083DC] sm:text-sm">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Category</label>
+              <select formControlName="category" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-[#101935] text-slate-900 dark:text-white shadow-sm focus:border-[#3083DC] focus:ring-[#3083DC] sm:text-sm">
+                <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+              <textarea formControlName="description" rows="2" class="w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-[#101935] text-slate-900 dark:text-white shadow-sm focus:border-[#3083DC] focus:ring-[#3083DC] sm:text-sm" placeholder="What was this expense for?"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Receipt (Image/PDF)</label>
+              <input type="file" (change)="onFileSelected($event)" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 dark:file:bg-indigo-900 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800">
+            </div>
+
+            <div class="pt-4 flex justify-end gap-3">
+              <button type="button" (click)="closeModal()" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700">Cancel</button>
+              <button type="submit" [disabled]="expenseForm.invalid" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50">Submit Claim</button>
+            </div>
+          </form>
         </div>
       </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Date of Expense</label>
-        <input type="date" formControlName="expenseDate" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-        <select formControlName="category" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-        </select>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-        <textarea formControlName="description" rows="2" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="What was this expense for?"></textarea>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Receipt (Image/PDF)</label>
-        <input type="file" (change)="onFileSelected($event)" accept=".jpg,.jpeg,.png,.pdf" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
-      </div>
-
-      <div class="pt-4 flex justify-end gap-3">
-        <button type="button" (click)="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-        <button type="submit" [disabled]="expenseForm.invalid" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:opacity-50">Submit Claim</button>
-      </div>
-    </form>
+    </main>
   </div>
 </div>
